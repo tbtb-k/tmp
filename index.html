@@ -1,0 +1,1054 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Copilot Studio エージェントの環境移管ガイド</title>
+<style>
+:root{
+  --bg:#FAF9F5; --ink:#1F1E1C; --muted:#6E6A62; --faint:#9A958C;
+  --accent:#C15F3C; --accent2:#8C6A9E; --soft:#F6EAE3; --soft2:#EFEAF3;
+  --line:#E3DED4; --ok:#3F7D58; --okbg:#E9F1EB; --warn:#A9721F; --warnbg:#F7EFDF;
+  --ink-inv:#F7F5F0; --slate:#2A2926;
+  --mono:"SFMono-Regular",Menlo,Consolas,"Courier New",monospace;
+  --sans:"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic Medium","Yu Gothic",Meiryo,-apple-system,"Segoe UI",Roboto,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{background:#141311;font-family:var(--sans);color:var(--ink);overflow:hidden;
+  -webkit-font-smoothing:antialiased;font-feature-settings:"palt" 1;}
+
+#viewport{position:fixed;inset:0;}
+#stage{width:1280px;height:720px;position:absolute;left:0;top:0;transform-origin:0 0;
+  background:var(--bg);box-shadow:0 24px 80px rgba(0,0,0,.55);border-radius:6px;overflow:hidden;}
+
+.slide{position:absolute;inset:0;padding:56px 72px 72px;display:none;flex-direction:column;background:var(--bg);}
+.slide.active{display:flex;animation:fade .32s ease}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* ---------- typography ---------- */
+.kicker{font-size:14px;letter-spacing:.14em;color:var(--accent);font-weight:700;margin-bottom:12px;text-transform:uppercase}
+h1{font-size:52px;line-height:1.22;letter-spacing:-.02em;font-weight:800}
+h2{font-size:36px;line-height:1.3;letter-spacing:-.01em;font-weight:800;margin-bottom:6px}
+h3{font-size:20px;font-weight:800;letter-spacing:-.005em}
+.sub{font-size:19px;color:var(--muted);line-height:1.65;margin-top:10px}
+.lead{font-size:22px;line-height:1.75;color:var(--slate)}
+p{line-height:1.7}
+.hr{height:4px;width:56px;background:var(--accent);border-radius:2px;margin:14px 0 26px}
+.body{flex:1;min-height:0;display:flex;flex-direction:column;justify-content:center;justify-content:safe center;gap:20px}
+.body.top{justify-content:flex-start}
+.body > *{flex:0 0 auto}
+em{font-style:normal;background:linear-gradient(transparent 62%, var(--soft) 62%);font-weight:700}
+strong{font-weight:800}
+.mono{font-family:var(--mono)}
+
+/* ---------- title slide ---------- */
+.slide.title{background:linear-gradient(155deg,#1F1E1C 0%,#332F2B 55%,#4A3A32 100%);color:var(--ink-inv);justify-content:center}
+.slide.title h1{font-size:62px;color:#fff}
+.slide.title .sub{color:#C9C3B8;font-size:21px}
+.slide.title .kicker{color:#E8A184}
+.slide.title .meta{margin-top:44px;display:flex;gap:12px;flex-wrap:wrap}
+.slide.title .meta span{border:1px solid rgba(255,255,255,.28);color:#E4DED4;padding:8px 16px;border-radius:999px;font-size:14px}
+
+/* ---------- section divider ---------- */
+.slide.sec{background:var(--slate);color:var(--ink-inv);justify-content:center}
+.slide.sec .num{font-size:15px;letter-spacing:.2em;color:#E8A184;font-weight:700;margin-bottom:14px}
+.slide.sec h1{font-size:48px;color:#fff}
+.slide.sec .sub{color:#B8B2A7;font-size:18px;margin-top:16px}
+.slide.sec .time{margin-top:26px;font-size:14px;color:#8C867B;font-family:var(--mono)}
+
+/* ---------- layout helpers ---------- */
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+.cols3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.cols4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.c-2-3{display:grid;grid-template-columns:1fr 1.4fr;gap:26px}
+.stack{display:flex;flex-direction:column;gap:14px}
+
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:22px 22px;
+  box-shadow:0 1px 0 rgba(0,0,0,.02)}
+.card h3{margin-bottom:8px}
+.card p{font-size:15.5px;color:var(--muted);line-height:1.68}
+.card .ico{font-size:13px;font-weight:800;letter-spacing:.1em;color:var(--accent);margin-bottom:10px}
+.card.tint{background:var(--soft);border-color:#EBD7CC}
+.card.tint2{background:var(--soft2);border-color:#E0D6E8}
+.card.dark{background:var(--slate);border-color:#3B3934;color:var(--ink-inv)}
+.card.dark p{color:#B5AFA4}
+.card.dark h3{color:#fff}
+
+.big{font-size:40px;font-weight:800;line-height:1.4;letter-spacing:-.02em}
+.big .ac{color:var(--accent)}
+
+.steps{counter-reset:s;display:flex;flex-direction:column;gap:12px}
+.steps li{list-style:none;counter-increment:s;position:relative;padding:14px 18px 14px 60px;
+  background:#fff;border:1px solid var(--line);border-radius:12px;font-size:16px;line-height:1.6}
+.steps li::before{content:counter(s);position:absolute;left:16px;top:13px;width:28px;height:28px;
+  background:var(--accent);color:#fff;border-radius:8px;display:grid;place-items:center;font-size:14px;font-weight:800;font-family:var(--mono)}
+.steps li > b{display:block;font-size:16.5px;margin-bottom:2px}
+.steps li span{color:var(--muted);font-size:14.5px}
+
+.bul{display:flex;flex-direction:column;gap:11px;font-size:17.5px;line-height:1.6}
+.bul li{list-style:none;padding-left:26px;position:relative}
+.bul li::before{content:"";position:absolute;left:4px;top:11px;width:8px;height:8px;border-radius:50%;background:var(--accent)}
+.bul.sm{font-size:15.5px;gap:8px}
+.bul.sm li::before{width:6px;height:6px;top:10px;left:6px}
+
+pre{background:var(--slate);color:#EDE7DC;border-radius:12px;padding:20px 22px;font-family:var(--mono);
+  font-size:14.5px;line-height:1.72;overflow:auto;border:1px solid #3A3833}
+pre.light{background:#fff;color:var(--ink);border:1px solid var(--line)}
+pre .k{color:#E8A184}
+pre .c{color:#8C867B}
+pre .s{color:#9FC7A9}
+code.inl{font-family:var(--mono);font-size:.9em;background:#EFEBE2;border:1px solid var(--line);
+  padding:2px 7px;border-radius:6px}
+
+table.tbl{width:100%;border-collapse:collapse;font-size:15.5px;background:#fff;border-radius:12px;overflow:hidden;border:1px solid var(--line)}
+table.tbl th{background:var(--slate);color:#fff;text-align:left;padding:12px 16px;font-size:14px;font-weight:700;letter-spacing:.02em}
+table.tbl td{padding:12px 16px;border-top:1px solid var(--line);line-height:1.55;vertical-align:top}
+table.tbl tr:nth-child(even) td{background:#FCFBF8}
+table.tbl td.hl{font-weight:700}
+table.tbl.cmp td:last-child{background:#F7F0EA}
+table.tbl.cmp tr:nth-child(even) td:last-child{background:#F3EBE3}
+table.tbl.cmp th:last-child{background:#3A322D}
+
+.note{border-left:4px solid var(--accent);background:var(--soft);padding:14px 18px;border-radius:0 10px 10px 0;font-size:15.5px;line-height:1.65}
+.note.ok{border-color:var(--ok);background:var(--okbg)}
+.note.warn{border-color:var(--warn);background:var(--warnbg)}
+.note b{display:block;margin-bottom:3px}
+
+.gb{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.gb .box{border-radius:14px;padding:20px;border:1px solid}
+.gb .bad{background:#FBEEEC;border-color:#EFD3CD}
+.gb .good{background:var(--okbg);border-color:#CFE2D5}
+.gb .tag{font-size:13px;font-weight:800;letter-spacing:.06em;margin-bottom:10px;display:inline-block;padding:3px 10px;border-radius:6px}
+.gb .bad .tag{background:#C0503C;color:#fff}
+.gb .good .tag{background:var(--ok);color:#fff}
+.gb p{font-size:15.5px;line-height:1.65}
+.gb .q{font-family:var(--mono);font-size:14px;background:rgba(255,255,255,.75);padding:10px 12px;border-radius:8px;margin-top:10px;line-height:1.6}
+
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{font-size:13.5px;padding:6px 13px;border-radius:999px;background:#fff;border:1px solid var(--line);color:var(--muted)}
+.chip.on{background:var(--accent);color:#fff;border-color:var(--accent);font-weight:700}
+
+.flow{display:flex;align-items:stretch;gap:0}
+.flow .st{flex:1;background:#fff;border:1px solid var(--line);padding:18px 16px;position:relative}
+.flow .st:first-child{border-radius:12px 0 0 12px}
+.flow .st:last-child{border-radius:0 12px 12px 0}
+.flow .st + .st{border-left:none}
+.flow .st .n{font-family:var(--mono);font-size:12px;color:var(--accent);font-weight:800;letter-spacing:.1em}
+.flow .st h3{font-size:17px;margin:6px 0 6px}
+.flow .st p{font-size:14px;color:var(--muted);line-height:1.6}
+
+.layers{display:flex;flex-direction:column;gap:10px}
+.layer{display:grid;grid-template-columns:130px 1fr 150px;gap:18px;align-items:center;
+  background:#fff;border:1px solid var(--line);border-radius:12px;padding:16px 20px}
+.layer .lv{font-family:var(--mono);font-size:13px;font-weight:800;color:#fff;background:var(--accent);
+  padding:6px 10px;border-radius:8px;text-align:center}
+.layer .lv.l2{background:#B9714C}.layer .lv.l3{background:#96836E}
+.layer .d h3{font-size:16.5px}.layer .d p{font-size:14.5px;color:var(--muted);margin-top:3px}
+.layer .cost{font-family:var(--mono);font-size:13.5px;color:var(--muted);text-align:right}
+
+.tree{background:#fff;border:1px solid var(--line);border-radius:14px;padding:20px 22px 16px;color:var(--slate);align-self:start}
+.tree .root{display:flex;align-items:baseline;gap:12px;padding-bottom:13px;border-bottom:1px solid var(--line)}
+.tree .root .fn{font-family:var(--mono);font-size:16.5px;font-weight:800;color:var(--accent)}
+.tree .root .rn{font-size:13px;color:var(--faint);line-height:1.4}
+.tree ul{list-style:none;margin-top:6px}
+.tree li{position:relative;display:grid;grid-template-columns:150px 42px 1fr;align-items:center;
+  gap:12px;padding:8px 0 8px 26px}
+.tree li::before{content:"";position:absolute;left:8px;top:0;bottom:0;width:1px;background:#CBC2B3}
+.tree li:last-child::before{bottom:50%}
+.tree li::after{content:"";position:absolute;left:8px;top:50%;width:13px;height:1px;background:#CBC2B3}
+.tree .tn{font-family:var(--mono);font-size:14px;font-weight:700;color:var(--slate);letter-spacing:-.01em}
+.tree .tn .dir{color:var(--accent2)}
+.tree .tb{font-size:11px;font-weight:800;text-align:center;padding:3px 0;border-radius:5px;
+  background:#EDE8DE;color:#7C766C;letter-spacing:.06em}
+.tree .tb.req{background:var(--accent);color:#fff}
+.tree .td{font-size:14px;color:var(--muted);line-height:1.5}
+.tree .foot{margin-top:10px;padding-top:11px;border-top:1px dashed var(--line);
+  font-size:13px;color:var(--faint);line-height:1.5}
+
+.kv{display:grid;grid-template-columns:auto 1fr;gap:10px 18px;font-size:16px;align-items:baseline}
+.kv dt{font-family:var(--mono);font-size:14px;color:var(--accent);font-weight:700;white-space:nowrap}
+.kv dd{color:var(--slate);line-height:1.6}
+
+.checkl{display:flex;flex-direction:column;gap:9px}
+.checkl li{list-style:none;padding:12px 16px 12px 44px;background:#fff;border:1px solid var(--line);
+  border-radius:10px;position:relative;font-size:15.5px;line-height:1.55}
+.checkl li::before{content:"";position:absolute;left:15px;top:14px;width:16px;height:16px;
+  border:2px solid var(--accent);border-radius:4px}
+
+.lnks{display:flex;flex-direction:column;gap:7px}
+.lnks .r{background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 14px}
+.lnks .t{font-size:14.2px;font-weight:800;color:var(--slate);line-height:1.4}
+.lnks .u{font-family:var(--mono);font-size:11.6px;color:var(--accent);word-break:break-all;line-height:1.45;margin-top:2px}
+.lnks a{color:var(--accent);text-decoration:none}
+.lnks a:hover{text-decoration:underline}
+
+/* ---------- 用語ミニ解説 ---------- */
+.gloss{background:#F4F0E9;border-left:3px solid var(--accent2);border-radius:0 9px 9px 0;
+  padding:10px 15px;font-size:13.2px;line-height:1.55;color:#4C473F}
+.gloss .h{font-size:11px;letter-spacing:.12em;color:var(--accent2);font-weight:800;display:block;margin-bottom:5px}
+.gloss .g{display:block}
+.gloss .g + .g{margin-top:3px}
+.gloss b{color:#6B5182;font-weight:800}
+.slide.dense .gloss{font-size:12.5px;padding:8px 13px;line-height:1.5}
+.slide.dense .gloss .h{margin-bottom:4px}
+
+.timer{position:absolute;top:24px;right:32px;font-family:var(--mono);font-size:12px;color:var(--faint);
+  border:1px solid var(--line);padding:5px 12px;border-radius:999px;background:#fff}
+.slide.sec .timer,.slide.title .timer{display:none}
+
+
+/* ---------- dense variant ---------- */
+.slide.dense{padding:44px 68px 46px}
+.slide.dense .hr{margin:12px 0 18px}
+.slide.dense .body{gap:14px}
+.slide.dense .card{padding:16px 18px}
+.slide.dense .card h3{font-size:17.5px}
+.slide.dense .card p{font-size:14.6px;line-height:1.6}
+.slide.dense .card .ico{margin-bottom:7px}
+.slide.dense .steps{gap:9px}
+.slide.dense .steps li{padding:11px 16px 11px 54px;font-size:15px}
+.slide.dense .steps li::before{top:11px;left:14px}
+.slide.dense .steps li > b{font-size:15.5px;margin-bottom:1px}
+.slide.dense .steps li span{font-size:13.9px;line-height:1.55}
+.slide.dense .note{font-size:14.4px;padding:12px 16px;line-height:1.6}
+.slide.dense .lead{font-size:19px;line-height:1.65}
+.slide.dense .bul{font-size:16px;gap:9px}
+.slide.dense pre{font-size:12.8px;line-height:1.62;padding:16px 18px}
+.slide.dense pre.light{font-size:13.6px;line-height:1.72;padding:18px 22px}
+.slide.dense .cols,.slide.dense .cols3{gap:16px}
+.slide.dense .stack{gap:11px}
+
+
+/* ---------- editor ---------- */
+.nt{display:none}
+#ehud{position:fixed;top:12px;right:14px;z-index:66;display:flex;gap:5px;align-items:center;
+  background:rgba(18,17,15,.78);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.16);
+  border-radius:10px;padding:5px 7px;opacity:.34;transition:opacity .18s ease}
+#ehud:hover,#ehud.on{opacity:1}
+#ehud button{background:transparent;border:1px solid rgba(255,255,255,.14);color:#CFC9BE;
+  height:27px;padding:0 10px;border-radius:7px;cursor:pointer;font-size:12px;line-height:1;
+  font-family:var(--sans);white-space:nowrap}
+#ehud button:hover{background:rgba(255,255,255,.16);color:#fff}
+#ehud button.act{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700}
+#ehud button:disabled{opacity:.35;cursor:default}
+#ehud .sep{width:1px;height:18px;background:rgba(255,255,255,.18);margin:0 2px}
+
+.slide.edit{outline:2px dashed var(--accent);outline-offset:-8px}
+.slide.edit:focus{outline-color:#E08A63}
+#ebadge{position:fixed;top:14px;left:14px;z-index:66;background:var(--accent);color:#fff;
+  font-family:var(--mono);font-size:11px;padding:4px 10px;border-radius:6px;display:none;letter-spacing:.05em}
+#ebadge.on{display:block}
+
+#src{position:fixed;top:0;right:0;bottom:0;width:46vw;min-width:400px;max-width:760px;
+  background:#131211;border-left:2px solid var(--accent);z-index:65;display:none;
+  flex-direction:column;padding:56px 16px 16px}
+#src.on{display:flex}
+#src .hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;gap:10px}
+#src h4{color:#E8A184;font-size:11.5px;letter-spacing:.14em;font-family:var(--mono);white-space:nowrap}
+#src .btns{display:flex;gap:6px}
+#src .btns button{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16);color:#CFC9BE;
+  padding:6px 12px;border-radius:7px;cursor:pointer;font-size:12px;font-family:var(--sans)}
+#src .btns button:hover{background:rgba(255,255,255,.18);color:#fff}
+#src .btns button.pri{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700}
+#srcta{flex:1;width:100%;background:#0A0908;color:#D8D2C7;border:1px solid #2C2A27;border-radius:8px;
+  padding:14px;font-family:var(--mono);font-size:12.5px;line-height:1.6;resize:none;outline:none;
+  white-space:pre-wrap;overflow:auto;tab-size:2}
+#srcta:focus{border-color:var(--accent)}
+#srcmsg{color:#8A857C;font-size:11.5px;font-family:var(--mono);margin-top:8px;min-height:16px}
+#srcmsg.err{color:#E08A63}
+#srcmsg.ok{color:#8FBF9F}
+
+/* ---------- chrome ---------- */
+#bar{position:fixed;left:0;bottom:0;height:3px;background:var(--accent);width:0;transition:width .3s ease;z-index:50}
+#hud{position:fixed;bottom:14px;right:18px;display:flex;gap:8px;align-items:center;z-index:50;
+  font-family:var(--mono);font-size:12px;color:#8A857C}
+#hud button{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16);color:#C9C3B8;
+  width:30px;height:28px;border-radius:7px;cursor:pointer;font-size:13px;line-height:1}
+#hud button:hover{background:rgba(255,255,255,.18);color:#fff}
+#pos{padding:0 6px}
+
+#notes{position:fixed;left:0;right:0;bottom:0;max-height:38vh;overflow:auto;background:#0E0D0C;
+  color:#D8D2C7;padding:20px 28px 30px;border-top:2px solid var(--accent);z-index:60;display:none;
+  font-size:14.5px;line-height:1.75}
+#notes.on{display:block}
+#notes h4{color:#E8A184;font-size:12px;letter-spacing:.16em;margin-bottom:8px;font-family:var(--mono)}
+#notes ul{margin-left:18px}#notes li{margin:4px 0}
+
+#toc{position:fixed;inset:0;background:#0E0D0C;z-index:70;display:none;padding:40px 6vw;overflow:auto}
+#toc.on{display:block}
+#toc h3{color:#E8A184;font-size:13px;letter-spacing:.18em;margin-bottom:20px;font-family:var(--mono)}
+#toc ol{columns:3;column-gap:36px;list-style:none}
+#toc li{color:#B5AFA4;font-size:14px;padding:6px 10px;border-radius:6px;cursor:pointer;
+  break-inside:avoid;display:flex;gap:10px;line-height:1.4}
+#toc li:hover{background:rgba(255,255,255,.09);color:#fff}
+#toc li .i{font-family:var(--mono);color:#6E6A62;min-width:22px;text-align:right}
+#toc li.div{color:#E8A184;font-weight:700;margin-top:10px}
+
+#help{position:fixed;left:18px;bottom:14px;color:#6E6A62;font-family:var(--mono);font-size:11.5px;z-index:50}
+
+@media print{
+  body{overflow:visible;background:#fff}
+  #viewport{position:static;display:block}
+  #stage{width:100%;height:auto;position:static!important;transform:none!important;box-shadow:none}
+  .slide{display:flex!important;position:relative;page-break-after:always;height:720px;inset:auto}
+  #hud,#bar,#help,#notes,#toc,#ehud,#ebadge,#src{display:none!important}
+  .slide.edit{outline:none!important}
+}
+</style>
+</head>
+<body>
+<div id="viewport"><div id="stage">
+
+
+<!-- 1 表紙 -->
+<section class="slide title">
+  <div class="kicker">MICROSOFT COPILOT STUDIO</div>
+  <h1>エージェントの環境移管ガイド</h1>
+  <p class="sub">既存環境で作り込んだエージェントを、ソリューションを使って新しい環境へ移す<br>エクスポート／インポートの実作業手順と、移行後にやるべきこと</p>
+  <div class="meta"><span>対象：Copilot Studio 作成者・管理者</span><span>前提：同一テナント内の環境間移行</span><span>2026年8月版</span></div>
+  <aside class="nt"><ul><li>今回のゴール：新環境の準備を待たずに開発を進め、あとから安全に引っ越すための手順を共有する。</li><li>「同一テナント内の別環境への移行」を前提に構成している。テナントをまたぐ場合は認証まわりの再設定範囲が広がる点だけ補足する。</li></ul></aside>
+</section>
+
+<!-- 2 アジェンダ -->
+<section class="slide">
+  <div class="kicker">AGENDA</div>
+  <h2>本日の流れ</h2><div class="hr"></div>
+  <div class="body">
+    <table class="tbl">
+      <tr><th style="width:150px">パート</th><th>内容</th></tr>
+      <tr><td class="hl">PART 1</td><td>全体像 — なぜソリューションを使うのか、何が運ばれて何が運ばれないのか</td></tr>
+      <tr><td class="hl">PART 2</td><td>移行元環境での準備 — ソリューション作成、エージェントと依存関係の追加</td></tr>
+      <tr><td class="hl">PART 3</td><td>エクスポート — 手順と、マネージド／アンマネージドの使い分け</td></tr>
+      <tr><td class="hl">PART 4</td><td>移行先環境の受け入れ準備 — Dataverse・ロール・ライセンス／容量</td></tr>
+      <tr><td class="hl">PART 5</td><td>インポートと事後作業 — 接続参照・環境変数・認証・公開・チャネル</td></tr>
+      <tr><td class="hl">PART 6</td><td>トラブルシューティングと移管チェックリスト</td></tr>
+    </table>
+  </div>
+  <aside class="nt"><ul><li>手順パート（PART 2・3・5）が本体。PART 1 と 4 は「そこで失敗しないための前提」の説明。</li><li>時間が押したら PART 1 を短縮し、手順の実演に時間を回す。</li></ul></aside>
+</section>
+
+<!-- 3 -->
+<section class="slide sec">
+  <div class="num">PART 1</div>
+  <h1>全体像</h1>
+  <p class="sub">今回の進め方と、ソリューションによる移管の基本概念</p>
+  <aside class="nt"><ul><li>ここでは「なぜソリューションという入れ物が必要なのか」を腹落ちさせる。</li></ul></aside>
+</section>
+
+<!-- 4 今回のシナリオ -->
+<section class="slide">
+  <div class="kicker">SCENARIO</div>
+  <h2>今回の進め方 — 新環境の完成を待たずに先行開発する</h2><div class="hr"></div>
+  <div class="body">
+    <div class="flow">
+      <div class="st"><div class="n">STEP 1</div><h3>既存環境で開発</h3><p>新環境の準備と並行して、いま使える環境でエージェントを作り込む。</p></div>
+      <div class="st"><div class="n">STEP 2</div><h3>ソリューションに梱包</h3><p>エージェントと依存コンポーネントを1つのソリューションにまとめ、エクスポート。</p></div>
+      <div class="st"><div class="n">STEP 3</div><h3>新環境を整える</h3><p>Dataverse・ロール・ライセンス／容量を揃え、受け入れ可能な状態にする。</p></div>
+      <div class="st"><div class="n">STEP 4</div><h3>インポート＆公開</h3><p>取り込んだあと、接続・環境変数・認証を再設定し、公開してチャネルへ。</p></div>
+    </div>
+    <div class="note warn"><b>先に共有しておきたい注意点</b>新環境にライセンス／容量が割り当たっていない段階では、取り込みや編集まで進めても<em>「公開」まで到達できない</em>可能性がある。移行作業とライセンス手配は並行して進めるのが安全（詳細は PART 4）。</div>
+    <div class="gloss"><span class="h">用語ミニ解説</span><span class="g"><b>環境</b>：Copilot Studio やアプリを置いておく「部屋」のこと。開発用・本番用のように用途で分けて使う</span><span class="g"><b>テナント</b>：会社ごとに割り当てられた Microsoft 365 の領域。今回は同じ会社の中での部屋の引っ越し</span><span class="g"><b>ライセンス／容量</b>：エージェントを実際に使うために必要な利用権。これが無いと作れても「公開」できない</span></div>
+  </div>
+  <aside class="nt"><ul><li>この進め方自体は推奨できる。開発待ち時間を作らずに済む。</li><li>ただし STEP 3 を後回しにすると、当日「公開できない」で止まる。ここだけ先に握っておきたい。</li></ul></aside>
+</section>
+
+<!-- 5 ソリューションとは -->
+<section class="slide">
+  <div class="kicker">CONCEPT</div>
+  <h2>基本概念：ソリューションという「運搬用の箱」</h2><div class="hr"></div>
+  <div class="body">
+    <div class="cols3">
+      <div class="card"><div class="ico">WHAT</div><h3>コンポーネントの入れ物</h3><p>エージェント本体・トピック・エンティティ・フロー・環境変数などを1つにまとめる、Dataverse の単位。</p></div>
+      <div class="card"><div class="ico">WHO</div><h3>発行元とプレフィックス</h3><p>誰が作ったコンポーネントかを示す識別子。カスタム発行元を用意し、自組織のプレフィックスを付ける。</p></div>
+      <div class="card"><div class="ico">WHY</div><h3>依存関係ごと運べる</h3><p>エージェント単体ではなく、動作に必要な部品をまとめて移せる。これが手作業の作り直しをなくす鍵。</p></div>
+    </div>
+    <div class="note ok"><b>鉄則</b>エージェントは<em>最初からカスタムソリューションの中で作る</em>。既定のソリューション（Default Solution）はエクスポートできないため、あとから移すことになる。</div>
+    <div class="gloss"><span class="h">用語ミニ解説</span><span class="g"><b>ソリューション</b>：エージェントや関連部品をまとめて入れる「引っ越し用のダンボール箱」。この箱ごと運ぶ</span><span class="g"><b>コンポーネント</b>：箱に入れる部品のこと。エージェント本体、トピック、フローなど1つ1つを指す</span><span class="g"><b>Dataverse</b>：Power Platform のデータの保管庫。ソリューションはこの中に作られる</span><span class="g"><b>発行元／プレフィックス</b>：部品に付ける「製造元ラベル」。自社の略称（例：contoso）を付けて他社製と区別する</span></div>
+  </div>
+  <aside class="nt"><ul><li>「箱に入れる」比喩で説明すると非エンジニアにも伝わる。</li><li>既定ソリューションで作ってしまった場合も、既存コンポーネントとしてカスタムソリューションに追加すればリカバリできる。</li></ul></aside>
+</section>
+
+<!-- 6 全体フロー -->
+<section class="slide dense">
+  <div class="kicker">OVERVIEW</div>
+  <h2>移管の全体フロー</h2><div class="hr"></div>
+  <div class="body">
+    <ul class="steps">
+      <li><b>① 準備（移行元）</b><span>カスタムソリューションを新規作成し、発行元とプレフィックスを決める</span></li>
+      <li><b>② 梱包（移行元）</b><span>エージェントを追加し、「必要なオブジェクトを追加」で依存関係を取り込む</span></li>
+      <li><b>③ エクスポート（移行元）</b><span>すべての変更を公開 → マネージド／アンマネージドを選び zip をダウンロード</span></li>
+      <li><b>④ 受け入れ準備（移行先）</b><span>Dataverse・リージョン・セキュリティロール・ライセンス／容量を確認</span></li>
+      <li><b>⑤ インポートと事後作業（移行先）</b><span>接続参照と環境変数を設定 → 認証を再構成 → 公開 → チャネル設定</span></li>
+    </ul>
+    <div class="gloss"><span class="h">用語ミニ解説</span><span class="g"><b>エクスポート／インポート</b>：箱を zip ファイルとして書き出すこと（エクスポート）と、別の環境で取り込むこと（インポート）</span></div>
+  </div>
+  <aside class="nt"><ul><li>この5ステップが資料全体の骨格。以降のパートは、この番号に対応している。</li></ul></aside>
+</section>
+
+<!-- 7 運ばれるもの/運ばれないもの -->
+<section class="slide dense">
+  <div class="kicker">SCOPE</div>
+  <h2>何が運ばれ、何が運ばれないのか</h2><div class="hr"></div>
+  <div class="body">
+    <div class="gb">
+      <div class="box good"><span class="tag">ソリューションで運べる</span>
+        <ul class="bul sm">
+          <li>エージェント本体とトピック</li>
+          <li>エンティティ（カスタムエンティティ）</li>
+          <li>Power Automate フロー</li>
+          <li>カスタムコネクタ・接続参照の定義</li>
+          <li>環境変数（定義。値は環境ごと）</li>
+          <li>Dataverse テーブルなどの関連コンポーネント</li>
+        </ul>
+      </div>
+      <div class="box bad"><span class="tag">運ばれない・作り直しが必要</span>
+        <ul class="bul sm">
+          <li>トピック／ノードに付けたコメント</li>
+          <li>会話 ID・ボット ID・環境 ID</li>
+          <li>エージェントのアイコン</li>
+          <li>チャネルの詳細設定（展開済みチャネル含む）</li>
+          <li>ユーザー認証の設定・Direct Line / Web チャネルのセキュリティ</li>
+          <li>Application Insights の設定、共有設定</li>
+        </ul>
+      </div>
+    </div>
+    <div class="note"><b>読み替え方</b>右側のリストが、そのまま<em>移行後にやる作業リスト</em>になる。PART 5 で1つずつ対処法を見ていく。</div>
+    <div class="gloss"><span class="h">用語ミニ解説</span><span class="g"><b>依存関係</b>：そのエージェントが動くために必要な、ほかの部品とのつながり</span><span class="g"><b>接続参照</b>：エージェントが外部サービス（Outlook、SharePoint など）につなぐための「差し込み口」の設定</span><span class="g"><b>環境変数</b>：環境ごとに変わる値（URL やアドレス）を、あとから差し替えられるようにしておく仕組み</span><span class="g"><b>チャネル</b>：エージェントを使ってもらう窓口。Teams、自社サイトへの埋め込みなど</span></div>
+  </div>
+  <aside class="nt"><ul><li>右側が「移行後の作業リスト」そのものになる。PART 5 で再掲する。</li><li>特に認証設定が引き継がれない点は、事前に伝えておかないと当日に慌てる。</li></ul></aside>
+</section>
+
+<!-- 8 -->
+<section class="slide sec">
+  <div class="num">PART 2</div>
+  <h1>移行元環境での準備</h1>
+  <p class="sub">ソリューションの作成と、エージェント・依存関係コンポーネントの追加</p>
+  <aside class="nt"><ul><li>ここから実作業。画面を見せながら進めると理解が早い。</li></ul></aside>
+</section>
+
+<!-- 9 前提条件 -->
+<section class="slide">
+  <div class="kicker">PREREQUISITES</div>
+  <h2>始める前のチェック</h2><div class="hr"></div>
+  <div class="body">
+    <ul class="checkl">
+      <li><b>権限</b> — 移行元・移行先の両方で「システムカスタマイザー」以上のセキュリティロールを持っている</li>
+      <li><b>環境</b> — 両環境とも Dataverse データストアがあり、Copilot Studio が利用できる</li>
+      <li><b>発行元</b> — カスタム発行元とプレフィックス（例：<code class="inl">contoso</code>）を決めてある</li>
+      <li><b>依存関係の把握</b> — エージェントが使うフロー・カスタムコネクタ・環境変数・テーブルを一覧化してある</li>
+      <li><b>公開状態</b> — エクスポート前に「すべての変更を公開」できる状態になっている</li>
+    </ul>
+    <div class="gloss"><span class="h">用語ミニ解説</span><span class="g"><b>セキュリティロール</b>：その人が何をしてよいかを決める権限のセット。「システムカスタマイザー」は設定変更ができるレベル</span><span class="g"><b>すべての変更を公開</b>：編集した内容を確定させる操作。下書きのままだと箱に入らない</span></div>
+  </div>
+  <aside class="nt"><ul><li>依存関係の洗い出しがいちばん漏れやすい。作成者本人にヒアリングして書き出しておく。</li></ul></aside>
+</section>
+
+<!-- 10 手順1 ソリューション作成 -->
+<section class="slide dense">
+  <div class="kicker">STEP 1 / 移行元</div>
+  <h2>手順①　カスタムソリューションを新規作成する</h2><div class="hr"></div>
+  <div class="body">
+    <ul class="steps">
+      <li><b>ソリューション画面を開く</b><span>Copilot Studio のサイドバー「…」→「ソリューション」。エージェント画面の「…」→「エージェントのエクスポート」でも開く</span></li>
+      <li><b>「新しいソリューション」を選択</b><span>Power Apps のソリューション作成画面が開く</span></li>
+      <li><b>表示名・名前を入力</b><span>例：<code class="inl">Contoso Agent Migration</code>。用途がわかる名前にする</span></li>
+      <li><b>発行元を選択、または新規作成</b><span>既定ではなく、自組織のカスタム発行元とプレフィックスを指定</span></li>
+      <li><b>バージョンを確認して作成</b><span>初回は <code class="inl">1.0.0.0</code>。作成後、そのソリューションが自動で開く</span></li>
+    </ul>
+    <div class="gloss"><span class="h">用語ミニ解説</span><span class="g"><b>既定のソリューション</b>：何も指定しないと部品が入る「共用の箱」。<em>この箱は外に持ち出せない</em>ので必ず自分の箱を作る</span><span class="g"><b>バージョン</b>：箱に付ける版数。<code class="inl">1.0.0.0</code> のような番号で、更新のたびに増えていく</span></div>
+  </div>
+  <aside class="nt"><ul><li>発行元プレフィックスは後から変えられないので、ここで組織のルールに合わせる。</li></ul></aside>
+</section>
+
+<!-- 11 手順2 エージェント追加 -->
+<section class="slide dense">
+  <div class="kicker">STEP 2 / 移行元</div>
+  <h2>手順②　エージェントをソリューションに追加する</h2><div class="hr"></div>
+  <div class="body">
+    <ul class="steps">
+      <li><b>作成したソリューションを開く</b><span>ソリューション一覧から選択</span></li>
+      <li><b>「既存を追加」を選ぶ</b><span>コマンドバーの「既存を追加」→「エージェント」（Copilot Studio 側では「エージェント」→ 既存のコンポーネントを追加）</span></li>
+      <li><b>対象のエージェントを選択して追加</b><span>移行したいエージェントにチェックを入れて追加する</span></li>
+      <li><b>一覧に表示されたことを確認</b><span>ソリューションの「オブジェクト」にエージェントが並べば成功</span></li>
+    </ul>
+    <div class="note ok"><b>ワンポイント</b>「優先ソリューションの設定」を今回の箱にしておくと、以降に作るエージェントが自動でこの箱に入り、次回の移管が楽になる。</div>
+    <div class="gloss"><span class="h">用語ミニ解説</span><span class="g"><b>既存を追加</b>：すでに作ってあるものを箱に入れる操作。新規作成ではない点に注意</span><span class="g"><b>優先ソリューション</b>：これから作るものが自動的に入る「既定の箱」を指定しておく設定</span></div>
+  </div>
+  <aside class="nt"><ul><li>既存エージェントが既定ソリューションにいる場合も、この手順でカスタムソリューションに紐づけられる。</li></ul></aside>
+</section>
+
+<!-- 12 手順3 依存関係 -->
+<section class="slide dense">
+  <div class="kicker">STEP 3 / 移行元 — 最重要</div>
+  <h2>手順③　依存関係コンポーネントを取り込む</h2><div class="hr"></div>
+  <div class="body">
+    <ul class="steps">
+      <li><b>エージェントの「必要なオブジェクトを追加」を実行</b><span>エージェント行の「⋮」→「詳細設定」→「必要なオブジェクトを追加」</span></li>
+      <li><b>入ったコンポーネントを目視で確認</b><span>フロー／接続参照／環境変数／カスタムコネクタ／テーブルが入っているか</span></li>
+      <li><b>足りないものは「既存を追加」で個別に足す</b><span>自動で拾えない参照もある。洗い出したリストと突き合わせる</span></li>
+      <li><b>各コンポーネントにも同じ操作を行う</b><span>フローやテーブル側にもさらに依存先がある。連鎖する依存を取りこぼさない</span></li>
+    </ul>
+    <div class="note warn"><b>ここが失敗の最多原因</b>インポートや公開でエラーになる原因は、<em>必要な部品が箱に入っていない</em>ことがほとんど。</div>
+    <div class="gloss"><span class="h">用語ミニ解説</span><span class="g"><b>必要なオブジェクトを追加</b>：エージェントが動くのに必要な部品を、システムが自動で探して箱に入れてくれる機能</span><span class="g"><b>ワークフロー</b>：一覧上での Power Automate フローの表示名。同じものを指している</span></div>
+  </div>
+  <aside class="nt"><ul><li>ここを丁寧にやるかどうかで、移行後のトラブル量が決まる。時間をかけてよい工程。</li></ul></aside>
+</section>
+
+<!-- 13 先行開発中の仕込み -->
+<section class="slide">
+  <div class="kicker">TIPS FOR THIS SCENARIO</div>
+  <h2>先行開発フェーズでやっておく「仕込み」</h2><div class="hr"></div>
+  <div class="body">
+    <div class="cols">
+      <div class="card tint"><div class="ico">01</div><h3>最初からソリューション内で作る</h3><p>あとから箱に入れるより手戻りがない。優先ソリューションを設定しておけば意識せずに済む。</p></div>
+      <div class="card tint"><div class="ico">02</div><h3>環境依存の値は環境変数へ</h3><p>SharePoint サイトの URL、API のエンドポイント、宛先メールなど、環境で変わる値をトピックに直書きしない。</p></div>
+      <div class="card tint2"><div class="ico">03</div><h3>トピック名にピリオドを使わない</h3><p>トピック名に <code class="inl">.</code> が含まれるエージェントはエクスポートできない。命名規則として先に決めておく。</p></div>
+      <div class="card tint2"><div class="ico">04</div><h3>肥大化に注意</h3><p>トピック250件・エンティティ100件を超える規模は標準の手順外の扱いになる。分割やコンポーネント化も検討。</p></div>
+    </div>
+    <div class="gloss"><span class="h">用語ミニ解説</span><span class="g"><b>トピック</b>：「〇〇と聞かれたらこう答える」という会話のかたまり。エージェントの中身そのもの</span><span class="g"><b>エンティティ</b>：日付や社員番号など、会話から拾いたい情報の種類の定義</span></div>
+  </div>
+  <aside class="nt"><ul><li>この4点を先に伝えておくと、移行当日の手戻りがほぼなくなる。</li><li>特に②は、移行後に「動かない」の原因になりやすい。</li></ul></aside>
+</section>
+
+<!-- 14 -->
+<section class="slide sec">
+  <div class="num">PART 3</div>
+  <h1>エクスポート</h1>
+  <p class="sub">手順と、マネージド／アンマネージドの使い分け</p>
+  <aside class="nt"><ul><li>操作自体は短い。判断が必要なのはパッケージの種類だけ。</li></ul></aside>
+</section>
+
+<!-- 15 手順4 エクスポート -->
+<section class="slide dense">
+  <div class="kicker">STEP 4 / 移行元</div>
+  <h2>手順④　ソリューションをエクスポートする</h2><div class="hr"></div>
+  <div class="body">
+    <ul class="steps">
+      <li><b>対象ソリューションを選び「エクスポート」</b><span>アンマネージドのカスタムソリューションを選択する</span></li>
+      <li><b>「すべての変更を公開する」を実行</b><span>公開済みのコンポーネントだけがエクスポートされる。ここは必ず通す</span></li>
+      <li><b>（推奨）ソリューションチェッカーを実行</b><span>パフォーマンスや構成の問題を事前に検出できる</span></li>
+      <li><b>バージョン番号を確認</b><span>自動で加算される。既定値のままでよいが、運用ルールがあればそれに従う</span></li>
+      <li><b>パッケージの種類を選んでエクスポート</b><span>マネージド／アンマネージドを選択。数分でダウンロードフォルダーに zip が保存される</span></li>
+    </ul>
+    <div class="gloss"><span class="h">用語ミニ解説</span><span class="g"><b>ソリューションチェッカー</b>：箱の中身に問題がないか自動点検してくれる機能。実行は任意だが推奨</span><span class="g"><b>zip</b>：複数のファイルを1つにまとめた圧縮ファイル。これが引っ越しの荷物そのもの</span></div>
+  </div>
+  <aside class="nt"><ul><li>手順②を飛ばすと「直前の変更が入っていない」という事故になる。強調する。</li></ul></aside>
+</section>
+
+<!-- 16 マネージド比較 -->
+<section class="slide dense">
+  <div class="kicker">DECISION</div>
+  <h2>マネージド／アンマネージドの使い分け</h2><div class="hr"></div>
+  <div class="body">
+    <table class="tbl cmp">
+      <tr><th style="width:170px">観点</th><th>アンマネージド</th><th>マネージド</th></tr>
+      <tr><td class="hl">位置づけ</td><td>開発中のソース</td><td>完成品としての配布パッケージ</td></tr>
+      <tr><td class="hl">移行先での編集</td><td>自由に編集できる</td><td>直接編集不可（レイヤーで上書き管理）</td></tr>
+      <tr><td class="hl">再エクスポート</td><td>できる</td><td>できない</td></tr>
+      <tr><td class="hl">ソリューション削除時</td><td>コンポーネントは環境に残る</td><td>まとめて削除される（きれいに戻せる）</td></tr>
+      <tr><td class="hl">主な用途</td><td>開発環境どうしの移動、バックアップ</td><td>テスト環境・本番環境への配布</td></tr>
+    </table>
+    <div class="note ok"><b>今回のケースの選び方</b>新環境が<em>今後の開発の本拠地になる</em>なら「アンマネージド」。既存環境を開発用に残すなら「マネージド」。迷ったらまずアンマネージドで移す。</div>
+    <div class="gloss"><span class="h">用語ミニ解説</span><span class="g"><b>マネージド</b>：中身を直接いじれない「完成品」として渡す形式。配布・本番向け</span><span class="g"><b>アンマネージド</b>：中身を自由に編集できる「作りかけ」の形式。開発を続ける環境向け</span><span class="g"><b>レイヤー</b>：マネージドの上に変更を重ねる仕組み。元の中身は残したまま上書きされる</span></div>
+  </div>
+  <aside class="nt"><ul><li>ここは正解が1つではない。お客様の環境戦略（開発をどちらでやるか）を確認してから決める。</li></ul></aside>
+</section>
+
+<!-- 17 -->
+<section class="slide sec">
+  <div class="num">PART 4</div>
+  <h1>移行先環境の受け入れ準備</h1>
+  <p class="sub">Dataverse・ロール・そしてライセンスと容量の紐づけ</p>
+  <aside class="nt"><ul><li>今回いちばん引っかかりやすいパート。時間を取って説明する。</li></ul></aside>
+</section>
+
+<!-- 18 新環境の条件 -->
+<section class="slide">
+  <div class="kicker">TARGET ENVIRONMENT</div>
+  <h2>新しい環境に必要な条件</h2><div class="hr"></div>
+  <div class="body">
+    <ul class="checkl">
+      <li><b>Dataverse データストアあり</b> — 環境作成時に「Dataverse データストアを追加」を選んでいること。無いと Copilot Studio の環境一覧に出てこない</li>
+      <li><b>サポート対象リージョン</b> — Copilot Studio が提供されている地域で作成されていること</li>
+      <li><b>環境の種類</b> — 試用版は有効期限切れで中身ごと消える。本格運用するなら「運用環境」で作成する</li>
+      <li><b>セキュリティロール</b> — 作業者に「システムカスタマイザー」以上、加えて「エージェントの作成者」ロールが割り当てられていること</li>
+      <li><b>環境スイッチャーに表示される</b> — Copilot Studio 上部の環境切り替えで新環境を選択できる状態</li>
+    </ul>
+    <div class="gloss"><span class="h">用語ミニ解説</span><span class="g"><b>Dataverse データストア</b>：環境を作るときに一緒に用意するデータの保管庫。無いと Copilot Studio が使えない</span><span class="g"><b>リージョン</b>：そのサービスが動いているデータセンターの地域。日本など対応地域を選ぶ</span><span class="g"><b>試用版／運用環境</b>：試用版はお試し用で期限が来ると中身ごと消える。本番で使うなら運用環境</span></div>
+  </div>
+  <aside class="nt"><ul><li>「環境一覧に出てこない」問い合わせの原因は、たいていデータベース未作成かリージョン。</li></ul></aside>
+</section>
+
+<!-- 19 ライセンス -->
+<section class="slide dense">
+  <div class="kicker">LICENSING — 今回の要注意ポイント</div>
+  <h2>ライセンス・容量が未紐づけだと、どこまで進めるか</h2><div class="hr"></div>
+  <div class="body">
+    <table class="tbl">
+      <tr><th style="width:290px">新環境の状態</th><th>進められること</th><th style="width:330px">止まる可能性があること</th></tr>
+      <tr><td class="hl">ライセンス／容量が未割り当て<br><span style="color:#6E6A62;font-size:13.5px;font-weight:400">試用ライセンスのみの場合を含む</span></td><td>ソリューションのインポート、エージェントの編集、テストチャットでの動作確認</td><td>エージェントの<em>公開</em>、チャネル展開、エンドユーザーへの提供</td></tr>
+      <tr><td class="hl">容量を割り当て済み<br><span style="color:#6E6A62;font-size:13.5px;font-weight:400">前払いクレジット、または従量課金で Azure サブスクリプションを紐づけ</span></td><td>公開・チャネル展開まで含めて通常どおり利用できる</td><td>—</td></tr>
+    </table>
+    <div class="note warn"><b>段取りの提案</b>「インポートまでは進めておき、ライセンス手配が完了してから公開する」と分けて計画する。従量課金の場合は、Power Platform 管理センターで課金ポリシーを作り、対象環境をリンクする作業が別途必要。<br>※ライセンス要件は変更されることがあるため、実施前に最新のライセンス ガイドで確認すること。</div>
+    <div class="gloss"><span class="h">用語ミニ解説</span><span class="g"><b>容量（クレジット／メッセージ）</b>：エージェントとの会話回数に応じて消費する利用枠。前払いで買うか、使った分だけ払う</span><span class="g"><b>従量課金（従量制）</b>：Azure サブスクリプションを環境に紐づけ、使った分だけ後から支払う方式</span><span class="g"><b>Azure サブスクリプション</b>：Microsoft のクラウド利用料を支払うための契約単位。ここに請求がまとまる</span><span class="g"><b>課金ポリシー</b>：どの環境の料金をどの契約で払うかを決める設定。管理センターで作成する</span></div>
+  </div>
+  <aside class="nt"><ul><li>お客様の「まだサブスクリプションと紐づいていない」状況を踏まえたスライド。</li><li>作業日をどう分けるか、この場で握ってしまうのがよい。</li></ul></aside>
+</section>
+
+<!-- 20 -->
+<section class="slide sec">
+  <div class="num">PART 5</div>
+  <h1>インポートと事後作業</h1>
+  <p class="sub">取り込んで終わりではない。動く状態に戻すまでが移管</p>
+  <aside class="nt"><ul><li>ここからが本番。事後作業の漏れが「動かない」の原因になる。</li></ul></aside>
+</section>
+
+<!-- 21 手順5 インポート -->
+<section class="slide dense">
+  <div class="kicker">STEP 5 / 移行先</div>
+  <h2>手順⑤　ソリューションをインポートする</h2><div class="hr"></div>
+  <div class="body">
+    <ul class="steps">
+      <li><b>新環境でソリューション画面を開く</b><span>画面上部で新環境に切り替え、「ソリューションのインポート」を選ぶ</span></li>
+      <li><b>zip ファイルを選択</b><span>「このデバイス」から zip を指定。<em>カスタムコネクタがある場合は先に取り込む</em>（95 MB まで）</span></li>
+      <li><b>詳細設定を確認</b><span>「含まれるプラグインステップとフローを有効にする」のチェックをどうするか決める</span></li>
+      <li><b>接続参照と環境変数を設定</b><span>新環境の接続を選択または新規作成し、環境変数には新環境用の値（URL や ID）を入力する</span></li>
+      <li><b>インポートを実行</b><span>失敗したらログをダウンロードして原因を確認</span></li>
+    </ul>
+    <div class="gloss"><span class="h">用語ミニ解説</span><span class="g"><b>プラグインステップとフロー</b>：裏側で自動的に動く処理。チェックを外すと止まった状態で取り込まれる</span><span class="g"><b>ログファイル</b>：処理の記録。失敗した理由が書いてある。XML 形式なので Excel で開くと読みやすい</span></div>
+  </div>
+  <aside class="nt"><ul><li>フローを無効のまま取り込み、確認後に有効化する運用も安全でよい。</li></ul></aside>
+</section>
+
+<!-- 22 事後作業1 -->
+<section class="slide">
+  <div class="kicker">POST-IMPORT 1</div>
+  <h2>事後作業①　接続参照と環境変数</h2><div class="hr"></div>
+  <div class="body">
+    <div class="cols">
+      <div class="card"><div class="ico">接続参照</div><h3>新環境の接続を作り直す</h3><p>接続そのものは環境に紐づくため引き継がれない。インポート時に設定していない場合は、ソリューション内の接続参照を開いて接続を選択・新規作成する。作成者アカウントで作った接続は、他の利用者に共有されているかも確認する。</p></div>
+      <div class="card"><div class="ico">環境変数</div><h3>新環境の値を入れ直す</h3><p>環境変数は「定義」が移り、「値」は環境ごとに設定する。SharePoint サイト、API エンドポイント、宛先アドレスなどが移行元のままになっていないか、ひとつずつ確認する。</p></div>
+    </div>
+    <div class="note ok"><b>確認のコツ</b>ソリューション内の「接続参照」「環境変数」を一覧表示し、値が空のものが無いかをチェックすると漏れが出にくい。</div>
+    <div class="gloss"><span class="h">用語ミニ解説</span><span class="g"><b>接続参照</b>：エージェントと外部サービスをつなぐ「差し込み口」。差し込む相手（接続）は環境ごとに作り直す</span><span class="g"><b>環境変数</b>：URL やアドレスなど、環境で変わる値の置き場所。定義は運ばれるが中身の値は入れ直す</span></div>
+  </div>
+  <aside class="nt"><ul><li>ここが未設定だと、動くように見えて特定のトピックだけ失敗する、という分かりにくい壊れ方をする。</li></ul></aside>
+</section>
+
+<!-- 23 事後作業2 -->
+<section class="slide dense">
+  <div class="kicker">POST-IMPORT 2</div>
+  <h2>事後作業②　ソリューションに含まれない設定を戻す</h2><div class="hr"></div>
+  <div class="body">
+    <ul class="bul">
+      <li><b>ユーザー認証</b> — 認証方式を設定し直す。Microsoft Entra ID の手動構成を使っている場合は、アプリ登録・クライアント ID・スコープ・リダイレクト URL を新環境向けに再設定する</li>
+      <li><b>Direct Line / Web チャネルのセキュリティ</b> — シークレットやトークンの設定は引き継がれない</li>
+      <li><b>展開済みチャネルの設定</b> — Teams や Web サイト埋め込みなど、チャネルごとの構成をやり直す</li>
+      <li><b>Application Insights</b> — 分析連携を使っている場合は接続文字列を再設定</li>
+      <li><b>共有設定</b> — 他の作成者・エンドユーザーへの共有は移行されない</li>
+    </ul>
+    <div class="note warn"><b>テナントをまたぐ場合</b>同一テナント内なら Entra ID のアプリ登録は再利用できることが多いが、テナントをまたぐ場合は<em>アプリ登録も SharePoint 等のナレッジ参照も作り直し</em>になる。今回は同一テナント内のため影響は限定的。</div>
+    <div class="gloss"><span class="h">用語ミニ解説</span><span class="g"><b>ユーザー認証</b>：エージェントを使う人にサインインしてもらう仕組み</span><span class="g"><b>Microsoft Entra ID</b>：旧 Azure AD。社員アカウントを管理する仕組みで、サインインの土台になる</span><span class="g"><b>Direct Line / Web チャネル</b>：Web サイトなどにエージェントを埋め込むときの接続方式</span><span class="g"><b>Application Insights</b>：利用状況やエラーを記録・分析する Azure のサービス</span></div>
+  </div>
+  <aside class="nt"><ul><li>PART 1 の「運ばれないもの」の再掲。ここでは対処までセットで示す。</li></ul></aside>
+</section>
+
+<!-- 24 事後作業3 -->
+<section class="slide dense">
+  <div class="kicker">POST-IMPORT 3</div>
+  <h2>事後作業③　公開とチャネル設定</h2><div class="hr"></div>
+  <div class="body">
+    <ul class="steps">
+      <li><b>中身を確認する</b><span>トピック、ナレッジ ソース、アクションが揃っているか。ナレッジの参照先が移行元を向いていないか</span></li>
+      <li><b>テストチャットで動作確認</b><span>認証が必要なトピック、フローを呼ぶトピックを重点的に試す</span></li>
+      <li><b>エージェントを公開する</b><span>公開しないと共有もチャネル展開もできない。移行後は必ず公開が必要</span></li>
+      <li><b>チャネルを有効化する</b><span>Teams、Web サイトなどを設定。Teams で全社展開する場合は管理者による承認・展開が別途必要</span></li>
+    </ul>
+    <div class="note"><b>豆知識</b>エージェントのアイコンは移行されない。設定し直したあと、チャネル上の表示に反映されるまで<em>最大24時間</em>かかることがある。</div>
+    <div class="gloss"><span class="h">用語ミニ解説</span><span class="g"><b>ナレッジ ソース</b>：エージェントが答えを探しに行く参照先。SharePoint サイトや公開 Web サイトなど</span><span class="g"><b>公開（発行）</b>：編集内容を利用者に見せる状態にする操作。公開しないと誰も使えない</span></div>
+  </div>
+  <aside class="nt"><ul><li>アイコンの反映遅延は「壊れた？」と誤解されやすいので先に伝えておく。</li></ul></aside>
+</section>
+
+<!-- 25 フロー・コネクタの落とし穴 -->
+<section class="slide">
+  <div class="kicker">PITFALLS</div>
+  <h2>Power Automate フロー・コネクタ連携の落とし穴</h2><div class="hr"></div>
+  <div class="body">
+    <div class="cols">
+      <div class="card"><div class="ico">01</div><h3>カスタムコネクタは先に</h3><p>コネクタが無い状態でソリューションを取り込むと参照が壊れる。同梱するか、先に単独でインポートしておく。</p></div>
+      <div class="card"><div class="ico">02</div><h3>フローがオフのまま</h3><p>「プラグインステップとフローを有効にする」を外して取り込むと、フローは無効のまま。確認後に有効化を忘れない。</p></div>
+      <div class="card"><div class="ico">03</div><h3>接続の所有者問題</h3><p>接続は作成者アカウントに紐づく。担当者が異動・退職すると止まる。運用アカウントで作る、共有しておくなどの設計を。</p></div>
+      <div class="card"><div class="ico">04</div><h3>オンプレミス ゲートウェイ</h3><p>ゲートウェイ接続は共有接続である必要がある。インポート後に接続を作り直し、正しいゲートウェイを指定する。</p></div>
+    </div>
+    <div class="gloss"><span class="h">用語ミニ解説</span><span class="g"><b>Power Automate フロー</b>：メール送信や承認など、決まった処理を自動で実行する仕組み</span><span class="g"><b>カスタムコネクタ</b>：標準では用意されていない外部システムにつなぐための、自作の接続部品</span><span class="g"><b>オンプレミス ゲートウェイ</b>：社内のサーバーやファイルにクラウドから安全につなぐための中継役</span></div>
+  </div>
+  <aside class="nt"><ul><li>フロー連携があるエージェントは、移行後の不具合の大半がこの4つのどれか。</li></ul></aside>
+</section>
+
+<!-- 26 -->
+<section class="slide sec">
+  <div class="num">PART 6</div>
+  <h1>トラブルシューティングとチェックリスト</h1>
+  <p class="sub">つまずいたときの当たりどころ</p>
+  <aside class="nt"><ul><li>ここは配布資料として後から参照される部分。丁寧に。</li></ul></aside>
+</section>
+
+<!-- 27 トラブルシューティング -->
+<section class="slide dense">
+  <div class="kicker">TROUBLESHOOTING</div>
+  <h2>よくあるエラーと対処</h2><div class="hr"></div>
+  <div class="body top">
+    <table class="tbl">
+      <tr><th style="width:280px">症状</th><th style="width:250px">主な原因</th><th>対処</th></tr>
+      <tr><td class="hl">エクスポートできない</td><td>マネージド、または既定のソリューション</td><td>自分でアンマネージドの箱を作り、そこに追加してから書き出す</td></tr>
+      <tr><td class="hl">エクスポートが失敗する</td><td>トピック名にピリオド（<code class="inl">.</code>）が含まれる</td><td>トピック名を変更してから再実行</td></tr>
+      <tr><td class="hl">インポートが失敗する</td><td>必要なコンポーネントがソリューションに含まれていない</td><td>ログで不足を特定 →「必要なオブジェクトを追加」→ 再エクスポート</td></tr>
+      <tr><td class="hl">公開時にエラー<br><span style="font-weight:400;font-size:13.5px;color:#6E6A62"><code class="inl">IdentifierNotRecognized</code>＝「その名前が見つからない」の意味</span></td><td>参照先の部品が箱に入っていない</td><td>フロー／環境変数／接続参照を確認し、エージェント本体にも同じ操作を実行</td></tr>
+      <tr><td class="hl">特定のトピックだけ動かない</td><td>接続参照・環境変数が未設定</td><td>接続を作り直し、環境変数に新環境の値を入れる</td></tr>
+      <tr><td class="hl">公開できない</td><td>環境にライセンス／容量が割り当てられていない</td><td>容量を割り当てる、または従量課金の設定に環境をリンクする</td></tr>
+    </table>
+  </div>
+  <aside class="nt"><ul><li>ログファイルは XML。Excel で開くと読みやすい、と添えると親切。</li></ul></aside>
+</section>
+
+<!-- 28 チェックリスト -->
+<section class="slide dense">
+  <div class="kicker">CHECKLIST</div>
+  <h2>移管チェックリスト</h2><div class="hr"></div>
+  <div class="body top">
+    <ul class="checkl">
+      <li><b>移行元</b> — カスタムソリューションを作成し、エージェントを追加した</li>
+      <li><b>移行元</b> — 「必要なオブジェクトを追加」でフロー・接続参照・環境変数・コネクタを取り込んだ</li>
+      <li><b>移行元</b> — すべての変更を公開し、パッケージの種類を選んでエクスポートした</li>
+      <li><b>移行先</b> — Dataverse・リージョン・セキュリティロール・ライセンス／容量を確認した</li>
+      <li><b>移行先</b> — カスタムコネクタを先に取り込み、ソリューションをインポートした</li>
+      <li><b>移行先</b> — 接続参照と環境変数に新環境の値を設定した</li>
+      <li><b>移行先</b> — 認証設定・チャネル・アイコン・共有設定を再構成し、公開して動作確認した</li>
+    </ul>
+    <div class="gloss"><span class="h">用語ミニ解説</span><span class="g"><b>この1枚の使い方</b>：作業当日に印刷して手元に置き、上から順にチェックしていけばよい</span></div>
+  </div>
+  <aside class="nt"><ul><li>この1枚だけ印刷して作業当日に手元に置くと便利、と案内する。</li></ul></aside>
+</section>
+
+<!-- 29 まとめ -->
+<section class="slide">
+  <div class="kicker">SUMMARY</div>
+  <h2>まとめ</h2><div class="hr"></div>
+  <div class="body">
+    <div class="c-2-3">
+      <div class="card dark"><div class="ico">3つの要点</div><h3>先行開発は成立する</h3><p>ソリューションで梱包しておけば、新環境ができてから安全に引っ越せる。ただし①最初からソリューション内で作る、②環境依存の値は環境変数に逃がす、③公開にはライセンス／容量が要る、の3点を先に押さえること。</p></div>
+      <div class="stack">
+        <div class="note ok"><b>いちばん効く準備</b>依存関係の洗い出しと「必要なオブジェクトを追加」。ここが丁寧なら移行はほぼ成功する。</div>
+        <dl class="kv">
+          <dt>根拠</dt><dd>本資料の内容は Microsoft Learn の公式ドキュメントに基づいています（2026年8月時点）</dd>
+          <dt>出典</dt><dd>参照した公式ページの URL は<strong>次のスライド</strong>にまとめてあります</dd>
+          <dt>ご注意</dt><dd>画面上のボタン名やライセンス条件は更新されることがあるため、作業前に最新の記載をご確認ください</dd>
+        </dl>
+      </div>
+    </div>
+  </div>
+  <aside class="nt"><ul><li>最後に、作業日程（インポート日とライセンス手配の完了日）を確認して締める。</li></ul></aside>
+</section>
+
+<!-- 30 参考リンク -->
+<section class="slide dense">
+  <div class="kicker">REFERENCES</div>
+  <h2>参考リンク（すべて Microsoft 公式ドキュメント）</h2><div class="hr"></div>
+  <div class="body top">
+    <div class="lnks">
+      <div class="r"><div class="t">ソリューションを使ってエージェントをエクスポートおよびインポートする</div><div class="u"><a href="https://learn.microsoft.com/ja-jp/microsoft-copilot-studio/authoring-solutions-import-export">https://learn.microsoft.com/ja-jp/microsoft-copilot-studio/authoring-solutions-import-export</a></div></div>
+      <div class="r"><div class="t">カスタム ソリューションの作成と管理（Copilot Studio）</div><div class="u"><a href="https://learn.microsoft.com/ja-jp/microsoft-copilot-studio/authoring-solutions-overview">https://learn.microsoft.com/ja-jp/microsoft-copilot-studio/authoring-solutions-overview</a></div></div>
+      <div class="r"><div class="t">ソリューションのインポート・更新・エクスポート（Power Apps）</div><div class="u"><a href="https://learn.microsoft.com/ja-jp/power-apps/maker/data-platform/import-update-export-solutions">https://learn.microsoft.com/ja-jp/power-apps/maker/data-platform/import-update-export-solutions</a></div></div>
+      <div class="r"><div class="t">アプリケーション ライフサイクル管理（ALM）戦略を確立する</div><div class="u"><a href="https://learn.microsoft.com/ja-jp/microsoft-copilot-studio/guidance/alm">https://learn.microsoft.com/ja-jp/microsoft-copilot-studio/guidance/alm</a></div></div>
+      <div class="r"><div class="t">発行における式と参照のエラーのトラブルシューティング</div><div class="u"><a href="https://learn.microsoft.com/ja-jp/troubleshoot/power-platform/copilot-studio/lifecycle-management/agent-publish-missing-dependencies">https://learn.microsoft.com/ja-jp/troubleshoot/power-platform/copilot-studio/lifecycle-management/agent-publish-missing-dependencies</a></div></div>
+      <div class="r"><div class="t">Power Platform 環境の操作／ライセンスと課金</div><div class="u"><a href="https://learn.microsoft.com/ja-jp/microsoft-copilot-studio/environments-first-run-experience">https://learn.microsoft.com/ja-jp/microsoft-copilot-studio/environments-first-run-experience</a>　<a href="https://learn.microsoft.com/ja-jp/microsoft-copilot-studio/billing-licensing">https://learn.microsoft.com/ja-jp/microsoft-copilot-studio/billing-licensing</a></div></div>
+    </div>
+    <div class="note warn"><b>ご確認のお願い</b>本資料は上記の公式ドキュメント（2026年8月時点）に基づく。<em>ボタン名やライセンス条件は更新されることがある</em>ため、作業前に該当ページで最新の記載を確認すること。</div>
+  </div>
+  <aside class="nt"><ul><li>「この資料の根拠はここ」と示すためのスライド。配布資料としてそのまま残す。</li><li>URL はクリックで開ける。印刷時も URL が読める形にしてある。</li></ul></aside>
+</section>
+
+</div></div>
+
+<div id="bar"></div>
+<div id="help">← → 移動 ／ N ノート ／ O 目次 ／ F 全画面 ／ Ctrl+E 編集 ／ Ctrl+S 保存</div>
+<div id="hud">
+  <button id="pv" title="前へ">‹</button><span id="pos">1 / 37</span><button id="nx" title="次へ">›</button>
+  <button id="bn" title="講師ノート (N)">N</button><button id="bo" title="目次 (O)">O</button><button id="bf" title="全画面 (F)">⛶</button>
+</div>
+<div id="ehud">
+  <button id="bEdit" title="このスライドを画面上で直接編集 (Ctrl+E)">編集</button>
+  <button id="bSrc" title="このスライドのHTMLソースを開く">HTML</button>
+  <span class="sep"></span>
+  <button id="bDup" title="このスライドを複製して次に挿入">複製</button>
+  <button id="bDel" title="このスライドを削除">削除</button>
+  <button id="bUndo" title="直前の編集を取り消す" disabled>戻す</button>
+  <span class="sep"></span>
+  <button id="bSave" title="編集を反映したHTMLをダウンロード (Ctrl+S)">保存</button>
+</div>
+<div id="ebadge">EDIT MODE</div>
+<div id="src">
+  <div class="hd">
+    <h4>SLIDE HTML &mdash; <span id="srcnum">1</span></h4>
+    <div class="btns">
+      <button class="pri" id="srcApply" title="Ctrl+Enter">適用</button>
+      <button id="srcReload">読み直す</button>
+      <button id="srcClose">閉じる</button>
+    </div>
+  </div>
+  <textarea id="srcta" spellcheck="false"></textarea>
+  <div id="srcmsg">&lt;section class="slide"&gt; ごと書き換えられます。Ctrl+Enter で適用。</div>
+</div>
+
+<div id="notes"><h4>PRESENTER NOTES</h4><div id="ncontent"></div></div>
+<div id="toc"><h3>SLIDES — クリックで移動</h3><ol id="toclist"></ol></div>
+
+<script>
+(function(){
+  var stage=document.getElementById('stage');
+  var slides=[], i=0, notesOn=false, editOn=false, undo=[];
+
+  function qs(s){return document.querySelector(s);}
+  function all(s,r){return [].slice.call((r||document).querySelectorAll(s));}
+
+  /* ---------- layout ---------- */
+  function fit(){
+    var srcOpen=qs('#src').classList.contains('on');
+    var panel=srcOpen?Math.min(760,Math.max(400,window.innerWidth*0.46)):0;
+    var w=window.innerWidth-40-panel;
+    var hh=window.innerHeight*(notesOn?0.62:1)-40;
+    var s=Math.max(0.15,Math.min(w/1280,hh/720));
+    var left=Math.max(0,(window.innerWidth-panel-1280*s)/2);
+    var top=notesOn?20:Math.max(0,(window.innerHeight-720*s)/2);
+    stage.style.transformOrigin='0 0';
+    stage.style.transform='translate('+left+'px,'+top+'px) scale('+s+')';
+  }
+
+  /* ---------- navigation ---------- */
+  function title(el){
+    var t=el.querySelector('h1,h2')||el.querySelector('.big');
+    var s=t?t.textContent.replace(/\s+/g,' ').trim():'—';
+    return s.length>28?s.slice(0,28)+'…':s;
+  }
+
+  function buildToc(){
+    var tl=qs('#toclist'); tl.innerHTML='';
+    slides.forEach(function(sl,k){
+      var li=document.createElement('li');
+      if(sl.classList.contains('sec')||sl.classList.contains('title')) li.className='div';
+      var a=document.createElement('span'); a.className='i'; a.textContent=k+1;
+      var b=document.createElement('span'); b.textContent=title(sl);
+      li.appendChild(a); li.appendChild(b);
+      li.onclick=function(){show(k);qs('#toc').classList.remove('on');};
+      tl.appendChild(li);
+    });
+  }
+
+  function show(n){
+    if(!slides.length) return;
+    i=Math.max(0,Math.min(slides.length-1,n));
+    slides.forEach(function(s,k){s.classList.toggle('active',k===i);});
+    qs('#pos').textContent=(i+1)+' / '+slides.length;
+    qs('#bar').style.width=((i+1)/slides.length*100)+'%';
+    var nt=slides[i].querySelector('.nt');
+    qs('#ncontent').innerHTML=nt?nt.innerHTML:'<p style="color:#6E6A62">（このスライドのノートはありません）</p>';
+    qs('#srcnum').textContent=(i+1)+' / '+slides.length;
+    if(qs('#src').classList.contains('on')) loadSrc();
+    applyEdit();
+    try{location.hash='s'+(i+1);}catch(e){}
+  }
+
+  function refresh(keep){
+    slides=all('.slide',stage);
+    buildToc();
+    show(typeof keep==='number'?keep:i);
+  }
+
+  /* ---------- editing ---------- */
+  function snapshot(){
+    undo.push({html:stage.innerHTML,idx:i});
+    if(undo.length>40) undo.shift();
+    qs('#bUndo').disabled=false;
+  }
+
+  function applyEdit(){
+    slides.forEach(function(s){
+      s.classList.remove('edit');
+      s.removeAttribute('contenteditable');
+      s.removeAttribute('spellcheck');
+    });
+    if(editOn && slides[i]){
+      slides[i].setAttribute('contenteditable','true');
+      slides[i].setAttribute('spellcheck','false');
+      slides[i].classList.add('edit');
+    }
+    qs('#ehud').classList.toggle('on',editOn);
+    qs('#ebadge').classList.toggle('on',editOn);
+    qs('#bEdit').classList.toggle('act',editOn);
+    var nc=qs('#ncontent');
+    if(editOn){nc.setAttribute('contenteditable','true');nc.setAttribute('spellcheck','false');}
+    else{nc.removeAttribute('contenteditable');nc.removeAttribute('spellcheck');}
+  }
+
+  function toggleEdit(){
+    if(!editOn) snapshot();
+    editOn=!editOn;
+    applyEdit();
+    if(editOn && slides[i]){ try{slides[i].focus();}catch(e){} }
+  }
+
+  /* notes panel edits write back into the slide's hidden <aside class="nt"> */
+  qs('#ncontent').addEventListener('input',function(){
+    if(!editOn||!slides[i]) return;
+    var nt=slides[i].querySelector('.nt');
+    if(!nt){ nt=document.createElement('aside'); nt.className='nt'; slides[i].appendChild(nt); }
+    nt.innerHTML=qs('#ncontent').innerHTML;
+  });
+
+  /* ---------- source panel ---------- */
+  function loadSrc(){
+    var s=slides[i]; if(!s) return;
+    var c=s.cloneNode(true);
+    c.classList.remove('active','edit');
+    c.removeAttribute('contenteditable'); c.removeAttribute('spellcheck');
+    if(c.getAttribute('style')==='') c.removeAttribute('style');
+    if(c.getAttribute('class')==='') c.removeAttribute('class');
+    qs('#srcta').value=c.outerHTML;
+    msg('&lt;section class="slide"&gt; ごと書き換えられます。Ctrl+Enter で適用。','');
+  }
+  function msg(t,cls){var m=qs('#srcmsg');m.innerHTML=t;m.className=cls||'';}
+
+  function openSrc(){qs('#src').classList.add('on');loadSrc();fit();qs('#srcta').focus();}
+  function closeSrc(){qs('#src').classList.remove('on');fit();}
+
+  function applySrc(){
+    var txt=qs('#srcta').value.trim();
+    if(!txt){msg('空です。','err');return;}
+    var tmp=document.createElement('div');
+    tmp.innerHTML=txt;
+    var nw=tmp.querySelector('section.slide')||tmp.firstElementChild;
+    if(!nw){msg('section.slide が見つかりません。','err');return;}
+    if(!nw.classList.contains('slide')) nw.classList.add('slide');
+    snapshot();
+    slides[i].parentNode.replaceChild(nw,slides[i]);
+    refresh(i);
+    msg('適用しました。','ok');
+  }
+
+  /* ---------- export ---------- */
+  function exportHTML(){
+    var doc=document.documentElement.cloneNode(true);
+    all('[contenteditable]',doc).forEach(function(e){e.removeAttribute('contenteditable');e.removeAttribute('spellcheck');});
+    all('.slide',doc).forEach(function(e){e.classList.remove('active','edit');e.removeAttribute('style');});
+    var g=function(s){return doc.querySelector(s);};
+    ['#stage','#viewport','#bar'].forEach(function(s){if(g(s))g(s).removeAttribute('style');});
+    if(g('#toclist')) g('#toclist').innerHTML='';
+    if(g('#ncontent')) g('#ncontent').innerHTML='';
+    if(g('#srcta')) g('#srcta').textContent='';
+    if(g('#srcmsg')) g('#srcmsg').textContent='';
+    ['#notes','#toc','#src','#ehud','#ebadge'].forEach(function(s){if(g(s))g(s).classList.remove('on');});
+    if(g('#bEdit')) g('#bEdit').classList.remove('act');
+    if(g('#bUndo')) g('#bUndo').setAttribute('disabled','');
+    if(g('#pos')) g('#pos').textContent='1 / '+doc.querySelectorAll('.slide').length;
+    if(g('#srcnum')) g('#srcnum').textContent='1';
+    var out='<!DOCTYPE html>\n'+doc.outerHTML;
+    var blob=new Blob([out],{type:'text/html;charset=utf-8'});
+    var url=URL.createObjectURL(blob);
+    var d=new Date(), z=function(n){return(n<10?'0':'')+n;};
+    var stamp=d.getFullYear()+z(d.getMonth()+1)+z(d.getDate())+'-'+z(d.getHours())+z(d.getMinutes());
+    var a=document.createElement('a');
+    a.href=url; a.download='skill-handson-'+stamp+'.html';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(function(){URL.revokeObjectURL(url);},2000);
+    flash(qs('#bSave'));
+  }
+  function flash(btn){
+    if(!btn) return;
+    var t=btn.textContent; btn.textContent='✓'; btn.classList.add('act');
+    setTimeout(function(){btn.textContent=t;btn.classList.remove('act');},900);
+  }
+
+  /* ---------- slide ops ---------- */
+  function dupSlide(){
+    snapshot();
+    var c=slides[i].cloneNode(true);
+    c.classList.remove('active','edit');
+    c.removeAttribute('contenteditable'); c.removeAttribute('spellcheck');
+    slides[i].parentNode.insertBefore(c,slides[i].nextSibling);
+    refresh(i+1);
+  }
+  function delSlide(){
+    if(slides.length<=1) return;
+    snapshot();
+    var idx=i;
+    slides[idx].parentNode.removeChild(slides[idx]);
+    refresh(Math.min(idx,slides.length-2));
+  }
+  function doUndo(){
+    if(!undo.length) return;
+    var st=undo.pop();
+    stage.innerHTML=st.html;
+    refresh(st.idx);
+    qs('#bUndo').disabled=!undo.length;
+  }
+
+  /* ---------- panels ---------- */
+  function toggleNotes(){notesOn=!notesOn;qs('#notes').classList.toggle('on',notesOn);fit();}
+  function toggleToc(){qs('#toc').classList.toggle('on');}
+  function toggleFull(){
+    if(!document.fullscreenElement){document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen();}
+    else{document.exitFullscreen();}
+  }
+
+  /* ---------- keys ---------- */
+  document.addEventListener('keydown',function(e){
+    var t=e.target, mod=e.ctrlKey||e.metaKey;
+    var typing=!!(t&&(t.isContentEditable||t.tagName==='TEXTAREA'||t.tagName==='INPUT'));
+    if(mod&&(e.key==='s'||e.key==='S')){e.preventDefault();exportHTML();return;}
+    if(mod&&(e.key==='e'||e.key==='E')){e.preventDefault();toggleEdit();return;}
+    if(mod&&e.key==='Enter'){if(t&&t.id==='srcta'){e.preventDefault();applySrc();}return;}
+    if(mod&&(e.key==='z'||e.key==='Z')&&!typing){e.preventDefault();doUndo();return;}
+    if(e.key==='Escape'){qs('#toc').classList.remove('on');if(qs('#src').classList.contains('on'))closeSrc();return;}
+    if(typing) return;
+    var k=e.key;
+    if(k==='ArrowRight'||k===' '||k==='PageDown'){e.preventDefault();show(i+1);}
+    else if(k==='ArrowLeft'||k==='PageUp'){e.preventDefault();show(i-1);}
+    else if(k==='Home'){show(0);}
+    else if(k==='End'){show(slides.length-1);}
+    else if(k==='n'||k==='N'){toggleNotes();}
+    else if(k==='o'||k==='O'){toggleToc();}
+    else if(k==='f'||k==='F'){toggleFull();}
+  });
+
+  /* ---------- wiring ---------- */
+  qs('#nx').onclick=function(){show(i+1);};
+  qs('#pv').onclick=function(){show(i-1);};
+  qs('#bn').onclick=toggleNotes;
+  qs('#bo').onclick=toggleToc;
+  qs('#bf').onclick=toggleFull;
+  qs('#bEdit').onclick=toggleEdit;
+  qs('#bSrc').onclick=function(){qs('#src').classList.contains('on')?closeSrc():openSrc();};
+  qs('#bDup').onclick=dupSlide;
+  qs('#bDel').onclick=delSlide;
+  qs('#bUndo').onclick=doUndo;
+  qs('#bSave').onclick=exportHTML;
+  qs('#srcApply').onclick=applySrc;
+  qs('#srcReload').onclick=loadSrc;
+  qs('#srcClose').onclick=closeSrc;
+
+  window.addEventListener('resize',fit);
+  window.addEventListener('beforeunload',function(e){
+    if(undo.length){e.preventDefault();e.returnValue='';}
+  });
+
+  var m=(location.hash||'').match(/^#s(\d+)$/);
+  slides=all('.slide',stage);
+  buildToc();
+  fit();
+  show(m?parseInt(m[1],10)-1:0);
+})();
+</script>
+</body>
+</html>
