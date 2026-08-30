@@ -82,7 +82,10 @@ button{font-family:inherit;cursor:pointer}
 .btn.gold{background:linear-gradient(150deg,var(--gold),var(--gold-2));color:#3a2600;border-color:#dda200;font-weight:800}
 .btn.gold:hover{box-shadow:0 14px 26px -12px rgba(224,160,0,.85);border-color:#c79100}
 .btn.ghost{background:var(--surface-2)}
-.btn:disabled{opacity:.45;cursor:not-allowed;transform:none!important;box-shadow:none}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none!important;box-shadow:none}
+.btn.danger{color:var(--critical-ink);border-color:#f0c2c2;background:#fffafa}
+.btn.danger:hover{background:#fdeaea;border-color:var(--critical-ink);box-shadow:0 10px 20px -12px rgba(194,42,42,.6)}
+.divider{width:1px;height:26px;background:var(--line-2);margin:0 2px;flex:none}
 
 /* ================= dropzone ================= */
 .drop{
@@ -381,6 +384,47 @@ button{font-family:inherit;cursor:pointer}
 .fnode .fh{font-size:12.5px;font-weight:800;color:var(--navy)}
 .fnode .fb{font-size:12px;line-height:1.8;color:var(--ink-2);margin-top:3px}
 .fnode .fb code{font-size:11px}
+
+/* ================= save / undo / diff ================= */
+.savetime{font-size:10.5px;font-weight:800;letter-spacing:.02em;white-space:nowrap;padding:0 2px}
+.savetime.ok{color:var(--good-ink)} .savetime.saving{color:var(--ink-3)}
+.savetime.dirty{color:var(--warning-ink)} .savetime.err{color:var(--critical-ink)}
+.btn.icon{padding:10px 11px}
+.btn.icon svg{margin:0}
+.savebox{display:inline-flex;align-items:center;gap:7px;padding:6px 10px 6px 8px;border-radius:11px;
+  background:var(--surface-2);border:1px solid var(--line)}
+
+.chipbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.dchip{display:inline-flex;align-items:center;gap:7px;padding:7px 11px;border-radius:99px;font-size:11.5px;font-weight:800;
+  background:var(--gold-soft);border:1px solid #f2d999;color:#5a4000}
+.dchip button{border:0;background:transparent;color:#8a5a00;font-size:14px;line-height:1;padding:0 2px;border-radius:6px}
+.dchip button:hover{background:rgba(0,0,0,.08)}
+
+.dstats{display:grid;grid-template-columns:repeat(4,1fr);gap:11px}
+.dstat{border:1px solid var(--line);border-radius:13px;padding:13px 15px;background:var(--surface-2);border-top:4px solid var(--navy-3)}
+.dstat.n{border-top-color:var(--critical)} .dstat.u{border-top-color:var(--warning)}
+.dstat.s{border-top-color:var(--line-2)}  .dstat.r{border-top-color:var(--good)}
+.dstat .ds-l{font-size:10.5px;font-weight:800;letter-spacing:.05em;color:var(--ink-3)}
+.dstat .ds-v{font-size:30px;font-weight:800;letter-spacing:-.025em;line-height:1.1;margin:5px 0 2px;
+  font-variant-numeric:tabular-nums;color:var(--navy)}
+.dstat.n .ds-v{color:var(--critical-ink)}
+.dstat .ds-d{font-size:10.5px;color:var(--ink-3);line-height:1.5}
+.dlist{list-style:none;margin:0;padding:0;max-height:230px;overflow-y:auto}
+.dlist li{display:flex;gap:12px;align-items:baseline;flex-wrap:wrap;font-size:12px;color:var(--ink-3);
+  padding:7px 2px;border-bottom:1px dashed var(--line)}
+.dlist li:last-child{border-bottom:0}
+.dlist li b{color:var(--ink);font-size:12.5px;min-width:190px}
+.difffile{display:flex;align-items:center;gap:13px;border:1.5px dashed #b9c4dd;border-radius:13px;padding:16px 18px;background:var(--surface-2)}
+.difffile svg{width:24px;height:24px;color:var(--navy-3);flex:none}
+.difffile>div{flex:1;min-width:0}
+.mask.dragover .modal{outline:3px dashed var(--gold-2);outline-offset:4px}
+
+/* diff badge in table */
+.dbadge{font-size:9.5px;font-weight:800;padding:2px 6px;border-radius:6px;margin-left:6px;white-space:nowrap;vertical-align:1px}
+.dbadge.new{background:#fdeaea;color:var(--critical-ink);border:1px solid #f4c9c9}
+.dbadge.updated{background:var(--gold-soft);color:var(--warning-ink);border:1px solid #f0d799}
+@media (max-width:820px){ .dstats{grid-template-columns:repeat(2,1fr)} }
+@media (max-width:640px){ .dstats{grid-template-columns:1fr} .savebox{width:100%;justify-content:center} }
 /* ================= table ================= */
 .tablecard{padding:0;overflow:hidden}
 .thead{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 18px;border-bottom:1px solid var(--line);flex-wrap:wrap}
@@ -597,6 +641,9 @@ tbody tr.sel td.pin{background:var(--gold-soft)}
 <symbol id="i-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m9 5 7 7-7 7"/></symbol>
 <symbol id="i-flow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="3" width="7" height="6" rx="2"/><rect x="14.5" y="15" width="7" height="6" rx="2"/><path d="M6 9v5a4 4 0 0 0 4 4h4.5"/></symbol>
 <symbol id="i-bolt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4.5 13.5H11L10 22l8.5-11.5H12L13 2Z"/></symbol>
+<symbol id="i-save" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2Z"/><path d="M17 21v-8H7v8M7 3v5h8"/></symbol>
+<symbol id="i-undo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14 4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/></symbol>
+<symbol id="i-compare" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"/><path d="M6 8 3 12l3 4"/><path d="m18 8 3 4-3 4"/></symbol>
 <symbol id="i-grid" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18"/></symbol>
 <symbol id="i-bot" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="18" height="12" rx="3"/><path d="M12 8V4M9 14h.01M15 14h.01M1 13v2M23 13v2"/></symbol>
 </defs>
@@ -613,13 +660,19 @@ tbody tr.sel td.pin{background:var(--gold-soft)}
       </div>
     </div>
     <div class="actions">
-      <button class="btn ghost" id="btnSample"><svg><use href="#i-spark"/></svg>サンプル</button>
+      <div class="savebox">
+        <button class="btn icon" id="btnSave" title="いますぐ保存（自動保存もされます）"><svg><use href="#i-save"/></svg></button>
+        <span class="savetime" id="saveTime"></span>
+      </div>
+      <button class="btn icon" id="btnUndo" title="元に戻せる操作はありません" disabled><svg><use href="#i-undo"/></svg></button>
+      <button class="btn icon" id="btnSettings" title="判定・通知の閾値を設定"><svg><use href="#i-cog"/></svg></button>
+      <span class="divider"></span>
       <button class="btn" id="btnImport"><svg><use href="#i-up"/></svg>CSVインポート</button>
+      <button class="btn" id="btnDiff"><svg><use href="#i-compare"/></svg>前月比較</button>
       <button class="btn" id="btnMail"><svg><use href="#i-mail"/></svg>通知メール作成</button>
       <button class="btn primary" id="btnExport"><svg><use href="#i-down"/></svg>出力 / 連携</button>
-      <button class="btn ghost" id="btnSettings" title="判定・通知の閾値を設定"><svg><use href="#i-cog"/></svg></button>
-      <button class="btn ghost" id="btnReset" title="保存済みの棚卸ステータス・メモを消去"><svg><use href="#i-reset"/></svg></button>
       <button class="btn gold" id="btnHelp"><svg><use href="#i-help"/></svg>使い方</button>
+      <button class="btn icon danger" id="btnReset" title="棚卸データをすべて消去（元に戻すで復旧できます）"><svg><use href="#i-trash"/></svg></button>
     </div>
   </div>
 
@@ -630,8 +683,12 @@ tbody tr.sel td.pin{background:var(--gold-soft)}
     <div class="row">
       <button class="btn" id="btnPick"><svg><use href="#i-file"/></svg>ファイルを選択</button>
       <button class="btn ghost" id="btnSample2"><svg><use href="#i-spark"/></svg>サンプルデータで試す</button>
+      <button class="btn ghost" id="btnSessIn"><svg><use href="#i-file"/></svg>セッションファイルを読み込む</button>
+      <button class="btn ghost" id="btnSessOut"><svg><use href="#i-save"/></svg>セッションを書き出す</button>
     </div>
     <input type="file" id="file" accept=".csv,text/csv" hidden>
+    <input type="file" id="fileBase" accept=".csv,text/csv" hidden>
+    <input type="file" id="fileSess" accept=".json,application/json" hidden>
   </div>
 
   <div class="hero">
@@ -781,12 +838,20 @@ tbody tr.sel td.pin{background:var(--gold-soft)}
         <button class="x" id="qx" title="クリア">×</button>
       </div>
       <select class="sel" id="fPlat"><option value="">全プラットフォーム</option></select>
+      <select class="sel" id="fDiffSel" title="前月比較の結果で絞り込み">
+        <option value="">前月比：すべて</option>
+        <option value="new">新規に作られた</option>
+        <option value="updated">更新された</option>
+        <option value="same">変化なし</option>
+      </select>
       <select class="sel" id="fStatus">
         <option value="">全ステータス</option>
         <option value="未確認">未確認</option><option value="継続">継続</option>
         <option value="削除決定">削除決定</option><option value="保留">保留</option>
       </select>
     </div>
+
+    <div class="chipbar" id="diffChip"></div>
 
     <div class="quickbulk">
       <span class="qt"><svg><use href="#i-bolt"/></svg>絞り込み中の <b id="qbCount" style="color:var(--navy)">0</b> 件を一括処理</span>
@@ -982,6 +1047,46 @@ tbody tr.sel td.pin{background:var(--gold-soft)}
       </ol>
     </section>
 
+
+
+    <section>
+      <h4><svg><use href="#i-save"/></svg>作業の保存と復元<span class="badge">v1.4</span></h4>
+      <p><b>読み込んだCSVごと、作業状態が自動で保存されます。</b>ファイルを閉じて翌日また開いても、前回の続きから再開できます。オフラインのHTMLのままで、データが外に出ることはありません。</p>
+      <ul>
+        <li><b>自動保存</b>：操作するたびに約1.5秒後、ブラウザ内のデータベース（IndexedDB）に保存されます。右上に「保存済 14:22」と表示されます。</li>
+        <li><b>手動保存</b>：<svg><use href="#i-save"/></svg> ボタン、または <span class="kbd">Ctrl</span>+<span class="kbd">S</span>。すぐ保存して時刻を更新します。</li>
+        <li><b>復元</b>：次に開いたとき、<b>読み込んでいたCSV・棚卸ステータス・通知履歴・閾値設定・比較の基準</b>がすべて戻ります。</li>
+        <li><b>サンプルに戻したいとき</b>：上部の枠にある「サンプルデータで試す」を押してください。</li>
+      </ul>
+      <p><b>別のPCへ移す・引き継ぐときは「セッションファイル」を使います。</b>上部の枠の「セッションを書き出す」で <code>.json</code> を保存し、移動先で「セッションファイルを読み込む」だけです。バックアップとしても使えます（担当者が代わるときの引き継ぎに便利です）。</p>
+      <div class="edithint"><svg><use href="#i-warn"/></svg><span>自動保存は<b>このブラウザの、このPCの中だけ</b>です。ブラウザのデータを消すと消えます。
+        大事な区切りでは<b>セッションファイルの書き出し</b>か、<b>CSV出力</b>をしておいてください。</span></div>
+    </section>
+
+    <section>
+      <h4><svg><use href="#i-undo"/></svg>元に戻す（Undo）<span class="badge">v1.4</span></h4>
+      <p>一括処理は数千件を一度に書き換えるため、<b>直前の操作を取り消せる</b>ようにしています。</p>
+      <ul>
+        <li>右上の <svg><use href="#i-undo"/></svg> ボタン、または <span class="kbd">Ctrl</span>+<span class="kbd">Z</span>。</li>
+        <li>ボタンにカーソルを合わせると「何を・何件・いつ」戻すのかが表示されます。</li>
+        <li>このセッション中は<b>最大20回分</b>さかのぼれます。ファイルを閉じても<b>直前の1回分</b>は残ります。</li>
+        <li>一括処理・リセット・個別のステータス変更が対象です（メモの入力は対象外）。</li>
+      </ul>
+      <p>それでも戻せないところまで進んでしまった場合は、書き出しておいたセッションファイルやCSVから復元してください。</p>
+    </section>
+
+    <section>
+      <h4><svg><use href="#i-compare"/></svg>前月比較（差分検出）<span class="badge">v1.4</span></h4>
+      <p>先月と今月のCSVを比べて、<b>新しく作られたもの・なくなったもの・更新されたもの</b>を出します。掃除した先から増えていないかを見るための機能です。</p>
+      <p><b>使い方はどちらでも</b></p>
+      <ul>
+        <li><b>自動</b>：新しいCSVを読み込むと、<b>それまで開いていたデータが自動的に「比較の基準」</b>になります。毎月読み込むだけで、次の月から差分が出ます。ファイル名が同じでも中身が変われば更新されます。</li>
+        <li><b>手動</b>：「前月比較」ボタン →「ファイルを選択」で先月のCSVを指定（画面へのドラッグ＆ドロップも可）。</li>
+      </ul>
+      <p>差分が出ると、絞り込みバーの上に <b>「前月比 ○○.csv：新規 300 / 更新 382 / なくなった 200」</b> と表示され、一覧の行にも <span class="dbadge new">新規</span> <span class="dbadge updated">更新</span> のバッジが付きます。プルダウン「前月比：すべて」で絞り込めます。</p>
+      <p><b>「新規」が「なくなった」を上回っていたら要注意です。</b>掃除より増殖のほうが速いということなので、エージェントの作成権限や申請フローの見直しを検討してください。差分はCSVでも出力できます。</p>
+      <p>突合は <code>AgentKey</code>（Bot Id ベース）で行います。Bot Id が未設定のものは「名前＋環境ID」で照合するため、<b>名前を変えると「なくなった＋新規」として現れます</b>。</p>
+    </section>
 
     <section>
       <h4><svg><use href="#i-server"/></svg>SharePointリストの作り方（回答を受ける台帳）<span class="badge">連携</span></h4>
@@ -1204,7 +1309,7 @@ tbody tr.sel td.pin{background:var(--gold-soft)}
     <section>
       <h4><svg><use href="#i-server"/></svg>データの保存とプライバシー</h4>
       <ul>
-        <li>入力した<b>ステータス・メモ・通知履歴・閾値設定は、このブラウザの localStorage に自動保存</b>されます。ページを更新しても、CSVを読み込み直しても残ります。</li>
+        <li>入力した<b>ステータス・メモ・通知履歴・閾値設定に加えて、読み込んだCSVそのものも自動保存</b>されます（ブラウザ内の IndexedDB）。ファイルを閉じても次に開いたときに前回の続きから再開できます。</li>
         <li>紐付けは <b>Bot Id</b>（未設定の場合は「エージェント名＋環境Id」）をキーに行います。同じエージェントであれば、翌月に新しいCSVを取得しても通知履歴が引き継がれます。</li>
         <li><b>ブラウザや端末が変わると引き継がれません。</b>複数人で回す運用なら、毎回CSVを出力して共有フォルダに置き、次回はそのCSVを起点にしてください。</li>
         <li>読み込んだCSVも入力内容も<b>外部サーバーへは一切送信されません</b>。オフライン環境でもそのまま動作します。</li>
@@ -1242,6 +1347,7 @@ tbody tr.sel td.pin{background:var(--gold-soft)}
     <section>
       <h4><svg><use href="#i-book"/></svg>更新履歴</h4>
       <ul class="changelog">
+        <li><span class="ver">v1.4</span><span class="dt">2026-08-30</span><span>読み込んだCSVごと自動保存・復元する仕組み（IndexedDB）と手動保存ボタン、セッションファイルの書き出し／読み込みを追加。一括処理の「元に戻す」（最大20回・Ctrl+Z）を実装。前月比較（差分検出）を追加し、新規／更新／なくなった件数とバッジ表示、差分CSV出力に対応。</span></li>
         <li><span class="ver">v1.3</span><span class="dt">2026-08-28</span><span>Power Automate / SharePoint 連携に対応。Excelテーブル(.xlsx)・SPOリスト取込用CSV・通知キューの出力、所有者が自分で回答する運用（OwnerResponse列）、CSVの往復インポートによる状態復元、SharePointリストURLの設定を追加。</span></li>
         <li><span class="ver">v1.2</span><span class="dt">2026-08-28</span><span>リマインドと削除の閾値を分離し、通知フロー（①通知待ち〜④削除実行可）を追加。絞り込み全件への一括処理、通知メール文面ジェネレーター、閾値の設定画面、ページネーション（数千件対応）を実装。「使い方」が空になる不具合を修正。</span></li>
         <li><span class="ver">v1.1</span><span class="dt">2026-08-28</span><span>白基調（紺＋イエロー）のデザインに刷新。円グラフ3種（プラットフォーム構成比・リマインド対象の内訳・棚卸ステータス内訳）と本「使い方」を追加。</span></li>
@@ -2204,7 +2310,7 @@ var TEST_KEYWORDS = ["テスト","てすと","ﾃｽﾄ","test","PoC","poc","検
 
 var LS_KEY = "agentInventory.audit.v1";
 var LS_SET = "agentInventory.settings.v1";
-var HELP_VERSION = "1.3";   /* ← 使い方を更新したらここも上げてください */
+var HELP_VERSION = "1.4";   /* ← 使い方を更新したらここも上げてください */
 
 var SERIES = ["#2a78d6","#eb6834","#1baf7a","#eda100","#e87ba4","#008300","#4a3aa7","#e34948"];
 var STATUS_COLORS = {"未確認":"#c3cbdd","継続":"#0ca30c","削除決定":"#d03b3b","保留":"#fab219"};
@@ -2251,7 +2357,7 @@ var TODAY = new Date(); TODAY.setHours(0,0,0,0);
 var settings = loadSettings();
 var rows = [];
 var audit = loadAudit();
-var tab = "all", opsTab = "all", query = "", fPlat = "", fStatus = "";
+var tab = "all", opsTab = "all", query = "", fPlat = "", fStatus = "", fDiff = "";
 var sortKey = "age", sortDir = -1;
 var selected = Object.create(null);
 var rankKey = "Owner";
@@ -2261,6 +2367,7 @@ var cache = { list:null, dirty:true };
 var stats = { plat:{}, env:{}, platColor:{} };
 var mailData = [], mailIdx = 0;
 var restoredCount = 0;
+var rowsByKey = Object.create(null);
 
 /* ---------- tiny helpers ---------- */
 function $(id){ return document.getElementById(id); }
@@ -2427,6 +2534,29 @@ function buildRows(matrix){
   return out;
 }
 
+/* 比較基準用の軽量パース（キーと最終更新日だけ取れればよい） */
+function buildRowsLight(matrix){
+  var head = matrix[0].map(function(h){ return String(h||"").replace(/^﻿/,"").trim(); });
+  function ix(names){
+    return head.findIndex(function(h){ return names.some(function(n){ return h.toLowerCase()===n.toLowerCase(); }); });
+  }
+  var iN=ix(["Name","Title"]), iB=ix(["Bot Id","BotId"]), iE=ix(["Environment Id","EnvironmentId"]),
+      iL=ix(["Last Modified","LastModifiedOn"]), iO=ix(["Owner","OwnerEmail"]), iP=ix(["Platform"]),
+      iK=ix(["AgentKey"]);
+  if(iN<0) iN=0;
+  var out=[], seen=Object.create(null);
+  for(var r=1;r<matrix.length;r++){
+    var raw=matrix[r]; if(!raw) continue;
+    var g=function(i){ return i>=0 ? String(raw[i]==null?"":raw[i]).trim() : ""; };
+    var name=g(iN); if(!name) continue;
+    var bot=g(iB);
+    var key=(iK>=0&&g(iK)) ? g(iK) : (bot ? "b:"+bot : "n:"+name+"|"+g(iE));
+    var kk=key,i2=1; while(seen[kk]){ kk=key+"#"+(++i2); } seen[kk]=1;
+    out.push({ key:kk, lm:parseDate(g(iL)), d:{"Name":name,"Owner":g(iO),"Platform":g(iP)} });
+  }
+  return out;
+}
+
 /* ---------- 閾値に基づく再判定（設定変更時にも呼ぶ） ---------- */
 function recompute(){
   var pc = Object.create(null), pe = Object.create(null);
@@ -2442,6 +2572,9 @@ function recompute(){
     pe[e].n++; if(r.cleanup) pe[e].bad++;
   });
   stats.plat = pc; stats.env = pe;
+  rowsByKey = Object.create(null);
+  for(var q=0;q<rows.length;q++) rowsByKey[rows[q].key] = rows[q];
+  computeDiff();
   var order = Object.keys(pc).sort(function(a,b){ return pc[b].n-pc[a].n || a.localeCompare(b,"ja"); });
   stats.platOrder = order;
   stats.platColor = Object.create(null);
@@ -2540,6 +2673,7 @@ function visible(){
     if(fPlat && r.d["Platform"]!==fPlat) continue;
     if(fStatus && A(r.key).status!==fStatus) continue;
     if(opsTab!=="all" && opsOf(r).k!==opsTab) continue;
+    if(fDiff && r.diff!==fDiff) continue;
     if(q && r.search.indexOf(q)<0) continue;
     out.push(r);
   }
@@ -2671,9 +2805,9 @@ function renderFunnel(){
   }).join("");
 
   $("oAll").textContent = rows.length.toLocaleString();
-  $("oNotify").textContent = c.notify; $("oWaiting").textContent = c.waiting;
-  $("oFinal").textContent = c.final;   $("oReady").textContent = c.ready;
-  $("oReplied").textContent = c.replied; $("oExcluded").textContent = c.excluded;
+  $("oNotify").textContent = c.notify.toLocaleString();   $("oWaiting").textContent = c.waiting.toLocaleString();
+  $("oFinal").textContent  = c.final.toLocaleString();    $("oReady").textContent   = c.ready.toLocaleString();
+  $("oReplied").textContent= c.replied.toLocaleString();  $("oExcluded").textContent= c.excluded.toLocaleString();
 
   $("flowRule").textContent = "リマインド " + settings.remindDays + "日 → 回答 " + settings.graceDays +
     "日 → 最終通知 " + settings.finalDays + "日 → 削除（強制 " + settings.forceDays + "日）";
@@ -2888,6 +3022,7 @@ function renderTable(){
       buf.push('<tr data-k="'+esc(r.key)+'" class="'+((r.cleanup||r.force)?"flagged ":"")+(selected[r.key]?"sel":"")+'">'+
         '<td><input type="checkbox" class="rowchk" '+(selected[r.key]?"checked":"")+'></td>'+
         '<td class="c-name"><span class="nm" title="'+esc(r.d["Name"])+'">'+esc(r.d["Name"])+'</span>'+
+          (r.diff==="new" ? '<span class="dbadge new">新規</span>' : r.diff==="updated" ? '<span class="dbadge updated">更新</span>' : '')+
           '<span class="ds" title="'+esc(desc)+'">'+esc(desc||"（説明なし）")+'</span></td>'+
         '<td>'+flagHTML(r)+'</td>'+
         '<td>'+notifyHTML(r)+'</td>'+
@@ -3400,6 +3535,342 @@ function openExport(){
     };
   });
 }
+/* ==================================================================
+   セッション永続化（IndexedDB）／ 元に戻す ／ 前月比較
+================================================================== */
+
+/* ---------- IndexedDB ---------- */
+var DB_NAME = "agentInventory", DB_VER = 1, DB_STORE = "kv";
+var idbReady = null;
+function idb(){
+  if(idbReady) return idbReady;
+  idbReady = new Promise(function(res, rej){
+    if(typeof indexedDB === "undefined"){ rej(new Error("no-idb")); return; }
+    var rq = indexedDB.open(DB_NAME, DB_VER);
+    rq.onupgradeneeded = function(){ rq.result.createObjectStore(DB_STORE); };
+    rq.onsuccess = function(){ res(rq.result); };
+    rq.onerror   = function(){ rej(rq.error || new Error("idb-open")); };
+    rq.onblocked = function(){ rej(new Error("idb-blocked")); };
+  }).catch(function(e){ idbReady = null; throw e; });
+  return idbReady;
+}
+function idbSet(key, val){
+  return idb().then(function(db){
+    return new Promise(function(res, rej){
+      var tx = db.transaction(DB_STORE, "readwrite");
+      tx.objectStore(DB_STORE).put(val, key);
+      tx.oncomplete = function(){ res(true); };
+      tx.onerror = function(){ rej(tx.error); };
+      tx.onabort = function(){ rej(tx.error); };
+    });
+  });
+}
+function idbGet(key){
+  return idb().then(function(db){
+    return new Promise(function(res, rej){
+      var tx = db.transaction(DB_STORE, "readonly");
+      var r = tx.objectStore(DB_STORE).get(key);
+      r.onsuccess = function(){ res(r.result); };
+      r.onerror = function(){ rej(r.error); };
+    });
+  });
+}
+function idbDel(key){
+  return idb().then(function(db){
+    return new Promise(function(res){
+      var tx = db.transaction(DB_STORE, "readwrite");
+      tx.objectStore(DB_STORE).delete(key);
+      tx.oncomplete = function(){ res(true); };
+      tx.onerror = function(){ res(false); };
+    });
+  });
+}
+
+/* ---------- セッションの保存・復元 ---------- */
+var sessionCsv = "", sessionLabel = "", lastSavedAt = "", saveState = "idle";
+var saveTimer = null, storageMode = "idb";
+
+function stateObject(){
+  return {
+    v: 3,
+    savedAt: new Date().toISOString(),
+    label: sessionLabel,
+    audit: audit,
+    settings: settings,
+    baseline: baseline,
+    undo: undoStack.length ? undoStack[undoStack.length-1] : null
+  };
+}
+function setSaveBadge(mode, when){
+  saveState = mode;
+  var el = $("saveTime"); if(!el) return;
+  if(mode==="saving"){ el.textContent = "保存中…"; el.className = "savetime saving"; }
+  else if(mode==="saved"){ el.textContent = "保存済 " + (when||lastSavedAt); el.className = "savetime ok"; }
+  else if(mode==="dirty"){ el.textContent = "未保存の変更あり"; el.className = "savetime dirty"; }
+  else if(mode==="err"){ el.textContent = "保存できません"; el.className = "savetime err"; }
+  else { el.textContent = ""; el.className = "savetime"; }
+}
+function hhmm(){
+  var d = new Date();
+  return pad(d.getHours())+":"+pad(d.getMinutes());
+}
+function saveSession(immediate){
+  if(!rows.length) return Promise.resolve();
+  setSaveBadge("dirty");
+  clearTimeout(saveTimer);
+  if(!immediate){
+    return new Promise(function(res){
+      saveTimer = setTimeout(function(){ saveSession(true).then(res); }, 1500);
+    });
+  }
+  setSaveBadge("saving");
+  var st = stateObject();
+  return idbSet("state", st)
+    .then(function(){ return idbSet("data", {csv: sessionCsv, label: sessionLabel}); })
+    .then(function(){
+      lastSavedAt = hhmm(); storageMode = "idb"; setSaveBadge("saved");
+    })
+    .catch(function(){
+      /* IndexedDB が使えない場合は localStorage にフォールバック（CSVは圧縮して保存） */
+      storageMode = "ls";
+      try{
+        localStorage.setItem("agentInventory.state.v3", JSON.stringify(st));
+        lastSavedAt = hhmm(); setSaveBadge("saved");
+      }catch(e){ setSaveBadge("err"); }
+    });
+}
+function loadSession(){
+  return idbGet("state").then(function(st){
+    return idbGet("data").then(function(d){
+      return (st && d && d.csv) ? {state:st, csv:d.csv, label:d.label} : null;
+    });
+  }).catch(function(){
+    try{
+      var s = JSON.parse(localStorage.getItem("agentInventory.state.v3")||"null");
+      return null;   /* localStorage には CSV 本体を持たないため復元不可 */
+    }catch(e){ return null; }
+  });
+}
+function applyState(st){
+  if(!st) return;
+  if(st.audit) audit = st.audit;
+  if(st.settings){
+    for(var k in SETTINGS_DEF){
+      if(NUM_KEYS.indexOf(k)>=0){ if(typeof st.settings[k]==="number" && st.settings[k]>0) settings[k]=st.settings[k]; }
+      else if(typeof st.settings[k]==="string") settings[k]=st.settings[k];
+    }
+  }
+  baseline  = st.baseline || null;
+  undoStack = st.undo ? [st.undo] : [];
+}
+function clearSession(){
+  return Promise.all([idbDel("state"), idbDel("data")]).catch(function(){});
+}
+
+/* ---------- セッションファイル（.json）での書き出し／読み込み ---------- */
+function exportSession(){
+  if(!rows.length){ toast("保存するデータがありません","err"); return; }
+  var payload = { app:"agent-inventory-dashboard", v:3, exportedAt:new Date().toISOString(),
+                  label: sessionLabel, csv: sessionCsv, state: stateObject() };
+  var blob = new Blob([JSON.stringify(payload)], {type:"application/json"});
+  downloadBlob("AgentInventory_session_"+stamp()+".json", blob);
+  toast("セッションファイルを書き出しました（バックアップ・引き継ぎ用）","ok");
+}
+function importSessionFile(file){
+  var fr = new FileReader();
+  fr.onload = function(){
+    try{
+      var p = JSON.parse(fr.result);
+      if(!p || !p.csv){ toast("セッションファイルの形式が違います","err"); return; }
+      applyState(p.state || {});
+      loadText(p.csv, p.label || file.name, {restore:true});
+      saveSession(true);
+      toast("セッションを読み込みました（"+(p.label||file.name)+"）","ok");
+    }catch(e){ toast("読み込みに失敗しました: "+e.message,"err"); }
+  };
+  fr.readAsText(file);
+}
+
+/* ==================================================================
+   元に戻す（Undo）
+================================================================== */
+var undoStack = [], UNDO_MAX = 20;
+var UNDO_FIELDS = ["status","memo","checkedAt","notify","notifiedAt","dueAt","resp","respComment","respondedOn"];
+
+function snapshotKeys(keys){
+  var out = [];
+  for(var i=0;i<keys.length;i++){
+    var a = A(keys[i]), b = {};
+    for(var j=0;j<UNDO_FIELDS.length;j++) b[UNDO_FIELDS[j]] = a[UNDO_FIELDS[j]];
+    out.push({k:keys[i], b:b});
+  }
+  return out;
+}
+function pushUndo(label, keys){
+  if(!keys || !keys.length) return;
+  undoStack.push({label:label, at:hhmm(), n:keys.length, changes:snapshotKeys(keys)});
+  if(undoStack.length > UNDO_MAX) undoStack.shift();
+  updateUndoBtn();
+}
+function doUndo(){
+  var e = undoStack.pop();
+  if(!e){ toast("元に戻せる操作がありません","err"); return; }
+  for(var i=0;i<e.changes.length;i++){
+    var c = e.changes[i], a = A(c.k);
+    for(var f in c.b) a[f] = c.b[f];
+  }
+  saveAudit(); markDirty(); renderAll(); updateUndoBtn(); saveSession();
+  toast("「"+e.label+"」を元に戻しました（"+e.n.toLocaleString()+"件）","ok");
+}
+function updateUndoBtn(){
+  var b = $("btnUndo"); if(!b) return;
+  var e = undoStack.length ? undoStack[undoStack.length-1] : null;
+  b.disabled = !e;
+  b.title = e ? ("元に戻す：「"+e.label+"」"+e.n.toLocaleString()+"件（"+e.at+"）" ) : "元に戻せる操作はありません";
+  var lb = $("undoLabel");
+  if(lb) lb.textContent = e ? (e.label+" "+e.n.toLocaleString()+"件") : "";
+}
+
+/* ==================================================================
+   前月比較（差分検出）
+================================================================== */
+var baseline = null;      /* {label, savedAt, map:{key:{n,lm,o,p}}} */
+var diffStats = null;     /* {new, updated, same, removed:[...]} */
+
+function snapshotMap(list){
+  var m = Object.create(null);
+  for(var i=0;i<list.length;i++){
+    var r = list[i];
+    m[r.key] = { n:r.d["Name"], lm: r.lm ? isoDate(r.lm) : "", o:r.d["Owner"], p:r.d["Platform"] };
+  }
+  return m;
+}
+function computeDiff(){
+  for(var i=0;i<rows.length;i++) rows[i].diff = "";
+  diffStats = null;
+  if(!baseline || !baseline.map) return;
+  var nw=0, up=0, sm=0, cur=Object.create(null);
+  for(var j=0;j<rows.length;j++){
+    var r = rows[j]; cur[r.key]=1;
+    var b = baseline.map[r.key];
+    if(!b){ r.diff = "new"; nw++; }
+    else if(b.lm !== (r.lm ? isoDate(r.lm) : "")){ r.diff = "updated"; up++; }
+    else { r.diff = "same"; sm++; }
+  }
+  var removed = [];
+  for(var k in baseline.map){ if(!cur[k]) removed.push(baseline.map[k]); }
+  diffStats = {"new":nw, updated:up, same:sm, removed:removed};
+}
+function setBaselineFrom(list, label){
+  baseline = { label: label, savedAt: new Date().toISOString(), map: snapshotMap(list) };
+  computeDiff(); markDirty();
+}
+function baselineDate(){
+  if(!baseline || !baseline.savedAt) return "—";
+  var d = new Date(baseline.savedAt);
+  return isNaN(d) ? "—" : isoDate(d);
+}
+
+function openDiff(){
+  modalKey = "__diff__";
+  $("modal").classList.add("wide");
+  var s = diffStats;
+  var head =
+    '<div class="mhead">'+
+      '<div class="mi"><svg><use href="#i-compare"/></svg></div>'+
+      '<div style="flex:1;min-width:0"><h2>前月比較（差分検出）</h2>'+
+        '<div class="sub">'+(baseline
+          ? '基準: '+esc(baseline.label)+'（'+baselineDate()+'）　→　現在: '+esc(sessionLabel||"—")
+          : '比較の基準データがまだありません')+'</div></div>'+
+      '<button class="mclose" id="mx">×</button>'+
+    '</div>';
+
+  var body;
+  if(!s){
+    body = '<div class="mbody">'+
+      '<div class="crit-note"><p><b>比較の基準がまだ設定されていません。</b><br>'+
+      '先月のCSVを下から読み込むと、今のデータとの差分（新規に作られたもの／消えたもの／更新されたもの）が出ます。<br>'+
+      'また、<b>新しいCSVを読み込んだ時点で、それまで開いていたデータが自動的に基準として保存</b>されます。次回以降は設定不要です。</p></div>'+
+      '<div class="difffile"><svg><use href="#i-up"/></svg>'+
+      '<div><b>先月のCSVを選ぶ</b><div class="xn">この画面に直接ドラッグ＆ドロップでも読み込めます</div></div>'+
+      '<button class="btn primary" id="dPick">ファイルを選択</button></div>'+
+      '</div>';
+  } else {
+    function card(cls,label,val,desc){
+      return '<div class="dstat '+cls+'"><div class="ds-l">'+label+'</div><div class="ds-v">'+val.toLocaleString()+'</div><div class="ds-d">'+desc+'</div></div>';
+    }
+    var lines = rows.filter(function(r){ return r.diff==="new"; })
+                    .sort(function(a,b){ return (b.cd?b.cd:0)-(a.cd?a.cd:0); });
+    body = '<div class="mbody">'+
+      '<div class="dstats">'+
+        card("n","新規に作られた", s["new"], "基準日以降に増えたもの")+
+        card("u","更新された", s.updated, "最終更新日が変わった")+
+        card("s","変化なし", s.same, "触られていない")+
+        card("r","なくなった", s.removed.length, "削除済み／名称変更")+
+      '</div>'+
+      (s["new"]>0
+        ? '<div class="dsec"><div class="k">新規に作られたエージェント（新しい順・最大20件）</div>'+
+          '<ul class="dlist">'+lines.slice(0,20).map(function(r){
+              return '<li><b>'+esc(r.d["Name"])+'</b><span>'+esc(r.d["Owner"])+'</span><span>'+esc(r.d["Platform"])+'</span><span>'+fmtDate(r.cd)+' 作成</span></li>';
+            }).join("")+'</ul>'+
+          (s["new"]>20 ? '<div class="xn">ほか '+(s["new"]-20)+' 件</div>' : '')+
+          '<div style="margin-top:10px"><button class="btn" id="dOnlyNew"><svg><use href="#i-search"/></svg>新規のみを一覧で表示</button></div></div>'
+        : '')+
+      (s.removed.length
+        ? '<div class="dsec"><div class="k">なくなったエージェント（最大20件）</div>'+
+          '<ul class="dlist">'+s.removed.slice(0,20).map(function(x){
+              return '<li><b>'+esc(x.n)+'</b><span>'+esc(x.o||"")+'</span><span>'+esc(x.p||"")+'</span></li>';
+            }).join("")+'</ul>'+
+          (s.removed.length>20 ? '<div class="xn">ほか '+(s.removed.length-20)+' 件</div>' : '')+'</div>'
+        : '')+
+      '<div class="panelfoot" id="dFoot">'+diffComment(s)+'</div>'+
+      '<div style="display:flex;gap:9px;flex-wrap:wrap;justify-content:flex-end">'+
+        '<button class="btn ghost" id="dPick2"><svg><use href="#i-up"/></svg>別のCSVを基準にする</button>'+
+        '<button class="btn" id="dCsv"><svg><use href="#i-down"/></svg>差分をCSV出力</button>'+
+        '<button class="btn primary" id="dRebase"><svg><use href="#i-reset"/></svg>いまのデータを新しい基準にする</button>'+
+      '</div>'+
+      '</div>';
+  }
+  $("modal").innerHTML = head + body;
+  $("mask").classList.add("open");
+  document.body.style.overflow = "hidden";
+  $("mx").onclick = closeModal;
+  ["dPick","dPick2"].forEach(function(id){ if($(id)) $(id).onclick = function(){ $(fileBase).click(); }; });
+  if($("dOnlyNew")) $("dOnlyNew").onclick = function(){
+    fDiff = "new"; $("fDiffSel").value = "new"; markDirty(); page=1; closeModal(); renderTable(); jumpToTable();
+  };
+  if($("dCsv")) $("dCsv").onclick = exportDiffCSV;
+  if($("dRebase")) $("dRebase").onclick = function(){
+    setBaselineFrom(rows, sessionLabel || "現在のデータ");
+    saveSession(); closeModal(); renderAll();
+    toast("いまのデータを比較の基準にしました","ok");
+  };
+}
+function diffComment(s){
+  if(!s) return "";
+  if(s["new"] > s.removed.length)
+    return '基準日から <b style="color:var(--critical-ink)">'+s["new"].toLocaleString()+'件 増え</b>、'+s.removed.length.toLocaleString()+'件 減りました。'+
+           '<b>増加が上回っています。</b>作成権限や申請フローの見直しを検討してください。';
+  if(s.removed.length > s["new"])
+    return '基準日から '+s["new"].toLocaleString()+'件 増え、<b style="color:var(--good-ink)">'+s.removed.length.toLocaleString()+'件 減りました</b>。整理が進んでいます。';
+  return '基準日から 増減はほぼ同数（新規 '+s["new"].toLocaleString()+'件 / 減 '+s.removed.length.toLocaleString()+'件）です。';
+}
+function exportDiffCSV(){
+  if(!diffStats){ toast("比較の基準がありません","err"); return; }
+  var head = ["区分","Name","Owner","Platform","EnvironmentId","LastModified","DaysIdle","AgentKey"];
+  var body = [];
+  rows.forEach(function(r){
+    if(r.diff==="new" || r.diff==="updated"){
+      body.push([r.diff==="new"?"新規":"更新", r.d["Name"], r.d["Owner"], r.d["Platform"],
+                 r.d["Environment Id"], r.lm?isoDate(r.lm):"", r.age<0?"":r.age, r.key].map(csvCell).join(","));
+    }
+  });
+  diffStats.removed.forEach(function(x){
+    body.push(["なくなった", x.n, x.o||"", x.p||"", "", x.lm||"", "", ""].map(csvCell).join(","));
+  });
+  download("agent_diff_"+stamp()+".csv", "﻿"+[head.join(",")].concat(body).join("\r\n"));
+  toast(body.length.toLocaleString()+"件の差分をCSVで出力しました","ok");
+}
 /* ---------- 所有者向けリンク（SharePoint リストの自分の担当分ビュー） ---------- */
 function myItemsUrl(owner){
   var base = (settings.spoListUrl||"").trim();
@@ -3610,7 +4081,7 @@ function openSettings(){
       if(isNaN(v) || v<1){ toast("正の数値を入力してください","err"); return; }
       settings[k] = v;
     }
-    saveSettings(); recompute(); page=1; closeModal(); renderAll();
+    saveSettings(); recompute(); page=1; closeModal(); renderAll(); saveSession();
     toast("閾値を保存し、全件を再判定しました","ok");
   };
 }
@@ -3618,13 +4089,15 @@ function openSettings(){
 /* ---------- 一括処理 ---------- */
 function applyBulk(keys, action){
   var kind = action.slice(0,2), val = action.slice(3);
+  var label = (kind==="st") ? ("一括変更：判断ステータス→"+val) : ("一括変更：通知→"+NOTIFY_LABEL[val]);
+  pushUndo(label, keys);
   for(var i=0;i<keys.length;i++){
     if(kind==="st") setStatus(keys[i], val);
     else setNotify(keys[i], val);
   }
-  saveAudit(); markDirty(); renderAll();
-  var label = (kind==="st") ? "判断ステータスを「"+val+"」" : "通知ステータスを「"+NOTIFY_LABEL[val]+"」";
-  toast(keys.length.toLocaleString()+"件の"+label+"に変更しました","ok");
+  saveAudit(); markDirty(); renderAll(); saveSession();
+  var lb = (kind==="st") ? "判断ステータスを「"+val+"」" : "通知ステータスを「"+NOTIFY_LABEL[val]+"」";
+  toast(keys.length.toLocaleString()+"件の"+lb+"に変更しました（元に戻せます）","ok");
 }
 function confirmBulk(n, action){
   var kind = action.slice(0,2), val = action.slice(3);
@@ -3634,12 +4107,19 @@ function confirmBulk(n, action){
 }
 
 /* ---------- load ---------- */
-function loadText(text, label){
+function loadText(text, label, opts){
+  opts = opts || {};
   var m = parseCSV(text);
   if(m.length < 2){ toast("CSVを解析できませんでした","err"); return; }
   var t0 = Date.now();
+  /* 新しいCSVを読み込むとき、いま開いているデータを自動的に「比較の基準」にする */
+  /* ファイル名が同じでも中身が変わっていれば基準を更新する（毎月同名で書き出す運用に対応） */
+  if(!opts.restore && rows.length && text !== sessionCsv){
+    setBaselineFrom(rows, sessionLabel || "前回のデータ");
+  }
   rows = buildRows(m);
   if(!rows.length){ toast("有効なデータ行がありません","err"); return; }
+  sessionCsv = text; sessionLabel = label;
   recompute();
   selected = Object.create(null);
   page = 1;
@@ -3649,9 +4129,12 @@ function loadText(text, label){
   fPlat=""; fStatus=""; $("fStatus").value="";
   $("drop").classList.add("compact");
   $("dropTitle").textContent = "読込済み: " + label + "　—　" + rows.length.toLocaleString() + " 件（別のCSVをここにドロップして差し替え）";
+  updateUndoBtn();
+  renderDiffChip();
   renderAll();
-  toast(rows.length.toLocaleString()+"件を読み込みました（"+(Date.now()-t0)+"ms）","ok");
-  if(restoredCount) toast("うち "+restoredCount.toLocaleString()+"件の棚卸ステータス・通知履歴・所有者回答を復元しました","ok");
+  if(!opts.silent) toast(rows.length.toLocaleString()+"件を読み込みました（"+(Date.now()-t0)+"ms）","ok");
+  if(restoredCount && !opts.silent) toast("うち "+restoredCount.toLocaleString()+"件の棚卸ステータス・通知履歴・所有者回答を復元しました","ok");
+  if(!opts.restore) saveSession();
 }
 function loadFile(file){
   if(!file) return;
@@ -3677,8 +4160,7 @@ function loadSample(){
 ================================================================== */
 $("asof").textContent = "AS OF " + today().replace(/-/g,".");
 
-$("btnSample").onclick = loadSample;
-$("btnSample2").onclick = loadSample;
+$("btnSample2").onclick = function(e){ e.stopPropagation(); loadSample(); };
 $("btnImport").onclick = function(){ $("file").click(); };
 $("btnPick").onclick = function(e){ e.stopPropagation(); $("file").click(); };
 $("file").onchange = function(){ loadFile(this.files[0]); this.value=""; };
@@ -3686,9 +4168,12 @@ $("btnExport").onclick = openExport;
 $("btnMail").onclick = openMail;
 $("btnSettings").onclick = openSettings;
 $("btnReset").onclick = function(){
-  if(!confirm("保存済みの棚卸ステータス・メモ・通知履歴をすべて消去します。\nよろしいですか？")) return;
-  audit = {}; try{ localStorage.removeItem(LS_KEY); }catch(e){}
-  markDirty(); renderAll(); toast("棚卸データをリセットしました","ok");
+  if(!confirm("保存済みの棚卸ステータス・メモ・通知履歴・比較の基準をすべて消去します。\n読み込み中のCSVはそのまま残ります。\n\nよろしいですか？")) return;
+  pushUndo("リセット前の状態", Object.keys(audit));
+  audit = {}; baseline = null; diffStats = null; fDiff = ""; $("fDiffSel").value = "";
+  try{ localStorage.removeItem(LS_KEY); }catch(e){}
+  markDirty(); renderDiffChip(); renderAll(); saveSession(true);
+  toast("棚卸データをリセットしました（元に戻すで復旧できます）","ok");
 };
 
 /* drag & drop */
@@ -3815,9 +4300,10 @@ $("tbody").addEventListener("change", function(e){
     return;
   }
   if(e.target.classList.contains("stsel")){
+    pushUndo("ステータス変更：1件", [key]);
     setStatus(key, e.target.value);
     e.target.dataset.v = e.target.value;
-    saveAudit(); renderProgress();
+    saveAudit(); saveSession(); renderProgress();
     if(fStatus) renderTable();
     return;
   }
@@ -3825,7 +4311,7 @@ $("tbody").addEventListener("change", function(e){
 $("tbody").addEventListener("input", function(e){
   if(!e.target.classList.contains("memoin")) return;
   var tr = e.target.closest("tr"); if(!tr) return;
-  A(tr.dataset.k).memo = e.target.value; saveAudit();
+  A(tr.dataset.k).memo = e.target.value; saveAudit(); saveSession();
 });
 $("tbody").addEventListener("click", function(e){
   if(e.target.closest("input,select,textarea")) return;
@@ -3861,6 +4347,8 @@ $("mask").addEventListener("click", function(e){ if(e.target===this) closeModal(
 document.addEventListener("keydown", function(e){
   if(e.key==="Escape" && modalKey) closeModal();
   if((e.ctrlKey||e.metaKey) && e.key==="f"){ e.preventDefault(); qi.focus(); qi.select(); }
+  if((e.ctrlKey||e.metaKey) && (e.key==="z"||e.key==="Z") && !/^(INPUT|TEXTAREA)$/.test(document.activeElement.tagName)){ e.preventDefault(); doUndo(); }
+  if((e.ctrlKey||e.metaKey) && (e.key==="s"||e.key==="S")){ e.preventDefault(); saveSession(true).then(function(){ toast("保存しました","ok"); }); }
 });
 
 /* ---------- 使い方モーダル ---------- */
@@ -3899,8 +4387,77 @@ document.addEventListener("keydown", function(e){
   if(e.key==="?" && !/^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName)){ e.preventDefault(); openHelp(); }
 });
 
-/* boot */
-loadSample();
+/* ---------- 差分フィルタのチップ表示 ---------- */
+function renderDiffChip(){
+  var el = $("diffChip"); if(!el) return;
+  if(!baseline || !diffStats){ el.innerHTML = ""; return; }
+  var s = diffStats;
+  el.innerHTML = '<span class="dchip" title="基準: '+esc(baseline.label)+'（'+baselineDate()+'）">'+
+    '<svg style="width:12px;height:12px"><use href="#i-compare"/></svg>'+
+    '前月比 '+esc(baseline.label)+'：新規 <b>'+s["new"].toLocaleString()+'</b> / 更新 <b>'+s.updated.toLocaleString()+
+    '</b> / なくなった <b>'+s.removed.length.toLocaleString()+'</b>'+
+    '<button id="diffOpen" title="詳細を見る">詳細</button></span>';
+  var b = $("diffOpen"); if(b) b.onclick = openDiff;
+}
+
+/* ---------- 保存・復元・元に戻す・比較 ---------- */
+$("btnSave").onclick = function(){ saveSession(true).then(function(){ toast("保存しました","ok"); }); };
+$("btnUndo").onclick = doUndo;
+$("btnDiff").onclick = openDiff;
+$("btnSessOut").onclick = exportSession;
+$("btnSessIn").onclick = function(e){ e.stopPropagation(); $("fileSess").click(); };
+$("fileSess").onchange = function(){ if(this.files[0]) importSessionFile(this.files[0]); this.value=""; };
+$("fileBase").onchange = function(){
+  var f = this.files[0]; this.value="";
+  if(!f) return;
+  var fr = new FileReader();
+  fr.onload = function(){
+    try{
+      var m = parseCSV(decodeBuffer(fr.result));
+      var prev = buildRowsLight(m);
+      if(!prev.length){ toast("比較用CSVを解析できませんでした","err"); return; }
+      baseline = { label: f.name, savedAt: new Date().toISOString(), map: snapshotMap(prev) };
+      computeDiff(); markDirty(); renderDiffChip(); renderAll(); saveSession();
+      closeModal(); openDiff();
+      toast(f.name+" を比較の基準にしました（"+prev.length.toLocaleString()+"件）","ok");
+    }catch(e){ toast("読み込みに失敗しました: "+e.message,"err"); }
+  };
+  fr.readAsArrayBuffer(f);
+};
+$("fDiffSel").onchange = function(){ fDiff=this.value; markDirty(); page=1; renderTable(); };
+
+/* 比較モーダルへの直接ドロップ */
+$("mask").addEventListener("dragover", function(e){ if(modalKey==="__diff__"){ e.preventDefault(); this.classList.add("dragover"); } });
+$("mask").addEventListener("dragleave", function(){ this.classList.remove("dragover"); });
+$("mask").addEventListener("drop", function(e){
+  this.classList.remove("dragover");
+  if(modalKey!=="__diff__") return;
+  e.preventDefault(); e.stopPropagation();
+  var f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+  if(f){ var dt=new DataTransfer(); dt.items.add(f); $("fileBase").files=dt.files;
+         $("fileBase").dispatchEvent(new Event("change")); }
+});
+
+/* 離脱前に確実に保存 */
+window.addEventListener("beforeunload", function(){
+  if(rows.length && saveState!=="saved"){ try{ saveSession(true); }catch(e){} }
+});
+document.addEventListener("visibilitychange", function(){
+  if(document.visibilityState==="hidden" && rows.length) saveSession(true);
+});
+
+/* boot：前回のセッションがあれば復元、なければサンプル */
+loadSession().then(function(s){
+  if(s && s.csv){
+    applyState(s.state);
+    loadText(s.csv, s.label || "前回のセッション", {restore:true, silent:true});
+    lastSavedAt = s.state && s.state.savedAt ? new Date(s.state.savedAt).toLocaleString("ja-JP",{month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit"}) : "";
+    setSaveBadge("saved", lastSavedAt);
+    toast("前回の作業を復元しました（"+rows.length.toLocaleString()+"件 / "+(s.label||"")+"）","ok");
+  } else {
+    loadSample();
+  }
+}).catch(function(){ loadSample(); });
 
 try{
   if(!localStorage.getItem("agentInventory.helpSeen")){
