@@ -251,6 +251,136 @@ button{font-family:inherit;cursor:pointer}
 .bulk .n b{font-size:16px;color:var(--navy);margin:0 3px}
 .bulk .sp{flex:1}
 .bulk .btn{padding:8px 12px;font-size:12px}
+
+/* ================= ops flow / funnel ================= */
+.opsbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding-top:11px;border-top:1px dashed var(--line)}
+.opsbar .cap{font-size:10.5px;font-weight:800;letter-spacing:.06em;color:var(--ink-3);margin-right:2px}
+.otab{display:inline-flex;align-items:center;gap:7px;padding:8px 12px;border-radius:10px;font-size:12px;font-weight:700;
+  background:#fff;border:1px solid var(--line-2);color:var(--ink-2);transition:.15s}
+.otab:hover{border-color:var(--navy-3);color:var(--navy)}
+.otab .c{font-size:10.5px;font-weight:800;padding:2px 6px;border-radius:99px;background:var(--surface-3);color:var(--navy);font-variant-numeric:tabular-nums}
+.otab.on{background:var(--navy);border-color:var(--navy);color:#fff}
+.otab.on .c{background:var(--gold);color:#3a2600}
+.otab .dot{width:8px;height:8px;border-radius:99px;flex:none}
+
+.funnel{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+.fstep{position:relative;background:var(--surface-2);border:1px solid var(--line);border-radius:13px;padding:13px 14px;
+  cursor:pointer;transition:.15s;display:flex;flex-direction:column;min-height:112px}
+.fstep:hover{transform:translateY(-3px);border-color:var(--navy-3);background:#fff;box-shadow:0 12px 24px -16px rgba(15,37,87,.55)}
+.fstep .st{font-size:10px;font-weight:800;letter-spacing:.06em;color:var(--ink-3);display:flex;align-items:center;gap:6px}
+.fstep .st i{width:9px;height:9px;border-radius:99px;flex:none}
+.fstep .fv{font-size:30px;font-weight:800;letter-spacing:-.025em;line-height:1.05;margin:8px 0 2px;font-variant-numeric:tabular-nums;color:var(--navy)}
+.fstep .fd{font-size:10.5px;color:var(--ink-3);line-height:1.5;margin-top:auto}
+.fstep .fbar{height:5px;border-radius:99px;background:var(--surface-3);margin-top:9px;overflow:hidden}
+.fstep .fbar i{display:block;height:100%;border-radius:99px;transition:width .7s cubic-bezier(.3,1,.4,1)}
+.fstep.hot{border-color:#f0c2c2;background:#fff6f6}
+.fstep.hot .fv{color:var(--critical-ink)}
+.fstep.go{border-color:#f2d999;background:var(--gold-soft)}
+.fstep .arrow{position:absolute;right:-13px;top:50%;transform:translateY(-50%);color:var(--line-2);z-index:2}
+.fstep .arrow svg{width:16px;height:16px}
+.fstep:last-child .arrow{display:none}
+
+/* ================= pagination ================= */
+.pager{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:12px 18px;border-top:1px solid var(--line);background:var(--surface-2)}
+.pager .info{font-size:12px;color:var(--ink-2)}
+.pager .info b{color:var(--navy);font-variant-numeric:tabular-nums}
+.pager .nav{display:flex;align-items:center;gap:6px}
+.pgbtn{min-width:32px;height:32px;padding:0 9px;border-radius:9px;border:1px solid var(--line-2);background:#fff;
+  color:var(--navy);font-size:12px;font-weight:700;font-variant-numeric:tabular-nums;transition:.13s}
+.pgbtn:hover:not(:disabled){border-color:var(--navy-3);background:var(--surface-3)}
+.pgbtn:disabled{opacity:.4;cursor:not-allowed}
+.pgbtn.on{background:var(--navy);color:#fff;border-color:var(--navy)}
+.pager .sel{padding:7px 9px;font-size:12px}
+
+/* select-all-matching banner */
+.selall{display:none;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;padding:9px 14px;
+  background:var(--gold-soft);border-bottom:1px solid #f2d999;font-size:12.5px;color:#5a4000}
+.selall.show{display:flex}
+.selall b{color:var(--navy);font-variant-numeric:tabular-nums}
+.selall button{border:1px solid #dda200;background:#fff;color:#8a5a00;font-weight:800;font-size:12px;
+  padding:5px 11px;border-radius:8px;transition:.13s}
+.selall button:hover{background:var(--gold);color:#3a2600}
+
+/* ================= quick bulk ================= */
+.quickbulk{display:flex;align-items:center;gap:9px;flex-wrap:wrap;padding:11px 13px;border-radius:12px;
+  background:var(--surface-2);border:1px dashed var(--line-2)}
+.quickbulk .qt{font-size:11.5px;font-weight:800;color:var(--navy);display:flex;align-items:center;gap:7px}
+.quickbulk .qt svg{width:14px;height:14px;color:var(--gold-2)}
+.quickbulk .hintx{font-size:11px;color:var(--ink-3)}
+.quickbulk .sp{flex:1}
+
+/* notify badges */
+.nb{font-size:10px;font-weight:800;padding:3px 7px;border-radius:7px;white-space:nowrap;display:inline-flex;align-items:center;gap:4px;border:1px solid transparent}
+.nb svg{width:10px;height:10px}
+.nb.n0{background:var(--surface-3);color:var(--ink-2);border-color:var(--line-2)}
+.nb.n1{background:#eaf1fc;color:#1b3a7a;border-color:#c6d8f4}
+.nb.n2{background:#fdefe8;color:var(--serious-ink);border-color:#f5cdb8}
+.nb.n3{background:#e8f6e8;color:var(--good-ink);border-color:#bfe3bf}
+.nb.n4{background:#fdeaea;color:var(--critical-ink);border-color:#f4c9c9}
+.nb.n5{background:#f1f3f7;color:var(--ink-3);border-color:var(--line-2)}
+.due{font-size:10.5px;font-weight:800;font-variant-numeric:tabular-nums;padding:2px 7px;border-radius:99px;white-space:nowrap}
+.due.ok{background:#eaf1fc;color:#1b3a7a}
+.due.soon{background:var(--gold-soft);color:var(--warning-ink)}
+.due.over{background:#fdeaea;color:var(--critical-ink)}
+
+/* settings + mail modal */
+.setgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.setrow{background:var(--surface-2);border:1px solid var(--line);border-radius:12px;padding:13px 15px}
+.setrow label{display:block;font-size:11.5px;font-weight:800;color:var(--navy);margin-bottom:4px}
+.setrow .sd{font-size:10.5px;color:var(--ink-3);line-height:1.6;margin-bottom:9px}
+.setrow .inrow{display:flex;align-items:center;gap:8px}
+.setrow input[type=number]{width:92px;padding:9px 10px;border-radius:9px;border:1px solid var(--line-2);
+  background:#fff;font-family:inherit;font-size:14px;font-weight:800;color:var(--navy);text-align:right;font-variant-numeric:tabular-nums}
+.setrow input[type=number]:focus{outline:none;border-color:var(--navy-3)}
+.setrow .unit{font-size:12px;color:var(--ink-3);font-weight:700}
+.mailnav{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--surface-3);border:1px solid var(--line);
+  border-radius:11px;padding:9px 12px;font-size:12px;color:var(--ink-2)}
+.mailnav b{color:var(--navy)}
+.mailnav .sp{flex:1}
+.mailbox{width:100%;min-height:300px;resize:vertical;padding:14px 16px;border-radius:12px;font-size:12.5px;line-height:1.85;
+  font-family:var(--font);background:var(--surface-2);border:1px solid var(--line-2);color:var(--ink);outline:none;white-space:pre-wrap}
+.mailbox:focus{border-color:var(--navy-3);background:#fff}
+
+/* ================= export modal ================= */
+.scopebar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;background:var(--surface-3);
+  border:1px solid var(--line);border-radius:12px;padding:11px 14px;margin-bottom:4px}
+.scopebar .cap{font-size:11px;font-weight:800;letter-spacing:.06em;color:var(--ink-3)}
+.rad{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;font-weight:700;color:var(--ink-2);cursor:pointer}
+.rad input{appearance:none;width:16px;height:16px;border-radius:50%;border:1.5px solid var(--line-2);background:#fff;position:relative;cursor:pointer}
+.rad input:checked{border-color:var(--navy);border-width:5px}
+.rad input:checked + span{color:var(--navy)}
+.expcard{display:flex;align-items:flex-start;gap:13px;border:1px solid var(--line);border-radius:14px;
+  padding:14px 16px;background:#fff;transition:.15s}
+.expcard:hover{border-color:var(--navy-3);box-shadow:0 10px 22px -16px rgba(15,37,87,.55)}
+.expcard .xi{width:38px;height:38px;border-radius:11px;flex:none;display:grid;place-items:center;
+  background:var(--surface-3);color:var(--navy)}
+.expcard .xi svg{width:19px;height:19px}
+.expcard .xb{flex:1;min-width:0}
+.expcard .xt{font-size:13.5px;font-weight:800;color:var(--navy);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.xbadge{font-size:10px;font-weight:800;background:var(--gold);color:#3a2600;border-radius:6px;padding:2px 7px}
+.expcard .xd{font-size:12px;line-height:1.75;color:var(--ink-2);margin-top:4px}
+.expcard .xn{font-size:11px;color:var(--ink-3);margin-top:5px}
+.expcard .xgo{flex:none;align-self:center}
+.expcard code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;background:var(--surface-3);
+  border:1px solid var(--line);border-radius:5px;padding:1px 5px;color:var(--navy)}
+.settext{width:100%;padding:9px 11px;border-radius:9px;border:1px solid var(--line-2);background:#fff;
+  font-family:inherit;font-size:12.5px;color:var(--ink);outline:none}
+.settext:focus{border-color:var(--navy-3)}
+@media (max-width:640px){ .expcard{flex-wrap:wrap} .expcard .xgo{width:100%} }
+
+/* ================= flow diagram (help) ================= */
+.flowdia{display:grid;gap:9px;margin:12px 0}
+.fnode{display:flex;gap:12px;align-items:flex-start;border:1px solid var(--line);border-left:4px solid var(--navy-3);
+  border-radius:12px;padding:12px 14px;background:var(--surface-2)}
+.fnode.f2{border-left-color:var(--gold-2)} .fnode.f3{border-left-color:var(--serious)} .fnode.f4{border-left-color:var(--critical)}
+.fnode .fno{width:26px;height:26px;border-radius:8px;flex:none;display:grid;place-items:center;
+  background:var(--navy);color:#fff;font-size:11px;font-weight:800}
+.fnode.f2 .fno{background:var(--gold-2);color:#3a2600} .fnode.f3 .fno{background:var(--serious);color:#fff}
+.fnode.f4 .fno{background:var(--critical);color:#fff}
+.fnode .fc{flex:1;min-width:0}
+.fnode .fh{font-size:12.5px;font-weight:800;color:var(--navy)}
+.fnode .fb{font-size:12px;line-height:1.8;color:var(--ink-2);margin-top:3px}
+.fnode .fb code{font-size:11px}
 /* ================= table ================= */
 .tablecard{padding:0;overflow:hidden}
 .thead{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 18px;border-bottom:1px solid var(--line);flex-wrap:wrap}
@@ -422,9 +552,16 @@ tbody tr.sel td.pin{background:var(--gold-soft)}
 ::-webkit-scrollbar-thumb:hover{background:#a3aec7;background-clip:content-box;border:3px solid transparent}
 
 @media (max-width:1240px){ .hero{grid-template-columns:1fr} .kpis{grid-template-columns:repeat(2,1fr)}
-  .grid3{grid-template-columns:1fr} .grid2{grid-template-columns:1fr} }
+  .grid3{grid-template-columns:1fr} .grid2{grid-template-columns:1fr}
+  .funnel{grid-template-columns:repeat(3,1fr)} .fstep .arrow{display:none} }
+@media (max-width:820px){ .funnel{grid-template-columns:repeat(2,1fr)} }
 @media (max-width:640px){ .wrap{padding:16px 13px 70px} .kpis{grid-template-columns:1fr} .mact{grid-template-columns:1fr}
-  .total .num{font-size:66px} .donutbox{justify-content:center} }
+  .total .num{font-size:66px} .donutbox{justify-content:center}
+  .funnel{grid-template-columns:1fr} .fstep{min-height:0}
+  .opsbar{gap:6px} .otab{padding:7px 10px;font-size:11.5px}
+  .quickbulk{align-items:stretch} .quickbulk .sel,.quickbulk .btn{width:100%}
+  .quickbulk .hintx{display:none} .pager{justify-content:center}
+  .mailnav .btn{flex:1} .dl-row .pp{width:38px} }
 @media print{ body{background:#fff} .toolbar,.drop,.actions{display:none} .card{box-shadow:none;break-inside:avoid} }
 </style>
 </head>
@@ -453,6 +590,14 @@ tbody tr.sel td.pin{background:var(--gold-soft)}
 <symbol id="i-pie" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12A9 9 0 1 1 12 3v9Z"/><path d="M16 3.5A9 9 0 0 1 20.5 8L16 9.8Z"/></symbol>
 <symbol id="i-book" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z"/></symbol>
 <symbol id="i-edit" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></symbol>
+<symbol id="i-bell" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></symbol>
+<symbol id="i-mail" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="4.5" width="19" height="15" rx="2.5"/><path d="m3 7 9 6 9-6"/></symbol>
+<symbol id="i-cog" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-2.9 1.2V21a2 2 0 1 1-4 0v-.1A1.7 1.7 0 0 0 7 19.4a1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.7 1.7 0 0 0 3 15a1.7 1.7 0 0 0-1.55-1H1.3a2 2 0 1 1 0-4h.1A1.7 1.7 0 0 0 3 8.9a1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.7 1.7 0 0 0 7 4.6h.08A1.7 1.7 0 0 0 8.1 3V2.9a2 2 0 1 1 4 0V3a1.7 1.7 0 0 0 1.02 1.55 1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.7 1.7 0 0 0 19.4 9v.08a1.7 1.7 0 0 0 1.55 1.02h.1a2 2 0 1 1 0 4H21a1.7 1.7 0 0 0-1.55 1.02Z"/></symbol>
+<symbol id="i-copy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2.5"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></symbol>
+<symbol id="i-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m9 5 7 7-7 7"/></symbol>
+<symbol id="i-flow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="3" width="7" height="6" rx="2"/><rect x="14.5" y="15" width="7" height="6" rx="2"/><path d="M6 9v5a4 4 0 0 0 4 4h4.5"/></symbol>
+<symbol id="i-bolt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4.5 13.5H11L10 22l8.5-11.5H12L13 2Z"/></symbol>
+<symbol id="i-grid" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18"/></symbol>
 <symbol id="i-bot" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="18" height="12" rx="3"/><path d="M12 8V4M9 14h.01M15 14h.01M1 13v2M23 13v2"/></symbol>
 </defs>
 </svg>
@@ -464,22 +609,24 @@ tbody tr.sel td.pin{background:var(--gold-soft)}
       <div class="glyph"><svg><use href="#i-hub"/></svg></div>
       <div>
         <h1>社内エージェント棚卸・最適化ダッシュボード</h1>
-        <p>AI AGENT INVENTORY &amp; OPTIMIZATION CONSOLE　—　<span id="asof"></span></p>
+        <p>AI AGENT INVENTORY &amp; LIFECYCLE CONSOLE　—　<span id="asof"></span></p>
       </div>
     </div>
     <div class="actions">
-      <button class="btn ghost" id="btnSample"><svg><use href="#i-spark"/></svg>サンプルデータ</button>
+      <button class="btn ghost" id="btnSample"><svg><use href="#i-spark"/></svg>サンプル</button>
       <button class="btn" id="btnImport"><svg><use href="#i-up"/></svg>CSVインポート</button>
-      <button class="btn primary" id="btnExport"><svg><use href="#i-down"/></svg>棚卸結果をCSV出力</button>
+      <button class="btn" id="btnMail"><svg><use href="#i-mail"/></svg>通知メール作成</button>
+      <button class="btn primary" id="btnExport"><svg><use href="#i-down"/></svg>出力 / 連携</button>
+      <button class="btn ghost" id="btnSettings" title="判定・通知の閾値を設定"><svg><use href="#i-cog"/></svg></button>
       <button class="btn ghost" id="btnReset" title="保存済みの棚卸ステータス・メモを消去"><svg><use href="#i-reset"/></svg></button>
       <button class="btn gold" id="btnHelp"><svg><use href="#i-help"/></svg>使い方</button>
     </div>
   </div>
 
   <div class="drop" id="drop">
-    <svg class="di" viewBox="0 0 24 24" fill="none" stroke="#8b97ff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M8 8l4-4 4 4"/><path d="M4 15v3a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-3"/></svg>
+    <svg class="di" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M8 8l4-4 4 4"/><path d="M4 15v3a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-3"/></svg>
     <h3 id="dropTitle">CSVファイルをここにドラッグ＆ドロップ</h3>
-    <p>Name / Date created / Last Modified / Publisher / Version / Owner / Description / Platform / Environment Id / Bot Id の10カラム構成に対応　（UTF-8・Shift-JIS 自動判別）</p>
+    <p>Name / Date created / Last Modified / Publisher / Version / Owner / Description / Platform / Environment Id / Bot Id の10カラム構成に対応　（UTF-8・Shift-JIS 自動判別／数千行対応）</p>
     <div class="row">
       <button class="btn" id="btnPick"><svg><use href="#i-file"/></svg>ファイルを選択</button>
       <button class="btn ghost" id="btnSample2"><svg><use href="#i-spark"/></svg>サンプルデータで試す</button>
@@ -500,9 +647,9 @@ tbody tr.sel td.pin{background:var(--gold-soft)}
     </div>
     <div class="kpis">
       <div class="card kpi crit" data-tab="cleanup">
-        <div class="top"><span class="tag">削除・整理推奨</span><span class="ico"><svg><use href="#i-trash"/></svg></span></div>
+        <div class="top"><span class="tag">リマインド対象</span><span class="ico"><svg><use href="#i-bell"/></svg></span></div>
         <div class="v" id="kCleanup">0</div>
-        <div class="d">要整理と自動判定された件数</div>
+        <div class="d">閾値に達し、所有者確認が必要</div>
         <div class="kline"><span>全体に占める割合</span><b id="pCleanup">—</b></div>
         <div class="meter"><i id="mCleanup" style="width:0%"></i></div>
       </div>
@@ -514,7 +661,7 @@ tbody tr.sel td.pin{background:var(--gold-soft)}
         <div class="meter"><i id="mNobot" style="width:0%"></i></div>
       </div>
       <div class="card kpi ser" data-tab="stale">
-        <div class="top"><span class="tag">180日以上放置</span><span class="ico"><svg><use href="#i-clock"/></svg></span></div>
+        <div class="top"><span class="tag" id="tagStale">180日以上放置</span><span class="ico"><svg><use href="#i-clock"/></svg></span></div>
         <div class="v" id="kStale">0</div>
         <div class="d">長期未更新アラート</div>
         <div class="kline"><span>全体に占める割合</span><b id="pStale">—</b></div>
@@ -528,6 +675,13 @@ tbody tr.sel td.pin{background:var(--gold-soft)}
         <div class="meter"><i id="mPlat" style="width:0%"></i></div>
       </div>
     </div>
+  </div>
+
+  <div class="card panel" style="margin-bottom:16px">
+    <h3><svg><use href="#i-flow"/></svg>通知・削除フロー進捗<span style="font-weight:600;font-size:11px;color:var(--ink-3);margin-left:6px" id="flowRule"></span></h3>
+    <div class="hint">「リマインド（通知）」と「実際の削除」を分けて管理します。カードをクリックすると該当エージェントに絞り込みます。</div>
+    <div class="funnel" id="funnel"></div>
+    <div class="panelfoot" id="ftFlow"></div>
   </div>
 
   <div class="card prog">
@@ -544,7 +698,7 @@ tbody tr.sel td.pin{background:var(--gold-soft)}
       <span><i style="background:var(--good)"></i>継続 <b id="lgKeep">0</b></span>
       <span><i style="background:var(--critical)"></i>削除決定 <b id="lgDel">0</b></span>
       <span><i style="background:var(--warning)"></i>保留 <b id="lgHold">0</b></span>
-      <span><i style="background:rgba(255,255,255,.14)"></i>未確認 <b id="lgTodo">0</b></span>
+      <span><i style="background:#c3cbdd"></i>未確認 <b id="lgTodo">0</b></span>
       <span style="margin-left:auto;color:var(--ink-3)" id="pgText">全0件中 0件 確認完了</span>
     </div>
   </div>
@@ -561,8 +715,8 @@ tbody tr.sel td.pin{background:var(--gold-soft)}
     </div>
 
     <div class="card panel">
-      <h3><svg><use href="#i-trash"/></svg>削除・整理推奨の内訳</h3>
-      <div class="hint">なぜ「要整理」と判定されたかの理由別構成</div>
+      <h3><svg><use href="#i-trash"/></svg>リマインド対象の内訳</h3>
+      <div class="hint">なぜ「要確認」と判定されたかの理由別構成</div>
       <div class="donutbox" id="dbFlag">
         <div class="donut"><svg viewBox="0 0 160 160" id="svgFlag"></svg><div class="dcenter" id="ctFlag"></div></div>
         <div class="dlegend" id="lgFlag"></div>
@@ -584,7 +738,7 @@ tbody tr.sel td.pin{background:var(--gold-soft)}
   <div class="grid2">
     <div class="card panel">
       <h3><svg><use href="#i-server"/></svg>環境（Environment Id）別 分布</h3>
-      <div class="hint">赤いバーは削除推奨の含有率。カードをクリックで絞り込み</div>
+      <div class="hint">赤いバーはリマインド対象の含有率。カードをクリックで絞り込み</div>
       <div class="chips" id="envChips"></div>
       <div class="panelfoot" id="ftEnv"></div>
     </div>
@@ -602,11 +756,24 @@ tbody tr.sel td.pin{background:var(--gold-soft)}
   <div class="card toolbar">
     <div class="tabs" id="tabs">
       <button class="tab on" data-tab="all"><svg style="width:14px;height:14px"><use href="#i-list"/></svg>すべて表示<span class="c" id="cAll">0</span></button>
-      <button class="tab alert" data-tab="cleanup"><svg style="width:14px;height:14px"><use href="#i-trash"/></svg>削除推奨のみ (要整理)<span class="c" id="cCleanup">0</span></button>
-      <button class="tab" data-tab="stale"><svg style="width:14px;height:14px"><use href="#i-clock"/></svg>長期未更新 (180日超)<span class="c" id="cStale">0</span></button>
+      <button class="tab alert" data-tab="cleanup"><svg style="width:14px;height:14px"><use href="#i-bell"/></svg>リマインド対象（要確認）<span class="c" id="cCleanup">0</span></button>
+      <button class="tab" data-tab="stale"><svg style="width:14px;height:14px"><use href="#i-clock"/></svg><span id="lblStale">長期未更新 (180日超)</span><span class="c" id="cStale">0</span></button>
       <button class="tab" data-tab="nobot"><svg style="width:14px;height:14px"><use href="#i-ghost"/></svg>Bot ID未設定 (不完全)<span class="c" id="cNobot">0</span></button>
       <button class="tab" data-tab="test"><svg style="width:14px;height:14px"><use href="#i-flask"/></svg>テスト用放置機<span class="c" id="cTest">0</span></button>
+      <button class="tab" data-tab="force"><svg style="width:14px;height:14px"><use href="#i-warn"/></svg><span id="lblForce">強制削除閾値超過</span><span class="c" id="cForce">0</span></button>
     </div>
+
+    <div class="opsbar" id="opsbar">
+      <span class="cap">運用フロー</span>
+      <button class="otab on" data-ops="all">すべて<span class="c" id="oAll">0</span></button>
+      <button class="otab" data-ops="notify"><span class="dot" style="background:#c3cbdd"></span>①通知待ち<span class="c" id="oNotify">0</span></button>
+      <button class="otab" data-ops="waiting"><span class="dot" style="background:#2a78d6"></span>②返信待ち（期限内）<span class="c" id="oWaiting">0</span></button>
+      <button class="otab" data-ops="final"><span class="dot" style="background:#ec835a"></span>③最終通知が必要<span class="c" id="oFinal">0</span></button>
+      <button class="otab" data-ops="ready"><span class="dot" style="background:#d03b3b"></span>④削除実行可<span class="c" id="oReady">0</span></button>
+      <button class="otab" data-ops="replied"><span class="dot" style="background:#0ca30c"></span>返信あり（継続）<span class="c" id="oReplied">0</span></button>
+      <button class="otab" data-ops="excluded"><span class="dot" style="background:#a4adc1"></span>対象外（例外）<span class="c" id="oExcluded">0</span></button>
+    </div>
+
     <div class="tools">
       <div class="search">
         <svg><use href="#i-search"/></svg>
@@ -620,12 +787,38 @@ tbody tr.sel td.pin{background:var(--gold-soft)}
         <option value="削除決定">削除決定</option><option value="保留">保留</option>
       </select>
     </div>
+
+    <div class="quickbulk">
+      <span class="qt"><svg><use href="#i-bolt"/></svg>絞り込み中の <b id="qbCount" style="color:var(--navy)">0</b> 件を一括処理</span>
+      <select class="sel" id="qbAction">
+        <option value="">— 操作を選択 —</option>
+        <optgroup label="棚卸ステータス">
+          <option value="st:削除決定">判断ステータスを「削除決定」に</option>
+          <option value="st:継続">判断ステータスを「継続」に</option>
+          <option value="st:保留">判断ステータスを「保留」に</option>
+          <option value="st:未確認">判断ステータスを「未確認」に戻す</option>
+        </optgroup>
+        <optgroup label="通知フロー">
+          <option value="nt:1次通知済み">本日付で「1次通知済み」にする</option>
+          <option value="nt:最終通知済み">本日付で「最終通知済み」にする</option>
+          <option value="nt:返信あり:継続">「返信あり（継続）」にする</option>
+          <option value="nt:返信あり:削除可">「返信あり（削除可）」にする</option>
+          <option value="nt:対象外">「対象外（例外登録）」にする</option>
+          <option value="nt:未通知">通知状態をリセットする</option>
+        </optgroup>
+      </select>
+      <button class="btn primary" id="qbRun"><svg><use href="#i-check"/></svg>実行</button>
+      <span class="sp"></span>
+      <span class="hintx">※ 検索・タブ・プルダウンで絞り込んだ<b>全件</b>が対象です（表示ページだけではありません）</span>
+    </div>
+
     <div class="bulk" id="bulk">
-      <span class="n"><b id="selN">0</b>件 選択中 — 一括ステータス変更:</span>
-      <button class="btn" data-set="削除決定"><svg><use href="#i-trash"/></svg>削除対象</button>
+      <span class="n"><b id="selN">0</b>件 選択中 — 一括変更:</span>
+      <button class="btn" data-set="削除決定"><svg><use href="#i-trash"/></svg>削除決定</button>
       <button class="btn" data-set="継続"><svg><use href="#i-check"/></svg>継続保持</button>
-      <button class="btn" data-set="保留"><svg><use href="#i-warn"/></svg>要確認</button>
-      <button class="btn ghost" data-set="未確認">未確認に戻す</button>
+      <button class="btn" data-set="保留"><svg><use href="#i-warn"/></svg>保留</button>
+      <button class="btn" data-nt="1次通知済み"><svg><use href="#i-bell"/></svg>1次通知済みに</button>
+      <button class="btn" data-nt="最終通知済み"><svg><use href="#i-mail"/></svg>最終通知済みに</button>
       <span class="sp"></span>
       <button class="btn ghost" id="selClear">選択解除</button>
     </div>
@@ -636,17 +829,22 @@ tbody tr.sel td.pin{background:var(--gold-soft)}
       <h3><svg><use href="#i-bot"/></svg>エージェント一覧</h3>
       <div class="meta" id="tmeta">0 件</div>
     </div>
+    <div class="selall" id="selall">
+      <span id="selallText"></span>
+      <button id="selallBtn">条件に一致する全件を選択</button>
+      <button id="selallClear">選択を解除</button>
+    </div>
     <div class="tscroll">
       <table id="tbl">
         <thead><tr>
-          <th style="width:38px"><input type="checkbox" id="chkAll" title="表示中をすべて選択"></th>
+          <th style="width:38px"><input type="checkbox" id="chkAll" title="このページの行を選択"></th>
           <th class="sortable" data-s="name" style="min-width:230px">エージェント名 <span class="ar">↕</span></th>
-          <th style="min-width:180px">判定フラグ</th>
+          <th style="min-width:170px">判定フラグ</th>
+          <th class="sortable" data-s="notify" style="min-width:170px">通知ステータス <span class="ar">↕</span></th>
           <th class="sortable" data-s="platform">プラットフォーム <span class="ar">↕</span></th>
           <th class="sortable" data-s="owner">所有者 <span class="ar">↕</span></th>
           <th class="sortable" data-s="publisher">作成者 <span class="ar">↕</span></th>
           <th class="sortable act" data-s="age">最終更新 / 経過 <span class="ar">↓</span></th>
-          <th class="sortable" data-s="created">作成日 <span class="ar">↕</span></th>
           <th>Ver</th>
           <th>Bot Id</th>
           <th class="sortable pin p-st" data-s="status">判断ステータス <span class="ar">↕</span></th>
@@ -661,32 +859,47 @@ tbody tr.sel td.pin{background:var(--gold-soft)}
       <h3 style="font-size:14px;color:var(--ink-2)">表示できるエージェントがありません</h3>
       <p>CSVを読み込むか、フィルター条件を変更してください。</p>
     </div>
+    <div class="pager" id="pager">
+      <div class="info" id="pgInfo">—</div>
+      <div class="nav" id="pgNav"></div>
+      <div style="display:flex;align-items:center;gap:7px">
+        <span style="font-size:11.5px;color:var(--ink-3)">1ページ</span>
+        <select class="sel" id="pgSize">
+          <option value="50">50件</option>
+          <option value="100" selected>100件</option>
+          <option value="200">200件</option>
+          <option value="500">500件</option>
+          <option value="99999">全件</option>
+        </select>
+      </div>
+    </div>
   </div>
 </div>
 
-
 <!-- =====================================================================
      HELP CONTENT / 使い方ドキュメント
-     ▼ ここから下の <template id="helpContent"> の中身を書き換えるだけで
+     ▼ この <div id="helpContent"> の中身を書き換えるだけで
        「使い方」モーダルの内容を更新できます（HTMLをそのまま書けます）。
-       更新したら HELP_VERSION と 更新履歴 の行も追記してください。
+       更新したら HELP_VERSION の値と、末尾の更新履歴にも1行追記してください。
      ===================================================================== -->
-<template id="helpContent">
+<div id="helpContent" style="display:none" aria-hidden="true">
   <div class="help">
 
     <div class="crit-note">
-      <p><b>このツールについて：</b>Microsoft 365 Copilot / Copilot Studio / Power Automate / Power Virtual Agents / Teams / SharePoint などから書き出したエージェント一覧CSVを読み込み、<b>放置・不完全なエージェントを自動で洗い出して棚卸（要否判断）を記録する</b>ためのツールです。データはすべてブラウザ内だけで処理され、外部には一切送信されません。</p>
+      <p><b>このツールについて：</b>Microsoft 365 Copilot / Copilot Studio / Power Automate / Power Virtual Agents / Teams / SharePoint などから書き出したエージェント一覧CSVを読み込み、<b>放置・不完全なエージェントを自動で洗い出し、所有者への通知から削除までを記録・管理する</b>ためのツールです。データはすべてブラウザ内だけで処理され、外部には一切送信されません。</p>
     </div>
 
     <section>
-      <h4><svg style="width:15px;height:15px;color:var(--critical)"><use href="#i-trash"/></svg>削除対象の判断基準<span class="badge">重要</span></h4>
-      <p>次の <b>3つのルールのいずれか1つでも該当する</b> エージェントを、自動的に「<b>削除・整理推奨</b>」としてフラグ付けします。基準日は<b>ツールを開いた日</b>です。</p>
+      <h4><svg><use href="#i-trash"/></svg>削除対象の判断基準<span class="badge">重要</span></h4>
+      <p>このツールは「<b>リマインド（通知）の基準</b>」と「<b>実際に削除してよい基準</b>」を分けて管理します。まず自動判定で通知対象を洗い出し、所有者からの回答期限を過ぎて初めて「削除実行可」になります。</p>
+
+      <p><b>STEP 1 ── リマインド対象の自動判定</b>：次の3つのルールの<b>いずれか1つでも該当する</b>と、リマインド対象としてフラグが付きます。基準日は<b>ツールを開いた日</b>です。</p>
 
       <div class="rulecards">
         <div class="rulecard r1">
           <div class="rt"><svg style="color:var(--critical)"><use href="#i-clock"/></svg>ルール1：長期放置</div>
-          <div class="rd"><code>Last Modified</code> が本日から <b>180日以上前</b>。半年以上どこも触られていない＝実質的に使われていない可能性が高いエージェントです。</div>
-          <div class="rf">判定式：経過日数 ≥ 180日</div>
+          <div class="rd"><code>Last Modified</code> が本日から <b>リマインド閾値（既定180日）以上前</b>。半年以上どこも触られていない＝実質的に使われていない可能性が高いエージェントです。</div>
+          <div class="rf">判定式：経過日数 ≥ リマインド閾値</div>
         </div>
         <div class="rulecard r2">
           <div class="rt"><svg style="color:var(--warning-ink)"><use href="#i-ghost"/></svg>ルール2：Bot ID未設定</div>
@@ -695,36 +908,227 @@ tbody tr.sel td.pin{background:var(--gold-soft)}
         </div>
         <div class="rulecard r3">
           <div class="rt"><svg style="color:var(--serious-ink)"><use href="#i-flask"/></svg>ルール3：放置テスト機</div>
-          <div class="rd"><code>Name</code> または <code>Description</code> に検証用キーワードを含み、<b>かつ90日以上未更新</b>。役目を終えたPoC・検証機が残っている状態です。</div>
-          <div class="rf">判定式：キーワード一致 AND 経過日数 ≥ 90日</div>
+          <div class="rd"><code>Name</code> または <code>Description</code> に検証用キーワードを含み、<b>かつテスト機閾値（既定90日）以上未更新</b>。役目を終えたPoC・検証機が残っている状態です。</div>
+          <div class="rf">判定式：キーワード一致 AND 経過日数 ≥ テスト機閾値</div>
         </div>
       </div>
+
+      <p><b>STEP 2 ── 通知と回答期限を経て「削除実行可」へ</b></p>
+      <ol>
+        <li><b>①通知待ち</b>：リマインド対象で、まだ所有者に連絡していない状態。</li>
+        <li><b>②返信待ち（期限内）</b>：1次通知を送った状態。回答期限は<b>通知日＋猶予日数（既定14日）</b>。</li>
+        <li><b>③最終通知が必要</b>：1次通知の期限を過ぎても返信がない状態。最終通知を送ります（猶予は既定7日）。</li>
+        <li><b>④削除実行可</b>：最終通知の期限も過ぎて無反応。<b>ここで初めて削除してよい</b>状態です。</li>
+      </ol>
+      <p>加えて、<b>強制削除閾値（既定365日）</b>を超えたものは、通知の進み具合に関わらず「削除実行可」として扱います（例外は所有者からの継続申請が必要）。</p>
 
       <p><b>ルール3で判定に使うキーワード（部分一致・大文字小文字を区別しません）</b></p>
       <p style="font-size:12px">テスト ／ てすと ／ ﾃｽﾄ ／ test ／ PoC ／ poc ／ 検証 ／ 一時 ／ 試作 ／ トライアル ／ sample ／ サンプル ／ デモ ／ demo ／ 開発用 ／ 評価用 ／ 練習 ／ お試し ／ 破棄予定 ／ 廃止 ／ 不要 ／ dummy ／ ダミー ／ 仮運用 ／ 仮設置</p>
 
       <div class="hscrollbox">
       <table class="htable">
-        <thead><tr><th>閾値・設定</th><th>既定値</th><th>変更方法</th></tr></thead>
+        <thead><tr><th>閾値</th><th>既定値</th><th>意味</th></tr></thead>
         <tbody>
-          <tr><td>長期放置とみなす日数</td><td>180日</td><td>HTMLソース内 <code>var STALE_DAYS = 180;</code></td></tr>
-          <tr><td>テスト機の未更新日数</td><td>90日</td><td>HTMLソース内 <code>var TEST_IDLE_DAYS = 90;</code></td></tr>
-          <tr><td>判定キーワード</td><td>上記24語</td><td>HTMLソース内 <code>var TEST_KEYWORDS = [...]</code></td></tr>
+          <tr><td>リマインド閾値</td><td>180日</td><td>ここに達したら所有者へ確認通知を出す（まだ消さない）</td></tr>
+          <tr><td>テスト機の未更新日数</td><td>90日</td><td>検証用キーワードを含むものはこの日数で通知対象にする</td></tr>
+          <tr><td>1次通知の猶予日数</td><td>14日</td><td>1次通知からこの日数を過ぎたら最終通知へ</td></tr>
+          <tr><td>最終通知の猶予日数</td><td>7日</td><td>最終通知からこの日数を過ぎたら削除実行可</td></tr>
+          <tr><td>強制削除閾値</td><td>365日</td><td>通知の進行に関わらず原則削除とみなす日数</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p>閾値はすべて画面右上の <svg><use href="#i-cog"/></svg> <b>設定</b>ボタンから変更でき、ブラウザに保存されます。</p>
+
+      <p><b>注意：</b>自動判定はあくまで<b>機械的な「候補出し」</b>です。基幹業務で年1回だけ動くエージェントなど、長期未更新でも現役のものはあります。<b>削除の前に必ず所有者へ通知し、回答期限を設けてください。</b>それがこのツールの通知フローです。</p>
+    </section>
+
+    <section>
+      <h4><svg><use href="#i-flow"/></svg>推奨する運用サイクル</h4>
+      <p>「毎月の通知」と「四半期の棚卸」を組み合わせる運用をおすすめします。担当者1名でも回せる分量です。</p>
+
+      <div class="hscrollbox">
+      <table class="htable">
+        <thead><tr><th>タイミング</th><th>やること</th><th>ツール上の操作</th></tr></thead>
+        <tbody>
+          <tr><td><b>毎月 第1営業日</b></td><td>最新のエージェント一覧CSVを各管理センターから書き出し、ツールに投入。①通知待ちを確認</td><td>CSVインポート →「①通知待ち」タブ</td></tr>
+          <tr><td><b>毎月 第2営業日</b></td><td>所有者へ1次通知メールを送信。送信したものを記録</td><td>「通知メール作成」→ 文面をコピーして送信 → 一括処理で「1次通知済み」に</td></tr>
+          <tr><td><b>通知から14日後</b></td><td>返信がないものへ最終通知（「あと7日で削除します」）</td><td>「③最終通知が必要」タブ → 一括処理で「最終通知済み」に</td></tr>
+          <tr><td><b>最終通知から7日後</b></td><td>無反応のものを削除決定にし、実際の削除作業へ</td><td>「④削除実行可」タブ → 一括処理で「削除決定」に → CSV出力</td></tr>
+          <tr><td><b>四半期ごと</b></td><td>継続と回答されたものも含め全体を棚卸。所有者不在（退職者）の棚卸を実施</td><td>「保有数ランキング」で所有者を確認</td></tr>
         </tbody>
       </table>
       </div>
 
-      <p><b>注意：</b>このフラグは<b>あくまで機械的な「候補出し」</b>です。基幹業務で年1回だけ動くエージェントなど、長期未更新でも現役のものはあります。<b>最終的な削除可否は必ず所有者に確認</b>したうえで、下記の棚卸ステータスに記録してください。</p>
+      <p><b>削除前に必ず入れたい「アーカイブ期間」</b></p>
+      <ul>
+        <li>いきなり削除せず、まず<b>無効化（停止）して30日間だけ残す</b>運用を強く推奨します。「消したら実は使っていた」という事故のほぼすべてを、この30日が防ぎます。</li>
+        <li>Power Platform 系（Copilot Studio / Power Automate / Power Virtual Agents）は、削除前に<b>ソリューションとしてエクスポート</b>しておけば復元できます。</li>
+        <li>削除実施後は、このツールから出力したCSVを<b>削除エビデンスとして保管</b>してください。「いつ・誰に・いつまでに、と通知したか」が1ファイルに残ります。</li>
+      </ul>
+
+      <p><b>例外（消してはいけないもの）の扱い</b></p>
+      <ul>
+        <li>年1回しか動かない決算処理系などは、所有者から回答をもらったうえで<b>「対象外（例外登録）」</b>にします。次回以降、通知フローから外れます。</li>
+        <li>例外登録には<b>必ず管理者メモに理由と次回見直し時期</b>を書いてください。例外が増えすぎると棚卸の意味がなくなります。</li>
+        <li>所有者が退職・異動している場合は、<b>所属部門の長にエスカレーション</b>します。「保有数ランキング」を作成者で表示すると、引き継ぎ漏れが見つけやすくなります。</li>
+      </ul>
+
+      <p><b>通知メールを書くときの4つのコツ</b></p>
+      <ol>
+        <li><b>所有者ごとに1通にまとめる。</b>エージェント1件につき1通送ると必ず読まれなくなります。ツールの「通知メール作成」は所有者単位でまとめた文面を生成します。</li>
+        <li><b>「返信がなければ削除する」と明記する。</b>これがないと誰も返信しません。期限は日付で書きます。</li>
+        <li><b>残す場合のアクションを1つだけ書く。</b>「このメールに『継続』とだけ返信」程度の軽さにします。</li>
+        <li><b>対象を特定できる情報を入れる。</b>エージェント名・最終更新日・環境ID。所有者本人でも「どれのこと？」となりがちです。</li>
+      </ol>
+    </section>
+
+
+    <section>
+      <h4><svg><use href="#i-server"/></svg>SharePointリストの作り方（回答を受ける台帳）<span class="badge">連携</span></h4>
+      <p>5,000件規模では<b>メールの返信を人が読むのは不可能</b>です。所有者に<b>SharePointリスト上で自分でステータスを更新してもらう</b>のが唯一現実的な方法です。次の列でリストを1つ作ってください。</p>
+      <div class="hscrollbox">
+      <table class="htable">
+        <thead><tr><th>列名（内部名）</th><th>型</th><th>編集するのは誰か</th><th>用途</th></tr></thead>
+        <tbody>
+          <tr><td><code>Title</code></td><td>1行テキスト</td><td>システム</td><td>エージェント名</td></tr>
+          <tr><td><code>AgentKey</code></td><td>1行テキスト（<b>索引あり</b>）</td><td>システム</td><td><b>一意キー。</b>更新時の突合に使う（Bot Id ベース）</td></tr>
+          <tr><td><code>BotId</code> / <code>Platform</code> / <code>EnvironmentId</code></td><td>1行テキスト</td><td>システム</td><td>識別情報</td></tr>
+          <tr><td><code>OwnerEmail</code></td><td>1行テキスト（<b>索引あり</b>）</td><td>システム</td><td>通知先・本人フィルタ用</td></tr>
+          <tr><td><code>PublisherName</code></td><td>1行テキスト</td><td>システム</td><td>作成者</td></tr>
+          <tr><td><code>CreatedOn</code> / <code>LastModifiedOn</code></td><td>日付</td><td>システム</td><td>棚卸の根拠</td></tr>
+          <tr><td><code>DaysIdle</code></td><td>数値</td><td>システム</td><td>経過日数</td></tr>
+          <tr><td><code>DetectionFlags</code></td><td>複数行テキスト</td><td>システム</td><td>自動判定の理由</td></tr>
+          <tr><td><code>NotifyStatus</code></td><td>選択肢（<b>索引あり</b>）</td><td>フロー</td><td>未通知／1次通知済み／最終通知済み／回答済み／対象外</td></tr>
+          <tr><td><code>NotifiedOn</code> / <code>DueDate</code></td><td>日付（DueDateは<b>索引あり</b>）</td><td>フロー</td><td>通知日と回答期限</td></tr>
+          <tr><td><code>OwnerResponse</code></td><td>選択肢（<b>索引あり</b>）</td><td><b>所有者本人</b></td><td><b>未回答／継続する／削除してよい／判断中</b>　★ここが心臓部</td></tr>
+          <tr><td><code>OwnerComment</code></td><td>複数行テキスト</td><td><b>所有者本人</b></td><td>継続理由・用途</td></tr>
+          <tr><td><code>RespondedOn</code></td><td>日付</td><td>フロー</td><td>回答日（変更トリガーで自動記録）</td></tr>
+          <tr><td><code>AuditStatus</code></td><td>選択肢</td><td>管理者</td><td>未確認／継続／削除決定／保留</td></tr>
+          <tr><td><code>AdminMemo</code> / <code>LastCheckedOn</code></td><td>複数行テキスト／日付</td><td>管理者</td><td>管理者の記録</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p><b>権限設計：</b>リスト全体は「表示のみ」、<code>OwnerResponse</code> と <code>OwnerComment</code> だけを所有者が編集できるようにします。列レベルの権限はSPOにないので、<b>「ユーザー独自のアイテムの編集」＋フォームのカスタマイズ（Power Apps）で他列を読み取り専用にする</b>か、割り切って全員編集可にして版管理（バージョン履歴）で担保するのが現実的です。</p>
+      <p><b>ビューは必ず3つ作ってください。</b>「自分の担当分（<code>OwnerEmail = [自分]</code>）」「未回答（<code>OwnerResponse = 未回答</code>）」「削除実行可（<code>AuditStatus = 削除決定</code>）」。フィルタなしの全件ビューは5,000件のしきい値に引っかかって開けなくなります。</p>
+      <p><b>初期投入：</b>このツールの「出力 / 連携」→<b>SharePointリスト取込用CSV</b>を使います。列の内部名がそのままヘッダーになっているので、リストの「Excel にエクスポート」の逆手順、または下のフロー①で流し込めます。</p>
+    </section>
+
+    <section>
+      <h4><svg><use href="#i-bolt"/></svg>Power Automate で一斉通知する<span class="badge">連携</span></h4>
+      <p>このツールは<b>メールを送りません</b>（オフライン動作を守るため）。代わりに、Power Automate がそのまま読める<b>Excelテーブル</b>を出力します。フローは4本作れば回ります。</p>
+
+      <p><b>用意するファイル（「出力 / 連携」ボタンから）</b></p>
+      <ul>
+        <li><b>AgentAudit.xlsx</b>（テーブル名 <code>AgentAudit</code>）… 台帳の元データ。SharePoint または OneDrive に置く</li>
+        <li><b>NotifyQueue.xlsx</b>（テーブル名 <code>NotifyQueue</code>）… <b>所有者ごとに1行</b>。宛先・件名・本文・担当分リンク・SendStatus 列つき</li>
+      </ul>
+
+      <div class="flowdia">
+        <div class="fnode">
+          <div class="fno">1</div>
+          <div class="fc"><div class="fh">フロー① 台帳の投入・更新（月次 / 手動）</div>
+          <div class="fb">
+            トリガー：<code>手動</code> または <code>スケジュール（毎月1日 7:00）</code><br>
+            ① Excel「<b>表内に存在する行を一覧表示</b>」← <code>AgentAudit</code>（<b>ページネーションをON</b>／しきい値 100000）<br>
+            ② SharePoint「<b>複数の項目の取得</b>」← 台帳リスト（ページネーションON）<br>
+            ③ <b>Apply to each</b>（並列度 20〜30）：<code>AgentKey</code> が一致する項目があれば「項目の更新」、なければ「項目の作成」<br>
+            <b>重要：</b><code>OwnerResponse</code> と <code>OwnerComment</code> は<b>更新対象に含めない</b>こと。所有者の回答を毎月上書きしてしまいます。
+          </div></div>
+        </div>
+        <div class="fnode f2">
+          <div class="fno">2</div>
+          <div class="fc"><div class="fh">フロー② 一斉通知（月次）</div>
+          <div class="fb">
+            トリガー：<code>スケジュール（毎月2日 20:00・夜間推奨）</code><br>
+            ① Excel「表内に存在する行を一覧表示」← <code>NotifyQueue</code>、フィルター <code>SendStatus eq '未送信'</code><br>
+            ② <b>Apply to each（並列度 1〜5）</b>：<br>
+            　・Outlook「<b>メールの送信 (V2)</b>」宛先 <code>OwnerEmail</code>／件名 <code>MailSubject</code>／本文 <code>replace(item()?['MailBody'], decodeUriComponent('%0A'), '&lt;br&gt;')</code><br>
+            　・Excel「<b>行の更新</b>」<code>SendStatus='送信済み'</code>／<code>SentOn=utcNow()</code><br>
+            　・「<b>遅延</b>」1秒（スロットリング回避）<br>
+            ③ 送信完了後、SharePoint 側を <code>NotifyStatus='1次通知済み'</code>／<code>NotifiedOn=utcNow()</code>／<code>DueDate=addDays(utcNow(),14)</code> に更新
+          </div></div>
+        </div>
+        <div class="fnode f3">
+          <div class="fno">3</div>
+          <div class="fc"><div class="fh">フロー③ 期限監視と最終通知（毎日）</div>
+          <div class="fb">
+            トリガー：<code>スケジュール（毎日 8:00）</code><br>
+            ① <b>3日前リマインド</b>：<code>NotifyStatus eq '1次通知済み' and OwnerResponse eq '未回答' and DueDate eq [3日後]</code> → やんわり督促メール<br>
+            ② <b>期限切れ→最終通知</b>：<code>NotifyStatus eq '1次通知済み' and OwnerResponse eq '未回答' and DueDate lt [今日]</code><br>
+            　→ 最終通知メールを送り、<code>NotifyStatus='最終通知済み'</code>／<code>DueDate=addDays(utcNow(),7)</code> に更新<br>
+            ③ <b>上長へのエスカレーション</b>：2回無反応なら Office 365 ユーザー「マネージャーの取得」で上長を CC に追加
+          </div></div>
+        </div>
+        <div class="fnode f4">
+          <div class="fno">4</div>
+          <div class="fc"><div class="fh">フロー④ 回答の反映と削除対象の確定（毎日）</div>
+          <div class="fb">
+            トリガー：<code>スケジュール（毎日 9:00）</code>＋ 任意で <code>項目が作成または変更されたとき</code><br>
+            ① <code>OwnerResponse eq '継続する'</code> → <code>AuditStatus='継続'</code>／<code>NotifyStatus='回答済み'</code>／<code>RespondedOn=utcNow()</code><br>
+            ② <code>OwnerResponse eq '削除してよい'</code> → <code>AuditStatus='削除決定'</code><br>
+            ③ <code>NotifyStatus eq '最終通知済み' and OwnerResponse eq '未回答' and DueDate lt [今日]</code> → <code>AuditStatus='削除決定'</code>（無応答による削除）<br>
+            ④ 管理者へ<b>日次サマリを1通だけ</b>送る（件数と「削除実行可」ビューへのリンク）。1件ごとに通知するとすぐ読まれなくなります。
+          </div></div>
+        </div>
+      </div>
+
+      <p><b>回答は集計するだけ。読む必要はありません。</b>「未回答」ビューの件数を週次で見て、減っていれば順調。個別のメール返信を待つ運用をやめるのが、5,000件を回すための最大のコツです。</p>
+      <p><b>翌月の起点：</b>SharePointリストを「Excel にエクスポート」して、そのCSVをこのツールに読み込んでください。<b>通知ステータス・回答期限・所有者回答・管理者メモまで自動で復元</b>されるので、前月の続きから棚卸を再開できます（AgentKey で突合しています）。</p>
+    </section>
+
+    <section>
+      <h4><svg><use href="#i-warn"/></svg>5,000件規模でハマるポイント<span class="badge">必読</span></h4>
+      <div class="hscrollbox">
+      <table class="htable">
+        <thead><tr><th>制限</th><th>実際に起きること</th><th>対策</th></tr></thead>
+        <tbody>
+          <tr><td><b>SharePoint リストビューのしきい値 5,000件</b></td><td>全件ビューが開けない／フローが失敗する</td><td><code>OwnerEmail</code> <code>NotifyStatus</code> <code>DueDate</code> <code>OwnerResponse</code> に<b>インデックスを作成</b>。ビューは必ずフィルタ付きにし、表示は100件単位</td></tr>
+          <tr><td><b>「複数の項目の取得」既定100件</b></td><td>先頭100件しか処理されない（気づきにくい）</td><td>設定で<b>ページネーションをON</b>、しきい値を 5000〜100000 に</td></tr>
+          <tr><td><b>Outlookコネクタのスロットリング</b></td><td>大量送信で 429 エラー、途中で止まる</td><td><b>並列度1〜5＋遅延1秒</b>。3,000通で約50分。<b>夜間バッチ</b>にする</td></tr>
+          <tr><td><b>Exchange Online の送信上限</b></td><td>1日10,000宛先／30通/分を超えると送信拒否</td><td>宛先を分割して<b>数日に分ける</b>、または送信専用の共有メールボックスを使う</td></tr>
+          <tr><td><b>Excelコネクタの同時実行</b></td><td>「行の更新」が競合して失敗する</td><td>Apply to each の<b>並列度を1</b>に。更新先をSharePointリストに寄せるのも手</td></tr>
+          <tr><td><b>そもそも宛先が多すぎる</b></td><td>3,000人に送ると問い合わせ対応で業務が止まる</td><td><b>初回は上位所有者から段階的に。</b>保有数ランキングで見ると、少数の所有者が大量に持っているケースが多く、上位数百人で全体の大半をカバーできます</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p><b>初回だけは絶対に段階展開してください。</b>いきなり全件通知すると問い合わせが殺到します。まず「強制削除閾値超過」タブで絞った最優先分だけ、あるいは1部門だけで1サイクル回して、文面と手順を固めてから全体展開するのが安全です。</p>
+      <p><b>メールよりTeamsの方が回答率は上がります。</b>Power Automate の「チャットまたはチャネルでアダプティブカードを投稿する」を使うと、カード上のボタンから直接回答してもらえます。ただし本文の作り込みが必要なので、まずはメール＋SharePointリンクで始めて、回答率が悪ければ移行するのがおすすめです。</p>
+    </section>
+
+    <section>
+      <h4><svg><use href="#i-bolt"/></svg>数千件を一括で処理する</h4>
+      <p>5,000件規模でも、絞り込み → 一括処理の2ステップで進められます。<b>1件ずつクリックする必要はありません。</b></p>
+      <ol>
+        <li><b>絞り込む</b>：タブ（例：「④削除実行可」）＋検索＋プルダウンで対象を絞ります。</li>
+        <li><b>一括処理バーで実行</b>：「絞り込み中の <b>N</b> 件を一括処理」から操作を選び「実行」。<b>表示中のページだけでなく、条件に一致する全件</b>が対象です。50件を超える場合は確認ダイアログが出ます。</li>
+      </ol>
+      <p>例：「④削除実行可」タブを開いて、一括処理で「判断ステータスを『削除決定』に」を実行 → 該当する全件が一度に削除決定になります。</p>
+      <p>個別に選びたいときは、行のチェックボックスで選択してから下の一括変更バーを使います。ヘッダーのチェックボックスは<b>今のページ</b>を選択し、その後に出る帯から<b>条件に一致する全件</b>へ広げられます。</p>
+      <p>表は1ページ100件ずつ表示されます（右下で50〜全件に変更可）。件数が多いときは「全件」にせずページ送りのほうが快適です。</p>
+    </section>
+
+    <section>
+      <h4><svg><use href="#i-mail"/></svg>通知メールの作り方</h4>
+      <p><b>大前提：返信を待つ運用は5,000件では破綻します。</b>このツールが生成する文面は、<b>「返信不要。SharePointリストの自分の行を更新してください」</b>という形になっています。</p>
+      <ol>
+        <li>まず<b>設定（⚙）で SharePointリストのURL を登録</b>します。これで本文に「あなたの担当分だけを表示するリンク」が自動で入ります（<code>?FilterField1=OwnerEmail&amp;FilterValue1=…</code> 形式）。</li>
+        <li>「①通知待ち」タブなどで対象を絞り込みます。</li>
+        <li>上部の <b>「通知メール作成」</b> を押すと、<b>所有者ごとにまとめた文面</b>が生成されます。1人が10件持っていれば、10通ではなく1通です。</li>
+        <li>少人数なら「本文をコピー」で1通ずつ。<b>大量なら「通知キューを出力 (.xlsx)」</b>で、宛先・件名・本文が1行にまとまった Excelテーブル <code>NotifyQueue</code> を出力し、Power Automate に流します。</li>
+        <li>送信後、一括処理で<b>「本日付で『1次通知済み』にする」</b>を実行。回答期限が自動計算されます。</li>
+      </ol>
+      <p>「③最終通知が必要」だけを絞り込んでから開くと、<b>文面が自動で最終通知バージョン</b>（「本メールが最終のご案内です」）に切り替わり、期限も最終猶予日数で計算されます。</p>
+      <p>※ このツールはメールを送信しません。<b>文面とキューの生成まで</b>を担当し、送信は Power Automate に任せます。</p>
     </section>
 
     <section>
       <h4><svg><use href="#i-up"/></svg>基本の使い方（5ステップ）</h4>
       <ol>
         <li><b>CSVを読み込む</b>：管理センターから書き出したCSVを画面上部の枠に<b>ドラッグ＆ドロップ</b>、または「CSVインポート」から選択します。文字コードは UTF-8 / Shift-JIS を自動判別します。</li>
-        <li><b>全体像をつかむ</b>：上部のKPIカードと円グラフで、総数・要整理件数・プラットフォーム構成を確認します。KPIカードやグラフはクリックするとその条件で絞り込めます。</li>
-        <li><b>絞り込む</b>：タブ（削除推奨のみ／長期未更新／Bot ID未設定／テスト用放置機）と検索窓・プルダウンで対象を絞ります。</li>
-        <li><b>判断を記録する</b>：各行の「判断ステータス」を <b>継続 / 削除決定 / 保留</b> から選び、「管理者メモ」に理由や引き継ぎ事項を書きます。チェックボックスで複数選択して<b>一括変更</b>もできます。</li>
-        <li><b>CSVで出力する</b>：「棚卸結果をCSV出力」で、元の10カラムに判断結果を追加したCSVをダウンロードします。</li>
+        <li><b>全体像をつかむ</b>：KPIカード・フロー進捗・円グラフで、総数・通知対象・削除実行可の件数を確認します。どれもクリックで絞り込めます。</li>
+        <li><b>絞り込む</b>：判定タブ（リマインド対象／長期未更新／Bot ID未設定／テスト用放置機）と運用フロータブ（①〜④）を組み合わせます。</li>
+        <li><b>判断を記録する</b>：「判断ステータス」を <b>継続 / 削除決定 / 保留</b> から選び、「管理者メモ」に理由や引き継ぎ事項を書きます。一括処理も使えます。</li>
+        <li><b>CSVで出力する</b>：「棚卸結果をCSV出力」で、元の10カラムに判断結果・通知履歴を追加したCSVをダウンロードします。</li>
       </ol>
     </section>
 
@@ -734,13 +1138,14 @@ tbody tr.sel td.pin{background:var(--gold-soft)}
       <table class="htable">
         <thead><tr><th>エリア</th><th>内容</th></tr></thead>
         <tbody>
-          <tr><td>総エージェント数（紺のカード）</td><td>読み込んだ全件数。下部に要整理の割合・プラットフォーム数・環境数を表示します。</td></tr>
-          <tr><td>KPIカード（4枚）</td><td>削除・整理推奨／Bot ID未設定／180日以上放置／プラットフォーム種別数。クリックでその条件に絞り込みます。</td></tr>
+          <tr><td>総エージェント数（紺のカード）</td><td>読み込んだ全件数。下部にリマインド対象の割合・プラットフォーム数・環境数を表示します。</td></tr>
+          <tr><td>KPIカード（4枚）</td><td>リマインド対象／Bot ID未設定／長期放置／プラットフォーム種別数。クリックでその条件に絞り込みます。</td></tr>
+          <tr><td>通知・削除フロー進捗</td><td>検知 → 通知待ち → 返信待ち → 最終通知 → 削除実行可 の件数。運用の詰まりが一目で分かります。</td></tr>
           <tr><td>棚卸完了率</td><td>「未確認」以外に判断済みの割合。緑＝継続、赤＝削除決定、黄＝保留。</td></tr>
-          <tr><td>プラットフォーム別 構成比</td><td>円グラフで構成比を表示。凡例の赤いバッジは、そのプラットフォーム内の要整理件数です。</td></tr>
-          <tr><td>削除・整理推奨の内訳</td><td>「なぜ要整理なのか」を理由別に円グラフ化。複数ルールに該当するものは「複数該当」に集計します。</td></tr>
+          <tr><td>プラットフォーム別 構成比</td><td>円グラフで構成比を表示。凡例の赤いバッジは、そのプラットフォーム内の要確認件数です。</td></tr>
+          <tr><td>リマインド対象の内訳</td><td>「なぜ要確認なのか」を理由別に円グラフ化。複数ルールに該当するものは「複数該当」に集計します。</td></tr>
           <tr><td>棚卸ステータス内訳</td><td>判断の進捗を円グラフ化。クリックでそのステータスの行だけ表示します。</td></tr>
-          <tr><td>環境別 分布</td><td>Environment Id ごとの件数。バーが赤いほど、その環境に要整理エージェントが多く溜まっています。</td></tr>
+          <tr><td>環境別 分布</td><td>Environment Id ごとの件数。バーが赤いほど、その環境に要確認エージェントが多く溜まっています。</td></tr>
           <tr><td>保有数ランキング TOP5</td><td>所有者／作成者ごとの保有数。退職・異動時の引き継ぎ漏れ確認に使います。</td></tr>
         </tbody>
       </table>
@@ -748,10 +1153,24 @@ tbody tr.sel td.pin{background:var(--gold-soft)}
     </section>
 
     <section>
-      <h4><svg><use href="#i-check"/></svg>棚卸ステータスの使い分け</h4>
+      <h4><svg><use href="#i-check"/></svg>2つのステータスの使い分け</h4>
+      <p><b>通知ステータス</b>は「所有者とのやり取りがどこまで進んだか」、<b>判断ステータス</b>は「最終的にどうするか」を表します。両方を記録しておくと、削除の根拠が後から説明できます。</p>
       <div class="hscrollbox">
       <table class="htable">
-        <thead><tr><th>ステータス</th><th>意味</th><th>メモに書くとよいこと</th></tr></thead>
+        <thead><tr><th>通知ステータス</th><th>意味</th><th>次にすること</th></tr></thead>
+        <tbody>
+          <tr><td><b>未通知</b></td><td>まだ所有者に連絡していない</td><td>通知メールを送り「1次通知済み」に</td></tr>
+          <tr><td><b>1次通知済み</b></td><td>1回目の連絡を送った。回答期限あり</td><td>期限まで待つ</td></tr>
+          <tr><td><b>最終通知済み</b></td><td>期限切れで2回目（最終）を送った</td><td>期限を過ぎたら削除決定へ</td></tr>
+          <tr><td><b>返信あり（継続）</b></td><td>所有者から「使っている」と回答</td><td>判断ステータスを「継続」に</td></tr>
+          <tr><td><b>返信あり（削除可）</b></td><td>所有者から「消してよい」と回答</td><td>判断ステータスを「削除決定」に</td></tr>
+          <tr><td><b>対象外（例外登録）</b></td><td>年次処理など、通知フローから除外</td><td>メモに理由と次回見直し時期を記入</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <div class="hscrollbox">
+      <table class="htable">
+        <thead><tr><th>判断ステータス</th><th>意味</th><th>メモに書くとよいこと</th></tr></thead>
         <tbody>
           <tr><td><b>未確認</b></td><td>まだ誰も見ていない初期状態</td><td>—</td></tr>
           <tr><td><b>継続</b></td><td>現役で使うので残す</td><td>用途・現在の利用部署・次回見直し時期</td></tr>
@@ -760,41 +1179,47 @@ tbody tr.sel td.pin{background:var(--gold-soft)}
         </tbody>
       </table>
       </div>
-      <p>ステータスを「未確認」以外にすると、<b>その日の日付が「最終確認日」として自動で記録</b>され、CSV出力に含まれます。</p>
+      <p>判断ステータスを「未確認」以外にすると、<b>その日の日付が「最終確認日」として自動で記録</b>され、CSV出力に含まれます。</p>
     </section>
 
     <section>
-      <h4><svg><use href="#i-down"/></svg>CSV出力の内容</h4>
-      <p>元の10カラム（<code>Name</code> / <code>Date created</code> / <code>Last Modified</code> / <code>Publisher</code> / <code>Version</code> / <code>Owner</code> / <code>Description</code> / <code>Platform</code> / <code>Environment Id</code> / <code>Bot Id</code>）に、次の5カラムを追加して出力します。</p>
-      <ul>
-        <li><b>棚卸ステータス</b>：未確認 / 継続 / 削除決定 / 保留</li>
-        <li><b>削除理由メモ</b>：管理者メモの内容</li>
-        <li><b>最終確認日</b>：ステータスを変更した日（YYYY-MM-DD）</li>
-        <li><b>自動判定フラグ</b>：長期放置(180日超) / BotID未設定 / 放置テスト機（複数該当は「 / 」区切り）</li>
-        <li><b>最終更新からの経過日数</b>：数値（日）</li>
-      </ul>
-      <p>文字コードは <b>BOM付きUTF-8</b> なので、Excelでそのまま開いても文字化けしません。</p>
+      <h4><svg><use href="#i-down"/></svg>出力フォーマット（5種類）</h4>
+      <p>右上の「<b>出力 / 連携</b>」から選べます。<b>全件</b>か<b>いま絞り込み中の分だけ</b>かも選択できます。</p>
+      <div class="hscrollbox">
+      <table class="htable">
+        <thead><tr><th>形式</th><th>用途</th><th>中身</th></tr></thead>
+        <tbody>
+          <tr><td><b>Excelテーブル (.xlsx)</b></td><td>Power Automate 連携（推奨）</td><td>テーブル名 <code>AgentAudit</code>。「表内に存在する行を一覧表示」でそのまま読めます。23列、<code>AgentKey</code> が一意キー</td></tr>
+          <tr><td><b>SharePointリスト取込用CSV</b></td><td>台帳の初期投入</td><td>列の内部名がヘッダー。リストのスキーマにそのまま合います</td></tr>
+          <tr><td><b>通知キュー (.xlsx)</b></td><td>一斉送信</td><td>テーブル名 <code>NotifyQueue</code>。<b>所有者ごとに1行</b>で宛先・件名・本文・担当分リンク・SendStatus</td></tr>
+          <tr><td><b>通知リストCSV</b></td><td>宛先確認・他ツール連携</td><td>上と同内容のCSV版</td></tr>
+          <tr><td><b>棚卸結果CSV</b></td><td>報告・証跡保管</td><td>元の10カラム＋日本語ヘッダーの判断結果。Excelで読みやすい形</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p><b>棚卸結果CSVに追加される列：</b>棚卸ステータス／削除理由メモ／最終確認日／通知ステータス／通知日／回答期限／所有者回答／所有者コメント／回答日／運用フロー段階／自動判定フラグ／最終更新からの経過日数。文字コードは <b>BOM付きUTF-8</b> なので、Excelでそのまま開いても文字化けしません。</p>
+      <p><b>読み込みも往復できます。</b>これらのCSV、または SharePointリストから「Excel にエクスポート」したCSVをこのツールに読み込むと、<b>棚卸ステータス・通知履歴・所有者回答・管理者メモが自動で復元</b>されます。日本語ヘッダーでも SharePoint 内部名でも認識します。突合キーは <code>AgentKey</code>（なければ Bot Id、それもなければ「名前＋環境ID」）です。</p>
     </section>
 
     <section>
       <h4><svg><use href="#i-server"/></svg>データの保存とプライバシー</h4>
       <ul>
-        <li>入力した<b>ステータスとメモは、このブラウザの localStorage に自動保存</b>されます。ページを更新しても、CSVを読み込み直しても残ります。</li>
-        <li>紐付けは <b>Bot Id</b>（未設定の場合は「エージェント名＋環境Id」）をキーに行います。同じエージェントであれば、CSVを再取得しても判断結果が引き継がれます。</li>
-        <li><b>ブラウザや端末が変わると引き継がれません。</b>他の人と共有するときは、CSVを出力して渡してください。</li>
+        <li>入力した<b>ステータス・メモ・通知履歴・閾値設定は、このブラウザの localStorage に自動保存</b>されます。ページを更新しても、CSVを読み込み直しても残ります。</li>
+        <li>紐付けは <b>Bot Id</b>（未設定の場合は「エージェント名＋環境Id」）をキーに行います。同じエージェントであれば、翌月に新しいCSVを取得しても通知履歴が引き継がれます。</li>
+        <li><b>ブラウザや端末が変わると引き継がれません。</b>複数人で回す運用なら、毎回CSVを出力して共有フォルダに置き、次回はそのCSVを起点にしてください。</li>
         <li>読み込んだCSVも入力内容も<b>外部サーバーへは一切送信されません</b>。オフライン環境でもそのまま動作します。</li>
-        <li>右上の <svg style="width:12px;height:12px;vertical-align:-1px"><use href="#i-reset"/></svg> ボタンで、保存済みのステータス・メモをすべて消去できます（元に戻せません）。</li>
+        <li>右上の <svg><use href="#i-reset"/></svg> ボタンで、保存済みのステータス・メモ・通知履歴をすべて消去できます（元に戻せません）。</li>
       </ul>
     </section>
 
     <section>
       <h4><svg><use href="#i-spark"/></svg>便利な操作</h4>
       <ul>
-        <li>行のどこか（名前・フラグ欄）や右端の <svg style="width:12px;height:12px;vertical-align:-1px"><use href="#i-list"/></svg> ボタンをクリックすると<b>詳細モーダル</b>が開きます。Descriptionの改行もそのまま読めます。</li>
+        <li>行のどこか（名前・フラグ欄）や右端の <svg><use href="#i-list"/></svg> ボタンをクリックすると<b>詳細モーダル</b>が開きます。Descriptionの改行もそのまま読めます。</li>
         <li>表のヘッダー（エージェント名・最終更新など）をクリックで<b>並び替え</b>。もう一度で昇順／降順が切り替わります。</li>
         <li>右端の「判断ステータス」「管理者メモ」列は<b>固定表示</b>なので、横スクロールしても入力できます。</li>
         <li><span class="kbd">Ctrl</span> + <span class="kbd">F</span> で検索窓へ移動、<span class="kbd">Esc</span> でモーダルを閉じます。</li>
-        <li>「サンプルデータ」ボタンで、いつでも動作確認用の200件に戻せます。</li>
+        <li>「サンプル」ボタンで、いつでも動作確認用の200件に戻せます。</li>
       </ul>
     </section>
 
@@ -808,6 +1233,7 @@ tbody tr.sel td.pin{background:var(--gold-soft)}
           <tr><td>日付が「不明」になる</td><td><code>Last Modified</code> が空、または年月日を含まない形式です。<code>2026-08-12- 04:13:37Z</code> や <code>2026/08/12</code> などは自動で解釈します。</td></tr>
           <tr><td>文字化けする</td><td>UTF-8 / Shift-JIS を自動判別しますが、それ以外の文字コードの場合はUTF-8で保存し直してください。</td></tr>
           <tr><td>ステータスが保存されない</td><td>ブラウザのプライベートモードや、サイトデータをブロックする設定では保存できません。通常モードで開いてください。</td></tr>
+          <tr><td>件数が多くて重い</td><td>右下の表示件数を「100件」以下にしてください。集計は全件で行われるため、数値は変わりません。</td></tr>
         </tbody>
       </table>
       </div>
@@ -816,17 +1242,19 @@ tbody tr.sel td.pin{background:var(--gold-soft)}
     <section>
       <h4><svg><use href="#i-book"/></svg>更新履歴</h4>
       <ul class="changelog">
-        <li><span class="ver">v1.1</span><span class="dt">2026-08-28</span><span>白基調（紺＋イエロー）のデザインに刷新。円グラフ3種（プラットフォーム構成比・削除推奨の内訳・棚卸ステータス内訳）と本「使い方」を追加。</span></li>
+        <li><span class="ver">v1.3</span><span class="dt">2026-08-28</span><span>Power Automate / SharePoint 連携に対応。Excelテーブル(.xlsx)・SPOリスト取込用CSV・通知キューの出力、所有者が自分で回答する運用（OwnerResponse列）、CSVの往復インポートによる状態復元、SharePointリストURLの設定を追加。</span></li>
+        <li><span class="ver">v1.2</span><span class="dt">2026-08-28</span><span>リマインドと削除の閾値を分離し、通知フロー（①通知待ち〜④削除実行可）を追加。絞り込み全件への一括処理、通知メール文面ジェネレーター、閾値の設定画面、ページネーション（数千件対応）を実装。「使い方」が空になる不具合を修正。</span></li>
+        <li><span class="ver">v1.1</span><span class="dt">2026-08-28</span><span>白基調（紺＋イエロー）のデザインに刷新。円グラフ3種（プラットフォーム構成比・リマインド対象の内訳・棚卸ステータス内訳）と本「使い方」を追加。</span></li>
         <li><span class="ver">v1.0</span><span class="dt">2026-08-28</span><span>初版リリース。CSV取り込み、自動判定、フィルター、棚卸ワークフロー、CSV出力、localStorage保存に対応。</span></li>
       </ul>
       <div class="edithint">
         <svg><use href="#i-edit"/></svg>
-        <span><b>この「使い方」を更新するには：</b>HTMLソースを開き、<code>&lt;template id="helpContent"&gt;</code> の中身を書き換えて保存するだけです（HTMLがそのまま反映されます）。あわせて <code>var HELP_VERSION</code> の値と、上の更新履歴に1行追記してください。</span>
+        <span><b>この「使い方」を更新するには：</b>HTMLソースを開き、<code>&lt;div id="helpContent"&gt;</code> の中身を書き換えて保存するだけです（HTMLがそのまま反映されます）。あわせて <code>var HELP_VERSION</code> の値と、上の更新履歴に1行追記してください。</span>
       </div>
     </section>
 
   </div>
-</template>
+</div>
 <!-- ===================== HELP CONTENT ここまで ===================== -->
 
 <div class="mask" id="mask"><div class="modal" id="modal"></div></div>
@@ -1767,23 +2195,72 @@ var SAMPLE_B64 = [
 /* ---------- constants ---------- */
 var COLS = ["Name","Date created","Last Modified","Publisher","Version","Owner","Description","Platform","Environment Id","Bot Id"];
 var STATUSES = ["未確認","継続","削除決定","保留"];
+var NOTIFIES = ["未通知","1次通知済み","最終通知済み","返信あり:継続","返信あり:削除可","対象外"];
+var NOTIFY_LABEL = {"未通知":"未通知","1次通知済み":"1次通知済み","最終通知済み":"最終通知済み",
+                    "返信あり:継続":"返信あり（継続）","返信あり:削除可":"返信あり（削除可）","対象外":"対象外（例外）"};
+var RESPONSES = ["未回答","継続する","削除してよい","判断中"];
+var NOTIFY_CLASS = {"未通知":"n0","1次通知済み":"n1","最終通知済み":"n2","返信あり:継続":"n3","返信あり:削除可":"n4","対象外":"n5"};
 var TEST_KEYWORDS = ["テスト","てすと","ﾃｽﾄ","test","PoC","poc","検証","一時","試作","トライアル","sample","サンプル","デモ","demo","開発用","評価用","練習","お試し","破棄予定","廃止","不要","dummy","ダミー","仮運用","仮設置"];
-var STALE_DAYS = 180, TEST_IDLE_DAYS = 90;
+
 var LS_KEY = "agentInventory.audit.v1";
+var LS_SET = "agentInventory.settings.v1";
+var HELP_VERSION = "1.3";   /* ← 使い方を更新したらここも上げてください */
+
 var SERIES = ["#2a78d6","#eb6834","#1baf7a","#eda100","#e87ba4","#008300","#4a3aa7","#e34948"];
 var STATUS_COLORS = {"未確認":"#c3cbdd","継続":"#0ca30c","削除決定":"#d03b3b","保留":"#fab219"};
-var HELP_VERSION = "1.1";   /* ← 使い方を更新したらここも上げてください */
+
+/* 運用フローの段階 */
+var OPS = {
+  none:     {k:"none",     label:"対象外（判定なし）", color:"#c3cbdd"},
+  notify:   {k:"notify",   label:"①通知待ち",        color:"#8f9ab5"},
+  waiting:  {k:"waiting",  label:"②返信待ち（期限内）", color:"#2a78d6"},
+  final:    {k:"final",    label:"③最終通知が必要",   color:"#ec835a"},
+  ready:    {k:"ready",    label:"④削除実行可",       color:"#d03b3b"},
+  replied:  {k:"replied",  label:"返信あり",          color:"#0ca30c"},
+  excluded: {k:"excluded", label:"対象外（例外登録）", color:"#a4adc1"}
+};
+
+/* ---------- settings ---------- */
+var SETTINGS_DEF = {
+  remindDays:   180,   /* リマインド閾値：ここに達したら通知 */
+  testIdleDays:  90,   /* テスト機の未更新日数 */
+  graceDays:     14,   /* 1次通知の回答猶予 */
+  finalDays:      7,   /* 最終通知の回答猶予 */
+  forceDays:    365,   /* 強制削除閾値 */
+  spoListUrl:   "",    /* 所有者が回答する SharePoint リストのURL */
+  teamName:     "AIエージェント運用管理チーム"
+};
+var NUM_KEYS = ["remindDays","testIdleDays","graceDays","finalDays","forceDays"];
+function loadSettings(){
+  var s = {};
+  for(var k in SETTINGS_DEF) s[k] = SETTINGS_DEF[k];
+  try{
+    var j = JSON.parse(localStorage.getItem(LS_SET)||"{}");
+    for(var k2 in SETTINGS_DEF){
+      if(NUM_KEYS.indexOf(k2)>=0){ if(typeof j[k2]==="number" && j[k2]>0) s[k2]=j[k2]; }
+      else if(typeof j[k2]==="string") s[k2]=j[k2];
+    }
+  }catch(e){}
+  return s;
+}
+function saveSettings(){ try{ localStorage.setItem(LS_SET, JSON.stringify(settings)); }catch(e){} }
 
 var TODAY = new Date(); TODAY.setHours(0,0,0,0);
 
 /* ---------- state ---------- */
-var rows = [];            // parsed agents
-var audit = loadAudit();  // { key: {status, memo, checkedAt} }
-var tab = "all", query = "", fPlat = "", fStatus = "";
-var sortKey = "age", sortDir = -1;   // -1: 経過日数の大きい順
+var settings = loadSettings();
+var rows = [];
+var audit = loadAudit();
+var tab = "all", opsTab = "all", query = "", fPlat = "", fStatus = "";
+var sortKey = "age", sortDir = -1;
 var selected = Object.create(null);
 var rankKey = "Owner";
 var modalKey = null;
+var page = 1, pageSize = 100;
+var cache = { list:null, dirty:true };
+var stats = { plat:{}, env:{}, platColor:{} };
+var mailData = [], mailIdx = 0;
+var restoredCount = 0;
 
 /* ---------- tiny helpers ---------- */
 function $(id){ return document.getElementById(id); }
@@ -1791,7 +2268,11 @@ function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g,function(c){retu
 function pad(n){ return n<10 ? "0"+n : ""+n; }
 function fmtDate(d){ return d ? d.getFullYear()+"/"+pad(d.getMonth()+1)+"/"+pad(d.getDate()) : "—"; }
 function isoDate(d){ return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate()); }
+function today(){ return isoDate(new Date()); }
 function daysAgo(d){ return d ? Math.floor((TODAY - new Date(d.getFullYear(),d.getMonth(),d.getDate()))/86400000) : null; }
+function addDays(iso, n){ var d = new Date(iso+"T00:00:00"); d.setDate(d.getDate()+n); return isoDate(d); }
+function daysUntil(iso){ if(!iso) return null; return Math.round((new Date(iso+"T00:00:00") - TODAY)/86400000); }
+function markDirty(){ cache.dirty = true; }
 
 function toast(msg, kind){
   var el = document.createElement("div");
@@ -1799,7 +2280,7 @@ function toast(msg, kind){
   var ic = kind==="err" ? "#i-warn" : kind==="ok" ? "#i-check" : "#i-spark";
   el.innerHTML = '<svg><use href="'+ic+'"/></svg><span>'+esc(msg)+'</span>';
   $("toast").appendChild(el);
-  setTimeout(function(){ el.style.transition="opacity .3s,transform .3s"; el.style.opacity=0; el.style.transform="translateY(8px)"; setTimeout(function(){ el.remove(); },320); }, 2600);
+  setTimeout(function(){ el.style.transition="opacity .3s,transform .3s"; el.style.opacity=0; el.style.transform="translateY(8px)"; setTimeout(function(){ el.remove(); },320); }, 2800);
 }
 
 /* ---------- CSV parser (RFC4180: 引用符内の改行・カンマ対応) ---------- */
@@ -1828,15 +2309,12 @@ function decodeBuffer(buf){
   if(bytes.length>2 && bytes[0]===0xEF && bytes[1]===0xBB && bytes[2]===0xBF){
     return new TextDecoder("utf-8").decode(bytes);
   }
-  try{
-    var t = new TextDecoder("utf-8",{fatal:true}).decode(bytes);
-    return t;                                   // 正当なUTF-8
-  }catch(e){ /* fallthrough */ }
+  try{ return new TextDecoder("utf-8",{fatal:true}).decode(bytes); }catch(e){}
   try{ return new TextDecoder("shift_jis").decode(bytes); }
-  catch(e2){ return new TextDecoder("utf-8").decode(bytes); }  // 最終フォールバック
+  catch(e2){ return new TextDecoder("utf-8").decode(bytes); }
 }
 
-/* ---------- 日付パーサ ("2026-08-12- 04:13:37Z" 等の変則形式に対応) ---------- */
+/* ---------- 日付パーサ（"2026-08-12- 04:13:37Z" 等の変則形式に対応） ---------- */
 function parseDate(s){
   if(!s) return null;
   s = String(s).trim();
@@ -1851,7 +2329,31 @@ function parseDate(s){
   return isNaN(d2) ? null : d2;
 }
 
-/* ---------- レコード化 & 自動判定 ---------- */
+/* ---------- 追加列（往復インポート用）のマッピング ----------
+   日本語ヘッダー / SharePoint 内部名 のどちらでも復元できるようにする */
+var EXTRA_MAP = {
+  status:      ["棚卸ステータス","AuditStatus"],
+  memo:        ["削除理由メモ","管理者メモ","AdminMemo"],
+  checkedAt:   ["最終確認日","LastCheckedOn"],
+  notify:      ["通知ステータス","NotifyStatus"],
+  notifiedAt:  ["通知日","NotifiedOn"],
+  dueAt:       ["回答期限","DueDate"],
+  resp:        ["所有者回答","OwnerResponse"],
+  respComment: ["所有者コメント","OwnerComment"],
+  respondedOn: ["回答日","RespondedOn"],
+  agentKey:    ["AgentKey"]
+};
+var NOTIFY_FROM_LABEL = (function(){
+  var m = {};
+  NOTIFIES.forEach(function(n){ m[NOTIFY_LABEL[n]] = n; m[n] = n; });
+  return m;
+})();
+function normDate(s){
+  var d = parseDate(s);
+  return d ? isoDate(d) : "";
+}
+
+/* ---------- レコード化 ---------- */
 function keyOf(r){
   var b = (r["Bot Id"]||"").trim();
   return b ? "b:"+b : "n:"+(r["Name"]||"")+"|"+(r["Environment Id"]||"");
@@ -1861,11 +2363,27 @@ function buildRows(matrix){
   var head = matrix[0].map(function(h){ return String(h||"").replace(/^﻿/,"").trim(); });
   var idx = {};
   COLS.forEach(function(c){
-    var i = head.findIndex(function(h){ return h.toLowerCase() === c.toLowerCase(); });
-    idx[c] = i;
+    idx[c] = head.findIndex(function(h){ return h.toLowerCase() === c.toLowerCase(); });
+  });
+  /* SharePoint 内部名で書き出されたCSVも読めるようにする */
+  var SPO_ALIAS = {"Name":"Title","Owner":"OwnerEmail","Publisher":"PublisherName","Bot Id":"BotId",
+                   "Environment Id":"EnvironmentId","Last Modified":"LastModifiedOn",
+                   "Date created":"CreatedOn","Version":"AgentVersion"};
+  COLS.forEach(function(c){
+    if(idx[c] >= 0 || !SPO_ALIAS[c]) return;
+    var al = SPO_ALIAS[c].toLowerCase();
+    idx[c] = head.findIndex(function(h){ return h.toLowerCase() === al; });
   });
   if(idx["Name"] < 0) idx["Name"] = 0;
-  var out = [];
+
+  var xi = {};
+  for(var f in EXTRA_MAP){
+    xi[f] = head.findIndex(function(h){
+      return EXTRA_MAP[f].some(function(n){ return h.toLowerCase() === n.toLowerCase(); });
+    });
+  }
+  restoredCount = 0;
+  var out = [], seen = Object.create(null);
   for(var r=1;r<matrix.length;r++){
     var raw = matrix[r];
     if(!raw || raw.every(function(v){ return String(v||"").trim()===""; })) continue;
@@ -1874,26 +2392,75 @@ function buildRows(matrix){
     var lm = parseDate(o["Last Modified"]), cd = parseDate(o["Date created"]);
     var age = daysAgo(lm);
     var hay = (o["Name"]+" "+o["Description"]).toLowerCase();
-    var hitKw = TEST_KEYWORDS.filter(function(k){ return hay.indexOf(k.toLowerCase())>=0; });
-    var rec = {
-      d:o, lm:lm, cd:cd, age:(age==null?-1:age),
-      noBot: (o["Bot Id"]||"").trim()==="",
-      stale: (age!=null && age>=STALE_DAYS),
-      test:  (hitKw.length>0 && age!=null && age>=TEST_IDLE_DAYS),
-      kw: hitKw.slice(0,3)
-    };
-    rec.cleanup = rec.stale || rec.noBot || rec.test;
-    rec.key = keyOf(o);
+    var hits = [];
+    for(var k=0;k<TEST_KEYWORDS.length;k++){
+      if(hay.indexOf(TEST_KEYWORDS[k].toLowerCase())>=0){ hits.push(TEST_KEYWORDS[k]); if(hits.length>=3) break; }
+    }
+    var rec = { d:o, lm:lm, cd:cd, age:(age==null?-1:age), kw:hits,
+                noBot:(o["Bot Id"]||"").trim()==="",
+                search:(o["Name"]+" "+o["Publisher"]+" "+o["Owner"]+" "+o["Platform"]+" "+o["Environment Id"]+" "+o["Bot Id"]+" "+o["Description"]).toLowerCase() };
+    var key = (xi.agentKey>=0 && String(raw[xi.agentKey]||"").trim()) ? String(raw[xi.agentKey]).trim() : keyOf(o);
+    var kk = key, i2 = 1;
+    while(seen[kk]){ kk = key + "#" + (++i2); }
+    seen[kk] = 1; rec.key = kk;
+
+    /* 追加列があれば棚卸・通知の状態を復元（SharePoint 側を正とする） */
+    var got = false, a = null;
+    function pick(f){ return xi[f]>=0 ? String(raw[xi[f]]==null?"":raw[xi[f]]).trim() : ""; }
+    var vSt = pick("status"), vNt = pick("notify"), vRp = pick("resp");
+    if(vSt || vNt || vRp || pick("memo") || pick("dueAt") || pick("respComment")){
+      a = A(kk); got = true;
+      if(STATUSES.indexOf(vSt)>=0) a.status = vSt;
+      if(pick("memo")) a.memo = pick("memo");
+      if(pick("checkedAt")) a.checkedAt = normDate(pick("checkedAt"));
+      if(NOTIFY_FROM_LABEL[vNt]) a.notify = NOTIFY_FROM_LABEL[vNt];
+      if(pick("notifiedAt")) a.notifiedAt = normDate(pick("notifiedAt"));
+      if(pick("dueAt")) a.dueAt = normDate(pick("dueAt"));
+      if(pick("respComment")) a.respComment = pick("respComment");
+      if(pick("respondedOn")) a.respondedOn = normDate(pick("respondedOn"));
+      if(RESPONSES.indexOf(vRp)>=0 && vRp!=="未回答") applyResponse(kk, vRp, normDate(pick("respondedOn")));
+      else if(vRp) a.resp = vRp;
+    }
+    if(got) restoredCount++;
     out.push(rec);
   }
-  // 同一キー衝突を回避
-  var seen = Object.create(null);
-  out.forEach(function(x){
-    var k = x.key, i = 1;
-    while(seen[k]){ k = x.key + "#" + (++i); }
-    seen[k]=1; x.key=k;
-  });
   return out;
+}
+
+/* ---------- 閾値に基づく再判定（設定変更時にも呼ぶ） ---------- */
+function recompute(){
+  var pc = Object.create(null), pe = Object.create(null);
+  rows.forEach(function(r){
+    r.stale = (r.age>=0 && r.age >= settings.remindDays);
+    r.test  = (r.kw.length>0 && r.age>=0 && r.age >= settings.testIdleDays);
+    r.force = (r.age>=0 && r.age >= settings.forceDays);
+    r.cleanup = r.stale || r.noBot || r.test;
+    var p = r.d["Platform"] || "（未設定）", e = r.d["Environment Id"] || "（未設定）";
+    if(!pc[p]) pc[p] = {n:0, bad:0};
+    pc[p].n++; if(r.cleanup) pc[p].bad++;
+    if(!pe[e]) pe[e] = {n:0, bad:0};
+    pe[e].n++; if(r.cleanup) pe[e].bad++;
+  });
+  stats.plat = pc; stats.env = pe;
+  var order = Object.keys(pc).sort(function(a,b){ return pc[b].n-pc[a].n || a.localeCompare(b,"ja"); });
+  stats.platOrder = order;
+  stats.platColor = Object.create(null);
+  order.forEach(function(k,i){ stats.platColor[k] = SERIES[i % SERIES.length]; });
+  markDirty();
+}
+
+/* ---------- 運用フロー段階の判定 ---------- */
+function opsOf(r){
+  var a = A(r.key);
+  if(a.notify === "対象外")        return OPS.excluded;
+  if(a.notify === "返信あり:削除可") return OPS.ready;    /* 所有者が削除に同意済み */
+  if(a.notify === "返信あり:継続")  return OPS.replied;
+  if(!r.cleanup && !r.force)       return OPS.none;
+  /* 強制削除閾値を超えていても、通知フローは必ず通す（無断削除を防ぐため） */
+  if(a.notify === "未通知")        return OPS.notify;
+  var left = daysUntil(a.dueAt);
+  if(left === null || left >= 0)   return OPS.waiting;
+  return (a.notify === "最終通知済み") ? OPS.ready : OPS.final;
 }
 
 /* ---------- localStorage ---------- */
@@ -1901,24 +2468,56 @@ function loadAudit(){
   try{ var j = localStorage.getItem(LS_KEY); return j ? JSON.parse(j) : {}; }
   catch(e){ return {}; }
 }
-function saveAudit(){
-  var out = {};
-  for(var k in audit){
-    var a = audit[k];
-    if(a && (a.status!=="未確認" || a.memo || a.checkedAt)) out[k] = a;   // 初期値は保存しない
-  }
-  try{ localStorage.setItem(LS_KEY, JSON.stringify(out)); }
-  catch(e){ toast("保存領域が使用できません（ステータスは今回のみ有効）","err"); }
+function blankAudit(){ return {status:"未確認", memo:"", checkedAt:"", notify:"未通知", notifiedAt:"", dueAt:"", resp:"未回答", respComment:"", respondedOn:""}; }
+function isBlank(a){
+  return a.status==="未確認" && !a.memo && !a.checkedAt && (!a.notify || a.notify==="未通知") &&
+         !a.notifiedAt && !a.dueAt && (!a.resp || a.resp==="未回答") && !a.respComment && !a.respondedOn;
 }
 function A(key){
-  if(!audit[key]) audit[key] = {status:"未確認", memo:"", checkedAt:""};
-  return audit[key];
+  var a = audit[key];
+  if(!a){ a = audit[key] = blankAudit(); }
+  else {
+    if(a.notify === undefined){ a.notify="未通知"; a.notifiedAt=""; a.dueAt=""; }
+    if(a.resp === undefined){ a.resp="未回答"; a.respComment=""; a.respondedOn=""; }
+  }
+  return a;
+}
+var saveTimer = null;
+function saveAudit(){
+  if(saveTimer) return;
+  saveTimer = setTimeout(function(){
+    saveTimer = null;
+    var out = {};
+    for(var k in audit){ if(!isBlank(audit[k])) out[k] = audit[k]; }
+    try{ localStorage.setItem(LS_KEY, JSON.stringify(out)); }
+    catch(e){ toast("保存領域が使用できません（今回のセッションのみ有効）","err"); }
+  }, 250);
 }
 function setStatus(key, st){
   var a = A(key);
   a.status = st;
-  a.checkedAt = (st==="未確認") ? "" : isoDate(new Date());
-  saveAudit();
+  a.checkedAt = (st==="未確認") ? "" : today();
+  markDirty();
+}
+function setNotify(key, nt){
+  var a = A(key);
+  a.notify = nt;
+  if(nt === "1次通知済み"){ a.notifiedAt = today(); a.dueAt = addDays(a.notifiedAt, settings.graceDays); }
+  else if(nt === "最終通知済み"){ a.notifiedAt = today(); a.dueAt = addDays(a.notifiedAt, settings.finalDays); }
+  else if(nt === "未通知"){ a.notifiedAt = ""; a.dueAt = ""; a.resp = "未回答"; a.respondedOn = ""; }
+  /* 所有者回答（SharePoint 側の列）と同期させる */
+  if(nt === "返信あり:継続"){ a.resp = "継続する";     a.respondedOn = a.respondedOn || today(); }
+  if(nt === "返信あり:削除可"){ a.resp = "削除してよい"; a.respondedOn = a.respondedOn || today(); }
+  markDirty();
+}
+/* 所有者回答 → 通知ステータスへの反映（SharePoint から取り込むときにも使う） */
+function applyResponse(key, resp, when){
+  var a = A(key);
+  a.resp = resp || "未回答";
+  if(resp === "継続する"){ a.notify = "返信あり:継続"; a.respondedOn = when || a.respondedOn || today(); }
+  else if(resp === "削除してよい"){ a.notify = "返信あり:削除可"; a.respondedOn = when || a.respondedOn || today(); }
+  else if(resp === "判断中"){ a.respondedOn = when || a.respondedOn || today(); }
+  markDirty();
 }
 /* ---------- filtering ---------- */
 function matchTab(r){
@@ -1927,23 +2526,26 @@ function matchTab(r){
     case "stale":   return r.stale;
     case "nobot":   return r.noBot;
     case "test":    return r.test;
+    case "force":   return r.force;
     default:        return true;
   }
 }
-function matchQuery(r){
-  if(!query) return true;
-  var q = query.toLowerCase();
-  var f = [r.d["Name"], r.d["Publisher"], r.d["Owner"], r.d["Platform"], r.d["Environment Id"], r.d["Bot Id"], r.d["Description"]];
-  for(var i=0;i<f.length;i++){ if(String(f[i]||"").toLowerCase().indexOf(q)>=0) return true; }
-  return false;
-}
 function visible(){
-  return rows.filter(function(r){
-    if(!matchTab(r)) return false;
-    if(fPlat && r.d["Platform"]!==fPlat) return false;
-    if(fStatus && A(r.key).status!==fStatus) return false;
-    return matchQuery(r);
-  }).sort(cmp);
+  if(!cache.dirty && cache.list) return cache.list;
+  var q = query.toLowerCase();
+  var out = [];
+  for(var i=0;i<rows.length;i++){
+    var r = rows[i];
+    if(!matchTab(r)) continue;
+    if(fPlat && r.d["Platform"]!==fPlat) continue;
+    if(fStatus && A(r.key).status!==fStatus) continue;
+    if(opsTab!=="all" && opsOf(r).k!==opsTab) continue;
+    if(q && r.search.indexOf(q)<0) continue;
+    out.push(r);
+  }
+  out.sort(cmp);
+  cache.list = out; cache.dirty = false;
+  return out;
 }
 function cmp(a,b){
   var v;
@@ -1954,6 +2556,7 @@ function cmp(a,b){
     case "publisher": v = a.d["Publisher"].localeCompare(b.d["Publisher"],"ja"); break;
     case "created":   v = (a.cd?a.cd.getTime():0) - (b.cd?b.cd.getTime():0); break;
     case "status":    v = STATUSES.indexOf(A(a.key).status) - STATUSES.indexOf(A(b.key).status); break;
+    case "notify":    v = NOTIFIES.indexOf(A(a.key).notify) - NOTIFIES.indexOf(A(b.key).notify); break;
     default:          v = a.age - b.age;
   }
   if(v===0) v = a.d["Name"].localeCompare(b.d["Name"],"ja");
@@ -1963,13 +2566,15 @@ function cmp(a,b){
 /* ---------- aggregation helpers ---------- */
 function countBy(arr, fn){
   var m = Object.create(null);
-  arr.forEach(function(r){ var k = fn(r)||"（未設定）"; m[k]=(m[k]||0)+1; });
+  for(var i=0;i<arr.length;i++){ var k = fn(arr[i])||"（未設定）"; m[k]=(m[k]||0)+1; }
   return m;
 }
 function toSorted(m){
-  return Object.keys(m).map(function(k){ return {k:k, n:m[k]}; }).sort(function(a,b){ return b.n-a.n || a.k.localeCompare(b.k,"ja"); });
+  return Object.keys(m).map(function(k){ return {k:k, n:m[k]}; })
+    .sort(function(a,b){ return b.n-a.n || a.k.localeCompare(b.k,"ja"); });
 }
 function pctOf(n, total){ return total ? Math.round(n/total*1000)/10 : 0; }
+function platColor(p){ return stats.platColor[p||"（未設定）"] || SERIES[0]; }
 
 /* ==================================================================
    円グラフ（ドーナツ）レンダラ  ※SVGのみ・外部ライブラリ不使用
@@ -1977,7 +2582,6 @@ function pctOf(n, total){ return total ? Math.round(n/total*1000)/10 : 0; }
 var DN_R = 58, DN_C = 2*Math.PI*DN_R, DN_W = 22, DN_GAP = 3;
 
 function drawDonut(cfg){
-  /* cfg: {svg, center, legend, data:[{k,n,color,bad}], centerLabel, onClick, badLabel} */
   var svg = $(cfg.svg), ct = $(cfg.center), lg = $(cfg.legend);
   var box = svg.closest(".donutbox");
   var data = cfg.data.filter(function(x){ return x.n>0; });
@@ -2018,8 +2622,8 @@ function drawDonut(cfg){
     return '<div class="dl-row" data-i="'+i+'" data-k="'+esc(x.k)+'">'+
       '<span class="sw" style="background:'+x.color+'"></span>'+
       '<span class="nm" title="'+esc(x.k)+'">'+esc(x.k)+'</span>'+
-      (x.bad ? '<span class="bad">要整理 '+x.bad+'</span>' : '')+
-      '<span class="vv">'+x.n+'</span><span class="pp">'+pctOf(x.n,total)+'%</span></div>';
+      (x.bad ? '<span class="bad">要確認 '+x.bad+'</span>' : '')+
+      '<span class="vv">'+x.n.toLocaleString()+'</span><span class="pp">'+pctOf(x.n,total)+'%</span></div>';
   }).join("");
 
   function hi(i){
@@ -2039,19 +2643,72 @@ function drawDonut(cfg){
 
 function jumpToTable(){ document.querySelector(".toolbar").scrollIntoView({behavior:"smooth", block:"start"}); }
 
+/* ---------- 通知・削除フロー ---------- */
+function opsCounts(){
+  var c = {none:0, notify:0, waiting:0, final:0, ready:0, replied:0, excluded:0};
+  for(var i=0;i<rows.length;i++){ c[opsOf(rows[i]).k]++; }
+  return c;
+}
+function renderFunnel(){
+  var c = opsCounts();
+  var detected = rows.filter(function(r){ return r.cleanup || r.force; }).length;
+  var notified = c.waiting + c.final + c.ready + c.replied;
+  var steps = [
+    {k:"cleanup", cls:"", t:"検知", i:"#i-bell", v:detected, d:"閾値に達し確認が必要", n:detected, tab:"cleanup", ops:"all"},
+    {k:"notify",  cls:"", t:"①通知待ち", i:"#i-mail", v:c.notify, d:"所有者へ未連絡", n:detected, ops:"notify"},
+    {k:"waiting", cls:"", t:"②返信待ち", i:"#i-clock", v:c.waiting, d:"回答期限内", n:detected, ops:"waiting"},
+    {k:"final",   cls:"hot", t:"③最終通知が必要", i:"#i-warn", v:c.final, d:"1次の期限切れ", n:detected, ops:"final"},
+    {k:"ready",   cls:"go",  t:"④削除実行可", i:"#i-trash", v:c.ready, d:"無応答で期限超過／削除可と回答", n:detected, ops:"ready"}
+  ];
+  $("funnel").innerHTML = steps.map(function(s){
+    return '<div class="fstep '+s.cls+'" data-ops="'+(s.ops||"all")+'" data-tab="'+(s.tab||"")+'">'+
+      '<div class="st"><svg style="width:12px;height:12px"><use href="'+s.i+'"/></svg>'+s.t+'</div>'+
+      '<div class="fv">'+s.v.toLocaleString()+'</div>'+
+      '<div class="fbar"><i style="width:'+(s.n?Math.max(pctOf(s.v,s.n),1):0)+'%;background:'+
+        (s.cls==="go"?"var(--critical)":s.cls==="hot"?"var(--serious)":"var(--navy-3)")+'"></i></div>'+
+      '<div class="fd">'+s.d+'</div>'+
+      '<div class="arrow"><svg><use href="#i-arrow"/></svg></div></div>';
+  }).join("");
+
+  $("oAll").textContent = rows.length.toLocaleString();
+  $("oNotify").textContent = c.notify; $("oWaiting").textContent = c.waiting;
+  $("oFinal").textContent = c.final;   $("oReady").textContent = c.ready;
+  $("oReplied").textContent = c.replied; $("oExcluded").textContent = c.excluded;
+
+  $("flowRule").textContent = "リマインド " + settings.remindDays + "日 → 回答 " + settings.graceDays +
+    "日 → 最終通知 " + settings.finalDays + "日 → 削除（強制 " + settings.forceDays + "日）";
+
+  var forced = rows.filter(function(r){ return r.force; }).length;
+  var msg;
+  if(!rows.length) msg = "";
+  else if(c.ready) msg = '<b style="color:var(--critical-ink)">'+c.ready.toLocaleString()+'件</b> が削除実行可です。「④削除実行可」タブで一括処理し、実削除の前に30日間のアーカイブ（無効化）期間を設けてください。';
+  else if(c.final) msg = '<b>'+c.final.toLocaleString()+'件</b> が1次通知の回答期限を過ぎています。最終通知を送りましょう。';
+  else if(c.notify) msg = '<b>'+c.notify.toLocaleString()+'件</b> が未通知です。「通知メール作成」で所有者ごとの文面をまとめて作れます。'+
+      (forced ? 'うち <b style="color:var(--critical-ink)">'+forced.toLocaleString()+'件</b> は強制削除閾値（'+settings.forceDays+'日）超過で、最優先の通知対象です。' : '');
+  else if(notified) msg = '通知済みのものはすべて期限内です。回答期限を過ぎると自動的に「③最終通知が必要」へ移動します。';
+  else msg = '現在、通知が必要なエージェントはありません。';
+  $("ftFlow").innerHTML = msg;
+}
+
 /* ---------- KPI + charts ---------- */
 function renderKPI(){
   var total = rows.length;
-  var cleanup = rows.filter(function(r){return r.cleanup;}).length;
-  var nobot   = rows.filter(function(r){return r.noBot;}).length;
-  var stale   = rows.filter(function(r){return r.stale;}).length;
-  var test    = rows.filter(function(r){return r.test;}).length;
-  var plats   = toSorted(countBy(rows, function(r){return r.d["Platform"];}));
+  var cleanup=0, nobot=0, stale=0, test=0, force=0;
+  for(var i=0;i<rows.length;i++){
+    var r=rows[i];
+    if(r.cleanup) cleanup++;
+    if(r.noBot) nobot++;
+    if(r.stale) stale++;
+    if(r.test) test++;
+    if(r.force) force++;
+  }
+  var order = stats.platOrder || [];
+  var plats = order.map(function(k){ return {k:k, n:stats.plat[k].n, bad:stats.plat[k].bad}; });
 
   $("kTotal").textContent = total.toLocaleString();
-  $("kCleanup").textContent = cleanup; $("mCleanup").style.width = pctOf(cleanup,total)+"%";
-  $("kNobot").textContent   = nobot;   $("mNobot").style.width   = pctOf(nobot,total)+"%";
-  $("kStale").textContent   = stale;   $("mStale").style.width   = pctOf(stale,total)+"%";
+  $("kCleanup").textContent = cleanup.toLocaleString(); $("mCleanup").style.width = pctOf(cleanup,total)+"%";
+  $("kNobot").textContent   = nobot.toLocaleString();   $("mNobot").style.width   = pctOf(nobot,total)+"%";
+  $("kStale").textContent   = stale.toLocaleString();   $("mStale").style.width   = pctOf(stale,total)+"%";
   $("kPlat").textContent    = plats.length;
   $("mPlat").style.width    = plats.length ? Math.min(100, plats.length/8*100)+"%" : "0%";
   $("pCleanup").textContent = pctOf(cleanup,total)+"%";
@@ -2059,42 +2716,42 @@ function renderKPI(){
   $("pStale").textContent   = pctOf(stale,total)+"%";
   $("pPlat").textContent    = plats.length ? plats[0].k : "—";
   $("pPlat").title          = plats.length ? plats[0].k+"（"+plats[0].n+"件）" : "";
+  $("tagStale").textContent = settings.remindDays + "日以上放置";
+  $("lblStale").textContent = "長期未更新 (" + settings.remindDays + "日超)";
+  $("lblForce").textContent = "強制削除閾値超過 (" + settings.forceDays + "日超)";
 
-  $("cAll").textContent=total; $("cCleanup").textContent=cleanup; $("cStale").textContent=stale;
-  $("cNobot").textContent=nobot; $("cTest").textContent=test;
+  $("cAll").textContent=total.toLocaleString(); $("cCleanup").textContent=cleanup.toLocaleString();
+  $("cStale").textContent=stale.toLocaleString(); $("cNobot").textContent=nobot.toLocaleString();
+  $("cTest").textContent=test.toLocaleString(); $("cForce").textContent=force.toLocaleString();
 
-  var envs = Object.keys(countBy(rows, function(r){return r.d["Environment Id"];})).length;
+  var envKeys = Object.keys(stats.env);
   $("totalSub").innerHTML = total
-    ? '<b>'+cleanup+'件（'+pctOf(cleanup,total)+'%）</b>が整理対象候補です。<br>'+plats.length+'種のプラットフォーム・'+envs+'環境に分散しています。'
+    ? '<b>'+cleanup.toLocaleString()+'件（'+pctOf(cleanup,total)+'%）</b>がリマインド対象です。<br>'+plats.length+'種のプラットフォーム・'+envKeys.length+'環境に分散しています。'
     : 'CSVを読み込むと集計が表示されます。';
 
   /* ---- 円グラフ1：プラットフォーム別 構成比 ---- */
   drawDonut({
     svg:"svgPlat", center:"ctPlat", legend:"lgPlat", centerLabel:"総エージェント数",
-    data: plats.map(function(p,i){
-      return { k:p.k, n:p.n, color:SERIES[i % SERIES.length],
-               bad: rows.filter(function(r){ return (r.d["Platform"]||"（未設定）")===p.k && r.cleanup; }).length };
-    }),
-    onClick: function(k){ $("fPlat").value = k; fPlat = k; renderTable(); jumpToTable(); }
+    data: plats.map(function(p){ return {k:p.k, n:p.n, color:platColor(p.k), bad:p.bad}; }),
+    onClick: function(k){ $("fPlat").value = k; fPlat = k; markDirty(); page=1; renderTable(); jumpToTable(); }
   });
   if(plats.length){
-    var worst = plats.map(function(p){
-      var bad = rows.filter(function(r){ return (r.d["Platform"]||"（未設定）")===p.k && r.cleanup; }).length;
-      return {k:p.k, r:pctOf(bad,p.n), bad:bad, n:p.n};
-    }).sort(function(a,b){ return b.r-a.r; })[0];
-    $("ftPlat").innerHTML = '最も整理が必要なのは <b>'+esc(worst.k)+'</b>（'+worst.n+'件中 '+worst.bad+'件 = '+worst.r+'% が要整理）';
+    var worst = plats.map(function(p){ return {k:p.k, r:pctOf(p.bad,p.n), bad:p.bad, n:p.n}; })
+                     .sort(function(a,b){ return b.r-a.r; })[0];
+    $("ftPlat").innerHTML = '最も整理が必要なのは <b>'+esc(worst.k)+'</b>（'+worst.n+'件中 '+worst.bad+'件 = '+worst.r+'% が要確認）';
   } else { $("ftPlat").innerHTML = ""; }
 
-  /* ---- 円グラフ2：削除・整理推奨の内訳 ---- */
+  /* ---- 円グラフ2：リマインド対象の内訳 ---- */
   var multi=0, onlyStale=0, onlyNobot=0, onlyTest=0, healthy=0;
-  rows.forEach(function(r){
-    var c = (r.stale?1:0)+(r.noBot?1:0)+(r.test?1:0);
-    if(c===0) healthy++;
-    else if(c>1) multi++;
-    else if(r.stale) onlyStale++;
-    else if(r.noBot) onlyNobot++;
+  for(var j=0;j<rows.length;j++){
+    var x = rows[j];
+    var cnt = (x.stale?1:0)+(x.noBot?1:0)+(x.test?1:0);
+    if(cnt===0) healthy++;
+    else if(cnt>1) multi++;
+    else if(x.stale) onlyStale++;
+    else if(x.noBot) onlyNobot++;
     else onlyTest++;
-  });
+  }
   drawDonut({
     svg:"svgFlag", center:"ctFlag", legend:"lgFlag", centerLabel:"総エージェント数",
     data:[
@@ -2112,47 +2769,50 @@ function renderKPI(){
     }
   });
   $("ftFlag").innerHTML = total
-    ? '要整理 <b>'+cleanup+'件</b> のうち <b>'+multi+'件</b> は複数のルールに該当（優先度が高い候補です）'
+    ? '要確認 <b>'+cleanup.toLocaleString()+'件</b> のうち <b>'+multi.toLocaleString()+'件</b> は複数のルールに該当（優先度が高い候補です）'
     : '';
 
   /* ---- 環境別 分布 ---- */
-  var envm = toSorted(countBy(rows, function(r){return r.d["Environment Id"];}));
+  var envm = Object.keys(stats.env).map(function(k){ return {k:k, n:stats.env[k].n, bad:stats.env[k].bad}; })
+                   .sort(function(a,b){ return b.n-a.n || a.k.localeCompare(b.k,"ja"); });
   $("envChips").innerHTML = envm.map(function(e){
-    var bad = rows.filter(function(r){ return (r.d["Environment Id"]||"（未設定）")===e.k && r.cleanup; }).length;
-    var ratio = pctOf(bad, e.n);
-    return '<div class="chip" data-env="'+esc(e.k)+'" title="'+esc(e.k)+'：'+e.n+'件 / 要整理 '+bad+'件 ('+ratio+'%)">'+
-      '<div class="k">'+esc(e.k)+'</div><div class="n">'+e.n+'<span>件</span></div>'+
+    var ratio = pctOf(e.bad, e.n);
+    return '<div class="chip" data-env="'+esc(e.k)+'" title="'+esc(e.k)+'：'+e.n+'件 / 要確認 '+e.bad+'件 ('+ratio+'%)">'+
+      '<div class="k">'+esc(e.k)+'</div><div class="n">'+e.n.toLocaleString()+'<span>件</span></div>'+
       '<div class="mini"><i class="'+(ratio>=50?"hot":"")+'" style="width:'+Math.max(ratio,2)+'%"></i></div>'+
-      '<div class="cap" style="color:'+(ratio>=50?"var(--critical-ink)":"var(--ink-3)")+'">要整理 '+bad+'件・'+ratio+'%</div></div>';
+      '<div class="cap" style="color:'+(ratio>=50?"var(--critical-ink)":"var(--ink-3)")+'">要確認 '+e.bad+'件・'+ratio+'%</div></div>';
   }).join("") || '<div style="color:var(--ink-3);font-size:12px">データがありません</div>';
 
   if(envm.length){
-    var ew = envm.map(function(e){
-      var bad = rows.filter(function(r){ return (r.d["Environment Id"]||"（未設定）")===e.k && r.cleanup; }).length;
-      return {k:e.k, n:e.n, bad:bad, r:pctOf(bad,e.n)};
-    }).sort(function(a,b){ return b.r-a.r || b.n-a.n; })[0];
-    $("ftEnv").innerHTML = '全 <b>'+envm.length+'</b> 環境に分散。要整理の比率が最も高いのは <b>'+esc(ew.k)+'</b>'+
+    var ew = envm.slice().map(function(e){ return {k:e.k, n:e.n, bad:e.bad, r:pctOf(e.bad,e.n)}; })
+                 .sort(function(a,b){ return b.r-a.r || b.n-a.n; })[0];
+    $("ftEnv").innerHTML = '全 <b>'+envm.length+'</b> 環境に分散。要確認の比率が最も高いのは <b>'+esc(ew.k)+'</b>'+
       '（'+ew.n+'件中 '+ew.bad+'件 = '+ew.r+'%）— 環境ごとの棚卸から着手するのも有効です。';
   } else { $("ftEnv").innerHTML = ""; }
 
   renderRank();
+  renderFunnel();
 }
 
 function renderRank(){
-  var all = toSorted(countBy(rows, function(r){ return r.d[rankKey]; }));
-  var m = all.slice(0,5);
-  $("rankList").innerHTML = m.map(function(x,i){
-    var bad = rows.filter(function(r){ return (r.d[rankKey]||"（未設定）")===x.k && r.cleanup; }).length;
+  var m = Object.create(null), bad = Object.create(null);
+  for(var i=0;i<rows.length;i++){
+    var k = rows[i].d[rankKey] || "（未設定）";
+    m[k] = (m[k]||0)+1;
+    if(rows[i].cleanup) bad[k] = (bad[k]||0)+1;
+  }
+  var all = toSorted(m), top = all.slice(0,5);
+  $("rankList").innerHTML = top.map(function(x,i){
     return '<div class="rk" data-rank="'+esc(x.k)+'">'+
       '<div class="no">'+(i+1)+'</div>'+
-      '<div class="who"><b>'+esc(x.k)+'</b><small>要整理 '+bad+'件 ／ '+(rankKey==="Owner"?"所有":"作成")+'</small></div>'+
+      '<div class="who"><b>'+esc(x.k)+'</b><small>要確認 '+(bad[x.k]||0)+'件 ／ '+(rankKey==="Owner"?"所有":"作成")+'</small></div>'+
       '<div class="cnt">'+x.n+'</div></div>';
   }).join("") || '<div style="color:var(--ink-3);font-size:12px">データがありません</div>';
 
   var uniq = all.length;
   var avg = uniq ? Math.round(rows.length/uniq*10)/10 : 0;
   $("rankFoot").innerHTML = rows.length ?
-    '<div><div class="k">'+(rankKey==="Owner"?"所有者":"作成者")+'数</div><div class="v">'+uniq+'<span style="font-size:11px;color:var(--ink-3)"> 名</span></div></div>'+
+    '<div><div class="k">'+(rankKey==="Owner"?"所有者":"作成者")+'数</div><div class="v">'+uniq.toLocaleString()+'<span style="font-size:11px;color:var(--ink-3)"> 名</span></div></div>'+
     '<div><div class="k">1人あたり平均</div><div class="v">'+avg+'<span style="font-size:11px;color:var(--ink-3)"> 件</span></div></div>'+
     '<div><div class="k">最多保有</div><div class="v">'+(all.length?all[0].n:0)+'<span style="font-size:11px;color:var(--ink-3)"> 件</span></div></div>'
     : '';
@@ -2161,82 +2821,130 @@ function renderRank(){
 function renderProgress(){
   var total = rows.length;
   var c = {継続:0,削除決定:0,保留:0,未確認:0};
-  rows.forEach(function(r){ c[A(r.key).status] = (c[A(r.key).status]||0)+1; });
+  for(var i=0;i<rows.length;i++){ var s=A(rows[i].key).status; c[s]=(c[s]||0)+1; }
   var done = total - c["未確認"];
   var p = pctOf(done,total);
   $("pgPct").textContent = p;
   $("pgKeep").style.width = pctOf(c["継続"],total)+"%";
   $("pgDel").style.width  = pctOf(c["削除決定"],total)+"%";
   $("pgHold").style.width = pctOf(c["保留"],total)+"%";
-  $("lgKeep").textContent=c["継続"]; $("lgDel").textContent=c["削除決定"];
-  $("lgHold").textContent=c["保留"]; $("lgTodo").textContent=c["未確認"];
-  $("pgText").textContent = "全"+total+"件中 "+done+"件 確認完了（"+p+"%）";
+  $("lgKeep").textContent=c["継続"].toLocaleString(); $("lgDel").textContent=c["削除決定"].toLocaleString();
+  $("lgHold").textContent=c["保留"].toLocaleString(); $("lgTodo").textContent=c["未確認"].toLocaleString();
+  $("pgText").textContent = "全"+total.toLocaleString()+"件中 "+done.toLocaleString()+"件 確認完了（"+p+"%）";
 
   /* ---- 円グラフ3：棚卸ステータス内訳 ---- */
   drawDonut({
     svg:"svgStatus", center:"ctStatus", legend:"lgStatus", centerLabel:"総エージェント数",
     data: STATUSES.map(function(s){ return {k:s, n:c[s]||0, color:STATUS_COLORS[s]}; }),
-    onClick: function(k){ $("fStatus").value = k; fStatus = k; renderTable(); jumpToTable(); }
+    onClick: function(k){ $("fStatus").value = k; fStatus = k; markDirty(); page=1; renderTable(); jumpToTable(); }
   });
   $("ftStatus").innerHTML = total
     ? (done===total ? '<b>棚卸が完了しています。</b>CSVを出力して関係者へ共有してください。'
-                    : '残り <b>'+c["未確認"]+'件</b> が未確認です。まずは「削除推奨のみ」タブから着手すると効率的です。')
+                    : '残り <b>'+c["未確認"].toLocaleString()+'件</b> が未確認です。「④削除実行可」から着手すると効率的です。')
     : '';
 }
 /* ---------- table ---------- */
-function ageClass(a){ return a<0?"a0": a>=180?"a3": a>=90?"a2": a>=30?"a1":"a0"; }
-function platColor(p){
-  var list = toSorted(countBy(rows, function(r){return r.d["Platform"];})).map(function(x){return x.k;});
-  var i = list.indexOf(p||"（未設定）");
-  return SERIES[(i<0?0:i) % SERIES.length];
-}
+function ageClass(a){ return a<0?"a0": a>=settings.remindDays?"a3": a>=settings.testIdleDays?"a2": a>=30?"a1":"a0"; }
 function flagHTML(r){
   var h = [];
-  if(r.stale) h.push('<span class="fl stale"><svg><use href="#i-clock"/></svg>長期放置 '+r.age+'日</span>');
+  if(r.force) h.push('<span class="fl stale"><svg><use href="#i-warn"/></svg>強制削除閾値超過 '+r.age+'日</span>');
+  else if(r.stale) h.push('<span class="fl stale"><svg><use href="#i-clock"/></svg>長期放置 '+r.age+'日</span>');
   if(r.noBot) h.push('<span class="fl nobot"><svg><use href="#i-ghost"/></svg>Bot ID未設定</span>');
   if(r.test)  h.push('<span class="fl test"><svg><use href="#i-flask"/></svg>放置テスト機</span>');
   if(!h.length) h.push('<span class="fl ok"><svg><use href="#i-check"/></svg>正常</span>');
   return '<div class="flags">'+h.join("")+'</div>';
 }
+function notifyHTML(r){
+  var a = A(r.key), o = opsOf(r);
+  var h = '<span class="nb '+NOTIFY_CLASS[a.notify]+'"><svg><use href="#i-bell"/></svg>'+esc(NOTIFY_LABEL[a.notify])+'</span>';
+  if(a.dueAt && (a.notify==="1次通知済み" || a.notify==="最終通知済み")){
+    var left = daysUntil(a.dueAt);
+    var cls = left<0 ? "over" : (left<=3 ? "soon" : "ok");
+    var txt = left<0 ? "期限超過 "+(-left)+"日" : "あと"+left+"日";
+    h += ' <span class="due '+cls+'" title="回答期限 '+a.dueAt+'">'+txt+'</span>';
+  }
+  if(o.k==="ready") h += ' <span class="due over">削除可</span>';
+  return '<div class="flags" style="max-width:none">'+h+'</div>';
+}
+function pageSlice(list){
+  if(pageSize>=99999) return list;
+  var maxPage = Math.max(1, Math.ceil(list.length/pageSize));
+  if(page>maxPage) page = maxPage;
+  return list.slice((page-1)*pageSize, page*pageSize);
+}
 function renderTable(){
   var list = visible();
+  var slice = pageSlice(list);
   var tb = $("tbody");
-  if(!list.length){
+
+  if(!slice.length){
     tb.innerHTML = ""; $("empty").style.display="block";
   } else {
     $("empty").style.display="none";
-    var html = list.map(function(r){
-      var a = A(r.key), pc = platColor(r.d["Platform"]);
+    var buf = [];
+    for(var i=0;i<slice.length;i++){
+      var r = slice[i], a = A(r.key), pc = platColor(r.d["Platform"]);
       var desc = (r.d["Description"]||"").replace(/\s*\n+\s*/g," / ");
-      return '<tr data-k="'+esc(r.key)+'" class="'+(r.cleanup?"flagged ":"")+(selected[r.key]?"sel":"")+'">'+
+      buf.push('<tr data-k="'+esc(r.key)+'" class="'+((r.cleanup||r.force)?"flagged ":"")+(selected[r.key]?"sel":"")+'">'+
         '<td><input type="checkbox" class="rowchk" '+(selected[r.key]?"checked":"")+'></td>'+
         '<td class="c-name"><span class="nm" title="'+esc(r.d["Name"])+'">'+esc(r.d["Name"])+'</span>'+
           '<span class="ds" title="'+esc(desc)+'">'+esc(desc||"（説明なし）")+'</span></td>'+
         '<td>'+flagHTML(r)+'</td>'+
+        '<td>'+notifyHTML(r)+'</td>'+
         '<td><span class="plat"><i style="background:'+pc+'"></i>'+esc(r.d["Platform"]||"—")+'</span></td>'+
         '<td class="dim">'+esc(r.d["Owner"]||"—")+'</td>'+
         '<td class="dim">'+esc(r.d["Publisher"]||"—")+'</td>'+
         '<td class="dim">'+fmtDate(r.lm)+' <span class="age '+ageClass(r.age)+'">'+(r.age<0?"不明":r.age+"日")+'</span></td>'+
-        '<td class="dim">'+fmtDate(r.cd)+'</td>'+
         '<td class="mono">'+esc(r.d["Version"]||"—")+'</td>'+
-        '<td class="mono">'+(r.noBot?'<span style="color:var(--warning);font-weight:700">未設定</span>':esc(r.d["Bot Id"]))+'</td>'+
+        '<td class="mono">'+(r.noBot?'<span style="color:var(--warning-ink);font-weight:800">未設定</span>':esc(r.d["Bot Id"]))+'</td>'+
         '<td class="pin p-st"><select class="stsel" data-v="'+esc(a.status)+'">'+STATUSES.map(function(s){
             return '<option'+(s===a.status?" selected":"")+'>'+s+'</option>'; }).join("")+'</select></td>'+
         '<td class="pin p-memo"><input class="memoin" placeholder="削除理由・引き継ぎメモ…" value="'+esc(a.memo)+'"></td>'+
         '<td class="pin p-act"><button class="iconbtn detail" title="詳細を表示"><svg><use href="#i-list"/></svg></button></td>'+
-      '</tr>';
-    }).join("");
-    tb.innerHTML = html;
+      '</tr>');
+    }
+    tb.innerHTML = buf.join("");
   }
-  var selCount = list.filter(function(r){ return selected[r.key]; }).length;
+
+  /* pagination */
+  var totalPages = pageSize>=99999 ? 1 : Math.max(1, Math.ceil(list.length/pageSize));
+  var from = list.length ? (pageSize>=99999 ? 1 : (page-1)*pageSize+1) : 0;
+  var to   = pageSize>=99999 ? list.length : Math.min(page*pageSize, list.length);
+  $("pgInfo").innerHTML = list.length
+    ? '<b>'+from.toLocaleString()+'</b>〜<b>'+to.toLocaleString()+'</b> 件目 / 絞り込み <b>'+list.length.toLocaleString()+'</b> 件（全 '+rows.length.toLocaleString()+' 件）'
+    : '該当なし（全 '+rows.length.toLocaleString()+' 件）';
+  var nav = [];
+  if(totalPages>1){
+    nav.push('<button class="pgbtn" data-p="1" '+(page===1?"disabled":"")+'>«</button>');
+    nav.push('<button class="pgbtn" data-p="'+(page-1)+'" '+(page===1?"disabled":"")+'>‹</button>');
+    var s = Math.max(1, page-2), e = Math.min(totalPages, s+4); s = Math.max(1, e-4);
+    for(var q=s;q<=e;q++) nav.push('<button class="pgbtn '+(q===page?"on":"")+'" data-p="'+q+'">'+q+'</button>');
+    nav.push('<button class="pgbtn" data-p="'+(page+1)+'" '+(page===totalPages?"disabled":"")+'>›</button>');
+    nav.push('<button class="pgbtn" data-p="'+totalPages+'" '+(page===totalPages?"disabled":"")+'>»</button>');
+    nav.push('<span style="font-size:11.5px;color:var(--ink-3);margin-left:6px">'+page+' / '+totalPages+' ページ</span>');
+  }
+  $("pgNav").innerHTML = nav.join("");
+
+  /* selection state */
+  var selOnPage = 0;
+  for(var m=0;m<slice.length;m++){ if(selected[slice[m].key]) selOnPage++; }
   var ck = $("chkAll");
-  ck.checked = list.length>0 && selCount===list.length;
-  ck.indeterminate = selCount>0 && selCount<list.length;
-  var total = Object.keys(selected).length;
-  $("selN").textContent = total;
-  $("bulk").classList.toggle("show", total>0);
-  $("tmeta").innerHTML = '<b style="color:var(--ink)">'+list.length+'</b> 件を表示中（全 '+rows.length+' 件）'+
+  ck.checked = slice.length>0 && selOnPage===slice.length;
+  ck.indeterminate = selOnPage>0 && selOnPage<slice.length;
+  var totalSel = Object.keys(selected).length;
+  $("selN").textContent = totalSel.toLocaleString();
+  $("bulk").classList.toggle("show", totalSel>0);
+  var showBanner = slice.length>0 && selOnPage===slice.length && list.length>slice.length && totalSel<list.length;
+  $("selall").classList.toggle("show", showBanner);
+  if(showBanner){
+    $("selallText").innerHTML = 'このページの <b>'+slice.length+'</b> 件を選択しました。';
+    $("selallBtn").textContent = '条件に一致する全 '+list.length.toLocaleString()+' 件を選択';
+  }
+
+  $("qbCount").textContent = list.length.toLocaleString();
+  $("tmeta").innerHTML = '<b>'+list.length.toLocaleString()+'</b> 件を表示中（全 '+rows.length.toLocaleString()+' 件）'+
     (query?' ／ 検索: "'+esc(query)+'"':'');
+
   document.querySelectorAll("thead th.sortable").forEach(function(th){
     var on = th.dataset.s===sortKey;
     th.classList.toggle("act", on);
@@ -2245,18 +2953,20 @@ function renderTable(){
 }
 function renderAll(){ renderKPI(); renderProgress(); renderTable(); }
 
-/* ---------- modal ---------- */
+/* ---------- 詳細モーダル ---------- */
 function openModal(key){
-  var r = rows.find(function(x){ return x.key===key; }); if(!r) return;
+  var r = null;
+  for(var i=0;i<rows.length;i++){ if(rows[i].key===key){ r=rows[i]; break; } }
+  if(!r) return;
   modalKey = key;
   $("modal").classList.remove("wide");
-  var a = A(key), d = r.d;
+  var a = A(key), d = r.d, o = opsOf(r);
   function cell(k,v,cls){ return '<div class="dcell"><div class="k">'+esc(k)+'</div><div class="v '+(cls||"")+'">'+(v||'<span style="color:var(--ink-3)">—</span>')+'</div></div>'; }
-  var badges = flagHTML(r);
   $("modal").innerHTML =
     '<div class="mhead">'+
       '<div class="mi"><svg><use href="#i-bot"/></svg></div>'+
-      '<div style="flex:1;min-width:0"><h2>'+esc(d["Name"])+'</h2><div class="sb">'+badges+'</div></div>'+
+      '<div style="flex:1;min-width:0"><h2>'+esc(d["Name"])+'</h2><div class="sb">'+flagHTML(r)+notifyHTML(r)+'</div>'+
+        '<div class="sub">運用フロー段階: '+esc(o.label)+'</div></div>'+
       '<button class="mclose" id="mx">×</button>'+
     '</div>'+
     '<div class="mbody">'+
@@ -2269,71 +2979,679 @@ function openModal(key){
         cell("Last Modified", fmtDate(r.lm)+' <span class="age '+ageClass(r.age)+'">'+(r.age<0?"不明":r.age+"日経過")+'</span>')+
         cell("Environment Id", esc(d["Environment Id"]), "mn")+
         cell("Bot Id", r.noBot ? '<span class="na">未設定（不完全ボット）</span>' : esc(d["Bot Id"]), r.noBot?"":"mn")+
+        cell("通知日", a.notifiedAt ? esc(a.notifiedAt) : '<span style="color:var(--ink-3)">未通知</span>')+
+        cell("回答期限", a.dueAt ? esc(a.dueAt)+(daysUntil(a.dueAt)<0?' <span class="due over">超過</span>':' <span class="due ok">あと'+daysUntil(a.dueAt)+'日</span>') : '<span style="color:var(--ink-3)">—</span>')+
+        cell("所有者回答", esc(a.resp||"未回答")+(a.respondedOn?'<span style="color:var(--ink-3);font-size:11px"> （'+esc(a.respondedOn)+'）</span>':''))+
+        cell("AgentKey（連携キー）", esc(key), "mn")+
       '</div>'+
+      (a.respComment ? '<div class="dsec"><div class="k">所有者コメント</div><div class="desc">'+esc(a.respComment)+'</div></div>' : '')+
       '<div class="dsec"><div class="k">Description</div><div class="desc">'+(esc(d["Description"])||'<span style="color:var(--ink-3)">説明が登録されていません</span>')+'</div></div>'+
       (r.kw.length ? '<div class="dsec"><div class="k">検出キーワード（テスト機判定）</div><div style="display:flex;gap:6px;flex-wrap:wrap">'+
         r.kw.map(function(k){return '<span class="fl test">'+esc(k)+'</span>';}).join("")+'</div></div>' : '')+
       '<div class="mact">'+
+        '<div><label>通知ステータス</label><select class="stsel" id="mNt" style="width:100%;padding:11px;font-size:13px">'+
+          NOTIFIES.map(function(s){ return '<option value="'+s+'"'+(s===a.notify?" selected":"")+'>'+NOTIFY_LABEL[s]+'</option>'; }).join("")+'</select>'+
+          '<div style="font-size:11px;color:var(--ink-3);margin-top:8px">通知日: <b id="mNd">'+(a.notifiedAt||"—")+'</b> ／ 期限: <b id="mDue">'+(a.dueAt||"—")+'</b></div>'+
+          '<label style="margin-top:12px">所有者回答（SharePointの OwnerResponse 列）</label>'+
+          '<select class="stsel" id="mRp" style="width:100%;padding:11px;font-size:13px">'+
+          RESPONSES.map(function(s){ return '<option value="'+s+'"'+(s===(a.resp||"未回答")?" selected":"")+'>'+s+'</option>'; }).join("")+'</select></div>'+
+        '<div><label>管理者メモ（削除理由・引き継ぎ事項）</label><textarea id="mMemo" placeholder="例）2025年のPoCで役割終了。所有者退職済みのため削除可。">'+esc(a.memo)+'</textarea></div>'+
+      '</div>'+
+      '<div class="mact">'+
         '<div><label>判断ステータス</label><select class="stsel" id="mSt" data-v="'+esc(a.status)+'">'+
           STATUSES.map(function(s){ return '<option'+(s===a.status?" selected":"")+'>'+s+'</option>'; }).join("")+'</select>'+
           '<div style="font-size:11px;color:var(--ink-3);margin-top:8px">最終確認日: <b id="mCk">'+(a.checkedAt||"—")+'</b></div></div>'+
-        '<div><label>管理者メモ（削除理由・引き継ぎ事項）</label><textarea id="mMemo" placeholder="例）2025年のPoCで役割終了。所有者退職済みのため削除可。">'+esc(a.memo)+'</textarea></div>'+
+        '<div></div>'+
       '</div>'+
     '</div>';
   $("mask").classList.add("open");
   document.body.style.overflow="hidden";
   $("mx").onclick = closeModal;
   $("mSt").onchange = function(){
-    setStatus(key, this.value); this.dataset.v=this.value;
+    setStatus(key, this.value); this.dataset.v=this.value; saveAudit();
     $("mCk").textContent = A(key).checkedAt || "—";
     renderProgress(); renderTable();
   };
-  $("mMemo").oninput = function(){ A(key).memo = this.value; saveAudit(); renderTable(); };
+  $("mNt").onchange = function(){
+    setNotify(key, this.value); saveAudit();
+    $("mNd").textContent = A(key).notifiedAt || "—";
+    $("mDue").textContent = A(key).dueAt || "—";
+    renderFunnel(); renderTable();
+  };
+  $("mMemo").oninput = function(){ A(key).memo = this.value; saveAudit(); };
+  $("mRp").onchange = function(){
+    applyResponse(key, this.value); saveAudit();
+    $("mNt").value = A(key).notify;
+    $("mNd").textContent = A(key).notifiedAt || "—";
+    $("mDue").textContent = A(key).dueAt || "—";
+    renderFunnel(); renderProgress(); renderTable();
+  };
 }
-function closeModal(){ $("mask").classList.remove("open"); $("modal").classList.remove("wide"); document.body.style.overflow=""; modalKey=null; }
-/* ---------- export ---------- */
+function closeModal(){
+  $("mask").classList.remove("open"); $("modal").classList.remove("wide");
+  document.body.style.overflow=""; modalKey=null;
+  if(rows.length) renderTable();
+}
+/* ==================================================================
+   出力フォーマット群
+   （Power Automate / SharePoint 連携用。外部ライブラリ不使用）
+================================================================== */
+
+/* ---------- CSV ---------- */
 function csvCell(v){
   v = String(v==null?"":v);
   return /[",\n\r]/.test(v) ? '"'+v.replace(/"/g,'""')+'"' : v;
 }
-function exportCSV(){
-  if(!rows.length){ toast("エクスポートするデータがありません","err"); return; }
-  var head = COLS.concat(["棚卸ステータス","削除理由メモ","最終確認日","自動判定フラグ","最終更新からの経過日数"]);
-  var body = rows.slice().sort(cmp).map(function(r){
-    var a = A(r.key);
-    var fl = [];
-    if(r.stale) fl.push("長期放置(180日超)");
-    if(r.noBot) fl.push("BotID未設定");
-    if(r.test)  fl.push("放置テスト機");
-    return COLS.map(function(c){ return csvCell(r.d[c]); })
-      .concat([csvCell(a.status), csvCell(a.memo), csvCell(a.checkedAt), csvCell(fl.join(" / ")), csvCell(r.age<0?"":r.age)]).join(",");
-  });
-  var csv = "﻿" + [head.map(csvCell).join(",")].concat(body).join("\r\n");
-  var blob = new Blob([csv], {type:"text/csv;charset=utf-8;"});
+function downloadBlob(name, blob){
   var url = URL.createObjectURL(blob);
   var a = document.createElement("a");
-  a.href = url;
-  a.download = "agent_inventory_audit_" + isoDate(new Date()).replace(/-/g,"") + ".csv";
+  a.href = url; a.download = name;
   document.body.appendChild(a); a.click(); a.remove();
-  setTimeout(function(){ URL.revokeObjectURL(url); }, 1500);
-  toast(rows.length+"件を棚卸結果付きCSVで出力しました","ok");
+  setTimeout(function(){ URL.revokeObjectURL(url); }, 2000);
+}
+function download(name, text){
+  downloadBlob(name, new Blob([text], {type:"text/csv;charset=utf-8;"}));
+}
+function stamp(){ return today().replace(/-/g,""); }
+
+/* ==================================================================
+   最小 XLSX ライター（ZIP:無圧縮 STORE + SpreadsheetML）
+   Power Automate の Excel コネクタ「表内に存在する行を一覧表示」で
+   そのまま読める “テーブル” 付きのブックを生成します。
+================================================================== */
+function crc32(buf){
+  var table = crc32._t;
+  if(!table){
+    table = crc32._t = new Int32Array(256);
+    for(var n=0;n<256;n++){
+      var c = n;
+      for(var k=0;k<8;k++) c = (c & 1) ? (0xEDB88320 ^ (c>>>1)) : (c>>>1);
+      table[n] = c;
+    }
+  }
+  var crc = -1;
+  for(var i=0;i<buf.length;i++) crc = (crc>>>8) ^ table[(crc ^ buf[i]) & 0xFF];
+  return (crc ^ -1) >>> 0;
+}
+/* raw deflate（ブラウザ標準の CompressionStream を使用。無ければ無圧縮にフォールバック） */
+function deflateRaw(u8){
+  if(typeof CompressionStream === "undefined") return Promise.resolve(null);
+  try{
+    var cs = new CompressionStream("deflate-raw");
+    var w  = cs.writable.getWriter();
+    w.write(u8); w.close();
+    return new Response(cs.readable).arrayBuffer()
+      .then(function(ab){ return new Uint8Array(ab); })
+      .catch(function(){ return null; });
+  }catch(e){ return Promise.resolve(null); }
+}
+function zipMake(files){
+  /* files: [{name, data:Uint8Array}] → Promise<Blob> */
+  return Promise.all(files.map(function(f){
+    return deflateRaw(f.data).then(function(def){
+      var useDef = def && def.length < f.data.length;
+      return {name:f.name, raw:f.data, out: useDef ? def : f.data, method: useDef ? 8 : 0};
+    });
+  })).then(function(items){
+    var enc = new TextEncoder();
+    var parts = [], central = [], offset = 0;
+    items.forEach(function(f){
+      var nameB = enc.encode(f.name);
+      var crc = crc32(f.raw), ulen = f.raw.length, clen = f.out.length;
+
+      var lh = new Uint8Array(30 + nameB.length);
+      var dv = new DataView(lh.buffer);
+      dv.setUint32(0, 0x04034b50, true);
+      dv.setUint16(4, 20, true); dv.setUint16(6, 0x0800, true);   /* UTF-8 フラグ */
+      dv.setUint16(8, f.method, true);
+      dv.setUint16(10, 0, true); dv.setUint16(12, 0x2821, true);  /* 固定日時 */
+      dv.setUint32(14, crc, true); dv.setUint32(18, clen, true); dv.setUint32(22, ulen, true);
+      dv.setUint16(26, nameB.length, true); dv.setUint16(28, 0, true);
+      lh.set(nameB, 30);
+      parts.push(lh, f.out);
+
+      var ch = new Uint8Array(46 + nameB.length);
+      var dv2 = new DataView(ch.buffer);
+      dv2.setUint32(0, 0x02014b50, true);
+      dv2.setUint16(4, 20, true); dv2.setUint16(6, 20, true);
+      dv2.setUint16(8, 0x0800, true); dv2.setUint16(10, f.method, true);
+      dv2.setUint16(12, 0, true); dv2.setUint16(14, 0x2821, true);
+      dv2.setUint32(16, crc, true); dv2.setUint32(20, clen, true); dv2.setUint32(24, ulen, true);
+      dv2.setUint16(28, nameB.length, true); dv2.setUint16(30, 0, true); dv2.setUint16(32, 0, true);
+      dv2.setUint16(34, 0, true); dv2.setUint16(36, 0, true); dv2.setUint32(38, 0, true);
+      dv2.setUint32(42, offset, true);
+      ch.set(nameB, 46);
+      central.push(ch);
+
+      offset += lh.length + clen;
+    });
+    var cdSize = central.reduce(function(s,c){ return s+c.length; }, 0);
+    var eocd = new Uint8Array(22);
+    var dv3 = new DataView(eocd.buffer);
+    dv3.setUint32(0, 0x06054b50, true);
+    dv3.setUint16(4, 0, true); dv3.setUint16(6, 0, true);
+    dv3.setUint16(8, items.length, true); dv3.setUint16(10, items.length, true);
+    dv3.setUint32(12, cdSize, true); dv3.setUint32(16, offset, true);
+    dv3.setUint16(20, 0, true);
+    return new Blob(parts.concat(central, [eocd]),
+                    {type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"});
+  });
+}
+function xmlEsc(s){
+  return String(s==null?"":s)
+    .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g,"")
+    .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;").replace(/'/g,"&apos;");
+}
+function colName(n){          /* 1 -> A, 27 -> AA */
+  var s = "";
+  while(n>0){ var m=(n-1)%26; s = String.fromCharCode(65+m)+s; n = (n-m-1)/26; }
+  return s;
+}
+function buildXlsx(tableName, head, body){
+  var enc = new TextEncoder();
+  var lastCol = colName(head.length), lastRow = body.length + 1;
+  var ref = "A1:" + lastCol + lastRow;
+
+  var sd = ['<row r="1">'];
+  head.forEach(function(h,i){
+    sd.push('<c r="'+colName(i+1)+'1" t="inlineStr"><is><t xml:space="preserve">'+xmlEsc(h)+'</t></is></c>');
+  });
+  sd.push('</row>');
+  for(var r=0;r<body.length;r++){
+    var row = body[r], rn = r+2;
+    sd.push('<row r="'+rn+'">');
+    for(var c=0;c<row.length;c++){
+      var v = row[c], ad = colName(c+1)+rn;
+      if(typeof v === "number" && isFinite(v)) sd.push('<c r="'+ad+'"><v>'+v+'</v></c>');
+      else if(v==null || v==="")               sd.push('<c r="'+ad+'" t="inlineStr"><is><t/></is></c>');
+      else sd.push('<c r="'+ad+'" t="inlineStr"><is><t xml:space="preserve">'+xmlEsc(v)+'</t></is></c>');
+    }
+    sd.push('</row>');
+  }
+
+  var X = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>';
+  var NS = 'http://schemas.openxmlformats.org/spreadsheetml/2006/main';
+  var RN = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships';
+
+  var files = [
+    {name:"[Content_Types].xml", text: X+
+      '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">'+
+      '<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>'+
+      '<Default Extension="xml" ContentType="application/xml"/>'+
+      '<Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>'+
+      '<Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>'+
+      '<Override PartName="/xl/tables/table1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.table+xml"/>'+
+      '<Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>'+
+      '</Types>'},
+    {name:"_rels/.rels", text: X+
+      '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'+
+      '<Relationship Id="rId1" Type="'+RN+'/officeDocument" Target="xl/workbook.xml"/>'+
+      '</Relationships>'},
+    {name:"xl/workbook.xml", text: X+
+      '<workbook xmlns="'+NS+'" xmlns:r="'+RN+'">'+
+      '<sheets><sheet name="'+xmlEsc(tableName)+'" sheetId="1" r:id="rId1"/></sheets></workbook>'},
+    {name:"xl/_rels/workbook.xml.rels", text: X+
+      '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'+
+      '<Relationship Id="rId1" Type="'+RN+'/worksheet" Target="worksheets/sheet1.xml"/>'+
+      '<Relationship Id="rId2" Type="'+RN+'/styles" Target="styles.xml"/>'+
+      '</Relationships>'},
+    {name:"xl/styles.xml", text: X+
+      '<styleSheet xmlns="'+NS+'">'+
+      '<fonts count="1"><font><sz val="11"/><name val="Calibri"/></font></fonts>'+
+      '<fills count="2"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill></fills>'+
+      '<borders count="1"><border/></borders>'+
+      '<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>'+
+      '<cellXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/></cellXfs>'+
+      '<cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles>'+
+      '</styleSheet>'},
+    {name:"xl/worksheets/sheet1.xml", text: X+
+      '<worksheet xmlns="'+NS+'" xmlns:r="'+RN+'">'+
+      '<sheetData>'+sd.join("")+'</sheetData>'+
+      '<tableParts count="1"><tablePart r:id="rId1"/></tableParts></worksheet>'},
+    {name:"xl/worksheets/_rels/sheet1.xml.rels", text: X+
+      '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'+
+      '<Relationship Id="rId1" Type="'+RN+'/table" Target="../tables/table1.xml"/>'+
+      '</Relationships>'},
+    {name:"xl/tables/table1.xml", text: X+
+      '<table xmlns="'+NS+'" id="1" name="'+xmlEsc(tableName)+'" displayName="'+xmlEsc(tableName)+'" ref="'+ref+'" totalsRowShown="0">'+
+      '<autoFilter ref="'+ref+'"/>'+
+      '<tableColumns count="'+head.length+'">'+
+      head.map(function(h,i){ return '<tableColumn id="'+(i+1)+'" name="'+xmlEsc(h)+'"/>'; }).join("")+
+      '</tableColumns>'+
+      '<tableStyleInfo name="TableStyleMedium2" showFirstColumn="0" showLastColumn="0" showRowStripes="1" showColumnStripes="0"/>'+
+      '</table>'}
+  ];
+  return zipMake(files.map(function(f){ return {name:f.name, data:enc.encode(f.text)}; }));
+}
+
+/* ==================================================================
+   出力データの組み立て
+================================================================== */
+function flagsOf(r){
+  var fl = [];
+  if(r.stale) fl.push("長期放置("+settings.remindDays+"日超)");
+  if(r.noBot) fl.push("BotID未設定");
+  if(r.test)  fl.push("放置テスト機");
+  if(r.force) fl.push("強制削除閾値超過("+settings.forceDays+"日超)");
+  return fl.join(" / ");
+}
+/* SharePoint リスト／Excel テーブル共通のスキーマ（内部名） */
+var SPO_COLS = [
+  "AgentKey","Title","BotId","Platform","EnvironmentId","OwnerEmail","PublisherName",
+  "CreatedOn","LastModifiedOn","DaysIdle","AgentVersion","DetectionFlags","FlowStage",
+  "NotifyStatus","NotifiedOn","DueDate","OwnerResponse","OwnerComment","RespondedOn",
+  "AuditStatus","AdminMemo","LastCheckedOn","Description"
+];
+function spoRow(r){
+  var a = A(r.key);
+  return [
+    r.key, r.d["Name"], r.d["Bot Id"], r.d["Platform"], r.d["Environment Id"],
+    r.d["Owner"], r.d["Publisher"],
+    r.cd ? isoDate(r.cd) : "", r.lm ? isoDate(r.lm) : "",
+    (r.age<0 ? "" : r.age), r.d["Version"],
+    flagsOf(r), opsOf(r).label,
+    NOTIFY_LABEL[a.notify], a.notifiedAt, a.dueAt,
+    a.resp || "未回答", a.respComment || "", a.respondedOn || "",
+    a.status, a.memo, a.checkedAt,
+    (r.d["Description"]||"").replace(/\r?\n/g," / ")
+  ];
+}
+function targetRows(scope){
+  return (scope === "filtered") ? visible() : rows;
+}
+
+/* ---------- ① 棚卸結果CSV（人が読む用・元の10カラム＋判断） ---------- */
+function exportAuditCSV(scope){
+  var list = targetRows(scope);
+  if(!list.length){ toast("出力するデータがありません","err"); return; }
+  var head = COLS.concat(["棚卸ステータス","削除理由メモ","最終確認日","通知ステータス","通知日","回答期限",
+                          "所有者回答","所有者コメント","回答日","運用フロー段階","自動判定フラグ","最終更新からの経過日数"]);
+  var body = list.slice().sort(cmp).map(function(r){
+    var a = A(r.key);
+    return COLS.map(function(c){ return csvCell(r.d[c]); })
+      .concat([csvCell(a.status), csvCell(a.memo), csvCell(a.checkedAt),
+               csvCell(NOTIFY_LABEL[a.notify]), csvCell(a.notifiedAt), csvCell(a.dueAt),
+               csvCell(a.resp||"未回答"), csvCell(a.respComment||""), csvCell(a.respondedOn||""),
+               csvCell(opsOf(r).label), csvCell(flagsOf(r)), csvCell(r.age<0?"":r.age)]).join(",");
+  });
+  download("agent_inventory_audit_"+stamp()+".csv",
+           "﻿" + [head.map(csvCell).join(",")].concat(body).join("\r\n"));
+  toast(list.length.toLocaleString()+"件を棚卸結果CSVで出力しました","ok");
+}
+
+/* ---------- ② Excelテーブル (.xlsx) — Power Automate 用 ---------- */
+function exportXlsx(scope){
+  var list = targetRows(scope);
+  if(!list.length){ toast("出力するデータがありません","err"); return; }
+  var body = list.slice().sort(cmp).map(spoRow);
+  var t0 = Date.now();
+  if(list.length>1500) toast("Excelテーブルを生成しています…","");
+  buildXlsx("AgentAudit", SPO_COLS, body).then(function(blob){
+    downloadBlob("AgentAudit_"+stamp()+".xlsx", blob);
+    toast(list.length.toLocaleString()+"件をExcelテーブル「AgentAudit」で出力しました（"+
+          (Date.now()-t0)+"ms / "+(blob.size/1048576).toFixed(1)+"MB）","ok");
+  });
+}
+
+/* ---------- ③ SharePointリスト取込用CSV ---------- */
+function exportSpoCSV(scope){
+  var list = targetRows(scope);
+  if(!list.length){ toast("出力するデータがありません","err"); return; }
+  var body = list.slice().sort(cmp).map(function(r){
+    return spoRow(r).map(csvCell).join(",");
+  });
+  download("SPO_AgentAudit_"+stamp()+".csv",
+           "﻿" + [SPO_COLS.join(",")].concat(body).join("\r\n"));
+  toast(list.length.toLocaleString()+"件をSharePointリスト取込用CSVで出力しました","ok");
+}
+
+/* ---------- ④ 通知リストCSV（所有者ごとに1行＝メール差し込み用） ---------- */
+function exportNotifyList(){
+  var list = visible();
+  if(!list.length){ toast("対象がありません","err"); return; }
+  var g = groupByOwner(list);
+  var head = ["OwnerEmail","ItemCount","DueDate","MyItemsUrl","AgentNames","Platforms","OldestLastModified","MailSubject","MailBody"];
+  var body = g.map(function(o){
+    return [csvCell(o.owner), o.items.length, csvCell(o.due), csvCell(myItemsUrl(o.owner)),
+            csvCell(o.items.map(function(x){ return x.d["Name"]; }).join(" / ")),
+            csvCell(Array.from(new Set(o.items.map(function(x){ return x.d["Platform"]; }))).join(" / ")),
+            csvCell(fmtDate(o.items[0].lm)),
+            csvCell(mailSubject(o)), csvCell(mailBody(o))].join(",");
+  });
+  download("agent_notify_list_"+stamp()+".csv",
+           "﻿" + [head.join(",")].concat(body).join("\r\n"));
+  toast(g.length.toLocaleString()+"名分の通知リストを出力しました","ok");
+}
+
+/* ---------- ⑤ 通知リスト Excelテーブル（Power Automateで一斉送信する用） ---------- */
+function exportNotifyXlsx(){
+  var list = visible();
+  if(!list.length){ toast("対象がありません","err"); return; }
+  var g = groupByOwner(list);
+  var head = ["OwnerEmail","ItemCount","DueDate","MyItemsUrl","AgentNames","MailSubject","MailBody","SendStatus","SentOn"];
+  var body = g.map(function(o){
+    return [o.owner, o.items.length, o.due, myItemsUrl(o.owner),
+            o.items.map(function(x){ return x.d["Name"]; }).join(" / "),
+            mailSubject(o), mailBody(o), "未送信", ""];
+  });
+  if(g.length>800) toast("送信キューを生成しています…","");
+  buildXlsx("NotifyQueue", head, body).then(function(blob){
+    downloadBlob("NotifyQueue_"+stamp()+".xlsx", blob);
+    toast(g.length.toLocaleString()+"名分の送信キュー（Excelテーブル / "+
+          (blob.size/1048576).toFixed(1)+"MB）を出力しました","ok");
+  });
+}
+
+/* ---------- 出力モーダル ---------- */
+function openExport(){
+  modalKey = "__export__";
+  $("modal").classList.add("wide");
+  var vis = visible().length, all = rows.length;
+  function card(id, icon, title, badge, desc, note){
+    return '<div class="expcard" data-x="'+id+'">'+
+      '<div class="xi"><svg><use href="'+icon+'"/></svg></div>'+
+      '<div class="xb"><div class="xt">'+title+(badge?'<span class="xbadge">'+badge+'</span>':'')+'</div>'+
+      '<div class="xd">'+desc+'</div>'+(note?'<div class="xn">'+note+'</div>':'')+'</div>'+
+      '<button class="btn primary xgo"><svg><use href="#i-down"/></svg>出力</button></div>';
+  }
+  $("modal").innerHTML =
+    '<div class="mhead">'+
+      '<div class="mi"><svg><use href="#i-down"/></svg></div>'+
+      '<div style="flex:1;min-width:0"><h2>出力（エクスポート）</h2>'+
+        '<div class="sub">Power Automate / SharePoint 連携用のフォーマットも選べます</div></div>'+
+      '<button class="mclose" id="mx">×</button>'+
+    '</div>'+
+    '<div class="mbody">'+
+      '<div class="scopebar">'+
+        '<span class="cap">出力する範囲</span>'+
+        '<label class="rad"><input type="radio" name="xscope" value="all" checked><span>全 '+all.toLocaleString()+' 件</span></label>'+
+        '<label class="rad"><input type="radio" name="xscope" value="filtered"><span>いま絞り込み中の '+vis.toLocaleString()+' 件</span></label>'+
+      '</div>'+
+      card("xlsx","#i-grid","Excelテーブル (.xlsx)","Power Automate 推奨",
+           "テーブル名 <code>AgentAudit</code> の表を含む .xlsx を生成します。SharePoint / OneDrive に置けば、Power Automate の Excel コネクタ「<b>表内に存在する行を一覧表示</b>」でそのまま読めます。",
+           "列: "+SPO_COLS.length+"列（AgentKey が一意キー）") +
+      card("spo","#i-server","SharePointリスト取込用CSV","",
+           "SharePoint リストの列内部名に合わせたCSVです。「<b>スプレッドシートからインポート</b>」または Power Automate の「項目の作成／更新」に流し込めます。",
+           "列定義は「使い方 → SharePointリストの作り方」に記載") +
+      card("notify","#i-mail","通知キュー Excelテーブル (.xlsx)","一斉送信用",
+           "<b>所有者ごとに1行</b>にまとめ、宛先・件名・本文・自分の担当分リンクまで入った表です。Power Automate で1行ずつ「メールの送信 (V2)」に渡すだけで一斉通知できます。",
+           "テーブル名 <code>NotifyQueue</code>／SendStatus 列で送信済み管理") +
+      card("notifycsv","#i-file","通知リストCSV","",
+           "上と同じ内容のCSV版です。Excelで開いて宛先を確認したり、差し込み印刷・他ツールに渡すときに。","") +
+      card("audit","#i-list","棚卸結果CSV（人が読む用）","",
+           "元の10カラムに判断結果・通知履歴を足した、日本語ヘッダーのCSVです。報告や証跡保管はこちらが読みやすいです。",
+           "BOM付きUTF-8。Excelでそのまま開けます") +
+      '<div class="edithint"><svg><use href="#i-reset"/></svg><span><b>往復できます：</b>ここで出力したCSV／SharePointからエクスポートしたCSVをこのツールに読み込み直すと、'+
+        '<b>通知ステータス・回答期限・所有者回答・管理者メモまで復元</b>されます。SharePoint 側を正として毎月回してください。</span></div>'+
+    '</div>';
+  $("mask").classList.add("open");
+  document.body.style.overflow="hidden";
+  $("mx").onclick = closeModal;
+  $("modal").querySelectorAll(".expcard").forEach(function(c){
+    c.querySelector(".xgo").onclick = function(){
+      var scope = $("modal").querySelector('input[name="xscope"]:checked').value;
+      var x = c.dataset.x;
+      if(x==="xlsx") exportXlsx(scope);
+      else if(x==="spo") exportSpoCSV(scope);
+      else if(x==="notify") exportNotifyXlsx();
+      else if(x==="notifycsv") exportNotifyList();
+      else exportAuditCSV(scope);
+    };
+  });
+}
+/* ---------- 所有者向けリンク（SharePoint リストの自分の担当分ビュー） ---------- */
+function myItemsUrl(owner){
+  var base = (settings.spoListUrl||"").trim();
+  if(!base) return "";
+  var sep = base.indexOf("?")>=0 ? "&" : "?";
+  return base + sep + "FilterField1=OwnerEmail&FilterValue1=" + encodeURIComponent(owner) + "&FilterType1=Text";
+}
+function mailSubject(o){
+  return (o.final ? "【最終のご連絡 / " : "【要対応 / ") + o.due + "まで】未使用の疑いがあるAIエージェント " + o.items.length + "件のご確認";
+}
+
+/* ---------- 通知メール文面ジェネレーター ---------- */
+function groupByOwner(list){
+  var m = Object.create(null);
+  list.forEach(function(r){
+    var o = r.d["Owner"] || "（所有者不明）";
+    (m[o] = m[o] || []).push(r);
+  });
+  return Object.keys(m).sort(function(a,b){ return m[b].length-m[a].length || a.localeCompare(b,"ja"); })
+    .map(function(o){
+      var items = m[o].slice().sort(function(a,b){ return b.age-a.age; });
+      /* 全件が「最終通知が必要」段階なら最終通知メールとして生成する */
+      var isFinal = items.length>0 && items.every(function(x){ return opsOf(x).k === "final"; });
+      return { owner:o, items:items, final:isFinal,
+               due: addDays(today(), isFinal ? settings.finalDays : settings.graceDays) };
+    });
+}
+function mailBody(o){
+  var due = o.due, fin = o.final, url = myItemsUrl(o.owner);
+  var lines = o.items.map(function(x,i){
+    var a = A(x.key);
+    return "  " + (i+1) + ". " + x.d["Name"] + "\n" +
+           "     プラットフォーム: " + (x.d["Platform"]||"—") + "\n" +
+           "     最終更新: " + fmtDate(x.lm) + "（" + (x.age<0?"不明":x.age+"日経過") + "）\n" +
+           "     環境ID: " + (x.d["Environment Id"]||"—") +
+           (a.notifiedAt ? "\n     ※ " + a.notifiedAt + " に一度ご連絡しております" : "") +
+           (x.noBot ? "\n     ※ Bot IDが未設定です（公開が完了していない可能性があります）" : "");
+  }).join("\n\n");
+
+  var action = url
+    ? "  下記のリンクから、あなたが所有するエージェントの一覧が開きます。\n" +
+      "  各行の「所有者回答」列を、次のどちらかに変更して保存してください。\n" +
+      "\n" +
+      "      ・継続する      … 今後も使うので残す\n" +
+      "      ・削除してよい  … 不要なので削除して構わない\n" +
+      "\n" +
+      "  （判断に時間がかかる場合は「判断中」を選び、コメント欄に状況をご記入ください）\n" +
+      "\n" +
+      "  ▼ あなたの担当分だけを表示するリンク\n" +
+      "  " + url + "\n" +
+      "\n" +
+      "  ※ このメールへの返信は不要です。リストの更新のみお願いします。\n"
+    : "  お手数ですが、対象ごとに「継続」または「削除可」をご連絡ください。\n" +
+      "  （管理台帳のURLが未設定です。設定画面でSharePointリストのURLを登録すると、\n" +
+      "    所有者自身がステータスを更新できるリンクを自動で差し込めます）\n";
+
+  return "" +
+"件名：" + mailSubject(o) + "\n" +
+"宛先：" + o.owner + "\n" +
+"------------------------------------------------------------\n" +
+o.owner + " 様\n" +
+"\n" +
+"お世話になっております。" + (settings.teamName || "AIエージェント運用管理チーム") + "です。\n" +
+"\n" +
+(fin
+ ? "先日ご連絡いたしました件について、まだご回答をいただけておりません。\n本メールが最終のご案内となります。\n"
+ : "社内のAIエージェント（Copilot / Power Automate / Teams ボット等）の定期棚卸を実施しております。\n" +
+   "その結果、" + o.owner + " 様が所有される以下の " + o.items.length + " 件について、\n" +
+   "長期間更新されていない、または設定が未完了の状態であることを確認いたしました。\n") +
+"\n" +
+"■ 対象のエージェント（" + o.items.length + "件）\n" +
+"\n" + lines + "\n" +
+"\n" +
+"■ ご対応のお願い（" + due + " まで）\n" +
+"\n" + action +
+"\n" +
+"■ ご注意\n" +
+"\n" +
+"  " + due + " までにご回答がない場合、利用されていないものと判断し、\n" +
+"  対象のエージェントを停止・削除いたします。\n" +
+"  ただし削除後30日間はバックアップを保持しますので、\n" +
+"  誤って削除された場合はご連絡いただければ復元可能です。\n" +
+"\n" +
+"ご不明な点がございましたら、下記までお問い合わせください。\n" +
+"\n" +
+(settings.teamName || "AIエージェント運用管理チーム") + "\n" +
+"------------------------------------------------------------\n";
+}
+function openMail(){
+  var list = visible();
+  if(!list.length){ toast("対象がありません。タブや検索で絞り込んでください","err"); return; }
+  mailData = groupByOwner(list);
+  mailIdx = 0;
+  modalKey = "__mail__";
+  $("modal").classList.add("wide");
+  $("modal").innerHTML =
+    '<div class="mhead">'+
+      '<div class="mi"><svg><use href="#i-mail"/></svg></div>'+
+      '<div style="flex:1;min-width:0"><h2>通知メール文面の作成</h2>'+
+        '<div class="sub">絞り込み中の '+list.length.toLocaleString()+' 件を、所有者ごとに <b>'+mailData.length.toLocaleString()+' 通</b>にまとめました'+
+        '（回答期限は本日＋'+settings.graceDays+'日。「③最終通知が必要」のみを絞り込むと最終通知の文面になります）</div></div>'+
+      '<button class="mclose" id="mx">×</button>'+
+    '</div>'+
+    '<div class="mbody">'+
+      '<div class="mailnav">'+
+        '<button class="btn ghost" id="mPrev">‹ 前の宛先</button>'+
+        '<span><b id="mIdx">1</b> / '+mailData.length+' 通目 ： <b id="mOwner"></b>（<span id="mCnt"></span>件）</span>'+
+        '<button class="btn ghost" id="mNext">次の宛先 ›</button>'+
+        '<span class="sp"></span>'+
+        '<button class="btn primary" id="mCopy"><svg><use href="#i-copy"/></svg>本文をコピー</button>'+
+        '<button class="btn" id="mCsv"><svg><use href="#i-grid"/></svg>通知キューを出力 (.xlsx)</button>'+
+      '</div>'+
+      '<textarea class="mailbox" id="mText" spellcheck="false"></textarea>'+
+      '<div class="edithint"><svg><use href="#i-bolt"/></svg><span><b>3,000通を手で送るのは現実的ではありません。</b>'+
+        '「通知キューを出力」で <b>所有者ごとに1行</b>（宛先・件名・本文つき）のExcelテーブルを出力し、Power Automate で一斉送信してください。'+
+        '手順は「使い方 → Power Automate で一斉通知する」に記載しています。</span></div>'+
+      '<div style="display:flex;gap:9px;flex-wrap:wrap;justify-content:flex-end">'+
+        '<button class="btn" id="mQueue"><svg><use href="#i-grid"/></svg>通知キューを出力 (.xlsx)</button>'+
+        '<button class="btn ghost" id="mCsv2"><svg><use href="#i-down"/></svg>通知リストCSV</button>'+
+      '</div>'+
+    '</div>';
+  $("mask").classList.add("open");
+  document.body.style.overflow="hidden";
+  $("mx").onclick = closeModal;
+  function show(){
+    var o = mailData[mailIdx];
+    $("mIdx").textContent = mailIdx+1;
+    $("mOwner").textContent = o.owner;
+    $("mCnt").textContent = o.items.length;
+    $("mText").value = mailBody(o);
+    $("mPrev").disabled = mailIdx===0;
+    $("mNext").disabled = mailIdx===mailData.length-1;
+  }
+  $("mPrev").onclick = function(){ if(mailIdx>0){ mailIdx--; show(); } };
+  $("mNext").onclick = function(){ if(mailIdx<mailData.length-1){ mailIdx++; show(); } };
+  $("mCopy").onclick = function(){
+    var ta = $("mText");
+    ta.select(); ta.setSelectionRange(0, ta.value.length);
+    var ok = false;
+    try{ ok = document.execCommand("copy"); }catch(e){}
+    if(navigator.clipboard && !ok){ navigator.clipboard.writeText(ta.value).then(function(){ toast("本文をコピーしました","ok"); }); }
+    else toast(ok ? "本文をコピーしました" : "コピーできませんでした。手動で選択してください", ok?"ok":"err");
+    window.getSelection().removeAllRanges();
+  };
+  $("mCsv").onclick = exportNotifyXlsx;
+  $("mQueue").onclick = exportNotifyXlsx;
+  $("mCsv2").onclick = exportNotifyList;
+  if(!(settings.spoListUrl||"").trim()){
+    var w = document.createElement("div");
+    w.className = "edithint";
+    w.style.borderColor = "#f2d999"; w.style.background = "var(--gold-soft)";
+    w.innerHTML = '<svg><use href="#i-warn"/></svg><span><b>SharePointリストのURLが未設定です。</b>'+
+      '設定（⚙）で登録すると、メール本文に<b>「あなたの担当分だけを表示するリンク」</b>が自動で入り、'+
+      '所有者自身がステータスを更新できるようになります（＝返信を読む必要がなくなります）。</span>';
+    $("modal").querySelector(".mbody").insertBefore(w, $("modal").querySelector(".mailnav"));
+  }
+  show();
+}
+
+/* ---------- 設定モーダル ---------- */
+function openSettings(){
+  modalKey = "__set__";
+  $("modal").classList.remove("wide");
+  function row(key,label,desc,unit){
+    return '<div class="setrow"><label>'+label+'</label><div class="sd">'+desc+'</div>'+
+      '<div class="inrow"><input type="number" min="1" max="3650" id="set_'+key+'" value="'+settings[key]+'"><span class="unit">'+unit+'</span></div></div>';
+  }
+  $("modal").innerHTML =
+    '<div class="mhead">'+
+      '<div class="mi"><svg><use href="#i-cog"/></svg></div>'+
+      '<div style="flex:1;min-width:0"><h2>判定・通知の閾値設定</h2>'+
+        '<div class="sub">変更するとその場で全件を再判定します。設定はこのブラウザに保存されます。</div></div>'+
+      '<button class="mclose" id="mx">×</button>'+
+    '</div>'+
+    '<div class="mbody">'+
+      '<div class="setgrid">'+
+        row("remindDays","リマインド閾値","最終更新からこの日数が経過したら<b>所有者へ通知</b>する対象にします（まだ削除しません）。","日") +
+        row("testIdleDays","テスト機の未更新日数","名前や説明に検証用キーワードを含むものは、この日数で通知対象にします。","日") +
+        row("graceDays","1次通知の猶予日数","1次通知を送ってからこの日数を過ぎても返信がなければ「最終通知が必要」に移ります。","日") +
+        row("finalDays","最終通知の猶予日数","最終通知からこの日数を過ぎたら<b>「削除実行可」</b>になります。","日") +
+        row("forceDays","強制削除閾値","通知の進行に関わらず、この日数を超えたものは原則削除とみなします。","日") +
+      '</div>'+
+      '<div class="edithint"><svg><use href="#i-flow"/></svg><span>推奨設定：リマインド <b>180日</b> → 回答猶予 <b>14日</b> → 最終通知猶予 <b>7日</b> → 強制削除 <b>365日</b>。'+
+        'まずは既定値で1サイクル回し、回答率を見てから猶予日数を調整するのがおすすめです。</span></div>'+
+      '<div class="setrow" style="margin-top:4px"><label>SharePointリストのURL（所有者が回答する台帳）</label>'+
+        '<div class="sd">通知メールに「あなたの担当分だけを表示するリンク」を自動で差し込みます。'+
+        'リストのビューURL（例: <code>https://contoso.sharepoint.com/sites/ITOps/Lists/AgentAudit/AllItems.aspx</code>）を貼り付けてください。</div>'+
+        '<input type="text" id="set_spoListUrl" class="settext" placeholder="https://…/Lists/AgentAudit/AllItems.aspx" value="'+esc(settings.spoListUrl||"")+'"></div>'+
+      '<div class="setrow"><label>差出人として表示するチーム名</label>'+
+        '<div class="sd">通知メール本文の署名に使われます。</div>'+
+        '<input type="text" id="set_teamName" class="settext" value="'+esc(settings.teamName||"")+'"></div>'+
+      '<div style="display:flex;gap:9px;flex-wrap:wrap;justify-content:flex-end">'+
+        '<button class="btn ghost" id="setDefault"><svg><use href="#i-reset"/></svg>既定値に戻す</button>'+
+        '<button class="btn primary" id="setSave"><svg><use href="#i-check"/></svg>保存して再判定</button>'+
+      '</div>'+
+    '</div>';
+  $("mask").classList.add("open");
+  document.body.style.overflow="hidden";
+  $("mx").onclick = closeModal;
+  $("setDefault").onclick = function(){
+    NUM_KEYS.forEach(function(k){ var el=$("set_"+k); if(el) el.value = SETTINGS_DEF[k]; });
+  };
+  $("setSave").onclick = function(){
+    for(var k in SETTINGS_DEF){
+      var el = $("set_"+k); if(!el) continue;
+      if(NUM_KEYS.indexOf(k)<0){ settings[k] = el.value.trim(); continue; }
+      var v = parseInt(el.value,10);
+      if(isNaN(v) || v<1){ toast("正の数値を入力してください","err"); return; }
+      settings[k] = v;
+    }
+    saveSettings(); recompute(); page=1; closeModal(); renderAll();
+    toast("閾値を保存し、全件を再判定しました","ok");
+  };
+}
+
+/* ---------- 一括処理 ---------- */
+function applyBulk(keys, action){
+  var kind = action.slice(0,2), val = action.slice(3);
+  for(var i=0;i<keys.length;i++){
+    if(kind==="st") setStatus(keys[i], val);
+    else setNotify(keys[i], val);
+  }
+  saveAudit(); markDirty(); renderAll();
+  var label = (kind==="st") ? "判断ステータスを「"+val+"」" : "通知ステータスを「"+NOTIFY_LABEL[val]+"」";
+  toast(keys.length.toLocaleString()+"件の"+label+"に変更しました","ok");
+}
+function confirmBulk(n, action){
+  var kind = action.slice(0,2), val = action.slice(3);
+  var label = (kind==="st") ? "判断ステータスを「"+val+"」に変更" : "通知ステータスを「"+NOTIFY_LABEL[val]+"」に変更";
+  if(n<=50) return true;
+  return confirm(n.toLocaleString()+"件を一括で"+label+"します。\nこの操作は元に戻せません（個別に変更し直すことは可能です）。\n\n実行してよろしいですか？");
 }
 
 /* ---------- load ---------- */
 function loadText(text, label){
   var m = parseCSV(text);
   if(m.length < 2){ toast("CSVを解析できませんでした","err"); return; }
+  var t0 = Date.now();
   rows = buildRows(m);
   if(!rows.length){ toast("有効なデータ行がありません","err"); return; }
+  recompute();
   selected = Object.create(null);
-  var ps = toSorted(countBy(rows, function(r){return r.d["Platform"];}));
-  $("fPlat").innerHTML = '<option value="">全プラットフォーム</option>' + ps.map(function(p){
-    return '<option value="'+esc(p.k)+'">'+esc(p.k)+'（'+p.n+'）</option>'; }).join("");
+  page = 1;
+  var ps = (stats.platOrder||[]);
+  $("fPlat").innerHTML = '<option value="">全プラットフォーム</option>' + ps.map(function(k){
+    return '<option value="'+esc(k)+'">'+esc(k)+'（'+stats.plat[k].n+'）</option>'; }).join("");
   fPlat=""; fStatus=""; $("fStatus").value="";
   $("drop").classList.add("compact");
-  $("dropTitle").textContent = "読込済み: " + label + "　—　" + rows.length + " 件（別のCSVをここにドロップして差し替え）";
+  $("dropTitle").textContent = "読込済み: " + label + "　—　" + rows.length.toLocaleString() + " 件（別のCSVをここにドロップして差し替え）";
   renderAll();
-  toast(rows.length+"件を読み込みました（"+label+"）","ok");
+  toast(rows.length.toLocaleString()+"件を読み込みました（"+(Date.now()-t0)+"ms）","ok");
+  if(restoredCount) toast("うち "+restoredCount.toLocaleString()+"件の棚卸ステータス・通知履歴・所有者回答を復元しました","ok");
 }
 function loadFile(file){
   if(!file) return;
@@ -2354,21 +3672,26 @@ function loadSample(){
   }catch(e){ toast("サンプルデータの展開に失敗しました","err"); }
 }
 
-/* ---------- events ---------- */
-$("asof").textContent = "AS OF " + isoDate(new Date()).replace(/-/g,".");
+/* ==================================================================
+   events
+================================================================== */
+$("asof").textContent = "AS OF " + today().replace(/-/g,".");
 
 $("btnSample").onclick = loadSample;
 $("btnSample2").onclick = loadSample;
 $("btnImport").onclick = function(){ $("file").click(); };
 $("btnPick").onclick = function(e){ e.stopPropagation(); $("file").click(); };
 $("file").onchange = function(){ loadFile(this.files[0]); this.value=""; };
-$("btnExport").onclick = exportCSV;
+$("btnExport").onclick = openExport;
+$("btnMail").onclick = openMail;
+$("btnSettings").onclick = openSettings;
 $("btnReset").onclick = function(){
-  if(!confirm("保存済みの棚卸ステータス・メモをすべて消去します。よろしいですか？")) return;
+  if(!confirm("保存済みの棚卸ステータス・メモ・通知履歴をすべて消去します。\nよろしいですか？")) return;
   audit = {}; try{ localStorage.removeItem(LS_KEY); }catch(e){}
-  renderAll(); toast("棚卸ステータスをリセットしました","ok");
+  markDirty(); renderAll(); toast("棚卸データをリセットしました","ok");
 };
 
+/* drag & drop */
 var dz = $("drop");
 ["dragenter","dragover"].forEach(function(ev){
   dz.addEventListener(ev, function(e){ e.preventDefault(); e.stopPropagation(); dz.classList.add("hot"); });
@@ -2383,44 +3706,67 @@ dz.addEventListener("drop", function(e){
 });
 document.addEventListener("drop", function(e){ e.preventDefault(); });
 
-/* tabs */
+/* 判定タブ */
 $("tabs").addEventListener("click", function(e){
   var b = e.target.closest(".tab"); if(!b) return;
   tab = b.dataset.tab;
   document.querySelectorAll(".tab").forEach(function(t){ t.classList.toggle("on", t===b); });
   document.querySelectorAll(".kpi").forEach(function(k){ k.classList.toggle("active", k.dataset.tab===tab && tab!=="all"); });
-  renderTable();
+  markDirty(); page=1; renderTable();
+});
+/* 運用フロータブ */
+$("opsbar").addEventListener("click", function(e){
+  var b = e.target.closest(".otab"); if(!b) return;
+  opsTab = b.dataset.ops;
+  this.querySelectorAll(".otab").forEach(function(t){ t.classList.toggle("on", t===b); });
+  markDirty(); page=1; renderTable();
+});
+function setOpsTab(k){
+  opsTab = k;
+  document.querySelectorAll(".otab").forEach(function(t){ t.classList.toggle("on", t.dataset.ops===k); });
+}
+/* ファネルカード */
+$("funnel").addEventListener("click", function(e){
+  var c = e.target.closest(".fstep"); if(!c) return;
+  if(c.dataset.tab){
+    var btn = document.querySelector('.tab[data-tab="'+c.dataset.tab+'"]'); if(btn) btn.click();
+    setOpsTab("all");
+  } else {
+    var all = document.querySelector('.tab[data-tab="all"]'); if(all) all.click();
+    setOpsTab(c.dataset.ops);
+  }
+  markDirty(); page=1; renderTable(); jumpToTable();
 });
 document.querySelectorAll(".kpi").forEach(function(k){
   k.onclick = function(){
-    var t = k.dataset.tab;
-    var btn = document.querySelector('.tab[data-tab="'+t+'"]');
+    var btn = document.querySelector('.tab[data-tab="'+k.dataset.tab+'"]');
     if(btn) btn.click();
     jumpToTable();
   };
 });
 
-/* search */
-var qi = $("q");
+/* 検索・絞り込み */
+var qi = $("q"), qTimer = null;
 qi.addEventListener("input", function(){
-  query = this.value.trim();
-  $("qx").style.display = query ? "block" : "none";
-  renderTable();
+  var v = this.value.trim();
+  $("qx").style.display = v ? "block" : "none";
+  clearTimeout(qTimer);
+  qTimer = setTimeout(function(){ query = v; markDirty(); page=1; renderTable(); }, 130);
 });
-$("qx").onclick = function(){ qi.value=""; query=""; this.style.display="none"; qi.focus(); renderTable(); };
-$("fPlat").onchange = function(){ fPlat=this.value; renderTable(); };
-$("fStatus").onchange = function(){ fStatus=this.value; renderTable(); };
+$("qx").onclick = function(){ qi.value=""; query=""; this.style.display="none"; qi.focus(); markDirty(); page=1; renderTable(); };
+$("fPlat").onchange = function(){ fPlat=this.value; markDirty(); page=1; renderTable(); };
+$("fStatus").onchange = function(){ fStatus=this.value; markDirty(); page=1; renderTable(); };
 
-/* analytics click-through */
+/* 分析パネルからの絞り込み */
 $("envChips").addEventListener("click", function(e){
   var c = e.target.closest(".chip"); if(!c) return;
-  qi.value = c.dataset.env; query = c.dataset.env; $("qx").style.display="block"; renderTable();
-  jumpToTable();
+  qi.value = c.dataset.env; query = c.dataset.env; $("qx").style.display="block";
+  markDirty(); page=1; renderTable(); jumpToTable();
 });
 $("rankList").addEventListener("click", function(e){
   var r = e.target.closest(".rk"); if(!r) return;
-  qi.value = r.dataset.rank; query = r.dataset.rank; $("qx").style.display="block"; renderTable();
-  jumpToTable();
+  qi.value = r.dataset.rank; query = r.dataset.rank; $("qx").style.display="block";
+  markDirty(); page=1; renderTable(); jumpToTable();
 });
 $("rankSeg").addEventListener("click", function(e){
   var b = e.target.closest("button"); if(!b) return;
@@ -2429,39 +3775,49 @@ $("rankSeg").addEventListener("click", function(e){
   renderRank();
 });
 
-/* sorting */
+/* ソート */
 document.querySelectorAll("thead th.sortable").forEach(function(th){
   th.onclick = function(){
     var k = th.dataset.s;
     if(sortKey===k){ sortDir = -sortDir; } else { sortKey = k; sortDir = (k==="age") ? -1 : 1; }
-    renderTable();
+    markDirty(); renderTable();
   };
 });
 
-/* table interactions (delegated) */
+/* ページネーション */
+$("pgNav").addEventListener("click", function(e){
+  var b = e.target.closest(".pgbtn"); if(!b || b.disabled) return;
+  page = +b.dataset.p; renderTable();
+  document.querySelector(".tablecard").scrollIntoView({behavior:"smooth", block:"start"});
+});
+$("pgSize").onchange = function(){ pageSize = +this.value; page=1; renderTable(); };
+
+/* 行の操作 */
 $("chkAll").onchange = function(){
-  var list = visible();
-  if(this.checked) list.forEach(function(r){ selected[r.key]=1; });
-  else list.forEach(function(r){ delete selected[r.key]; });
+  var slice = pageSlice(visible());
+  var on = this.checked;
+  slice.forEach(function(r){ if(on) selected[r.key]=1; else delete selected[r.key]; });
   renderTable();
 };
+$("selallBtn").onclick = function(){
+  visible().forEach(function(r){ selected[r.key]=1; });
+  renderTable();
+  toast(Object.keys(selected).length.toLocaleString()+"件を選択しました","ok");
+};
+$("selallClear").onclick = function(){ selected = Object.create(null); renderTable(); };
+
 $("tbody").addEventListener("change", function(e){
   var tr = e.target.closest("tr"); if(!tr) return;
   var key = tr.dataset.k;
   if(e.target.classList.contains("rowchk")){
     if(e.target.checked) selected[key]=1; else delete selected[key];
-    tr.classList.toggle("sel", !!selected[key]);
-    var list = visible(), sc = list.filter(function(r){return selected[r.key];}).length;
-    $("chkAll").checked = list.length>0 && sc===list.length;
-    $("chkAll").indeterminate = sc>0 && sc<list.length;
-    var n = Object.keys(selected).length;
-    $("selN").textContent = n; $("bulk").classList.toggle("show", n>0);
+    renderTable();
     return;
   }
   if(e.target.classList.contains("stsel")){
     setStatus(key, e.target.value);
     e.target.dataset.v = e.target.value;
-    renderProgress();
+    saveAudit(); renderProgress();
     if(fStatus) renderTable();
     return;
   }
@@ -2474,22 +3830,33 @@ $("tbody").addEventListener("input", function(e){
 $("tbody").addEventListener("click", function(e){
   if(e.target.closest("input,select,textarea")) return;
   var tr = e.target.closest("tr"); if(!tr) return;
-  if(e.target.closest(".detail") || e.target.closest(".nm") || e.target.closest(".flags") || e.target.closest("td.c-name")){
+  if(e.target.closest(".detail") || e.target.closest(".nm") || e.target.closest("td.c-name") || e.target.closest(".flags")){
     openModal(tr.dataset.k);
   }
 });
 
-/* bulk */
+/* 選択行への一括変更 */
 $("bulk").addEventListener("click", function(e){
-  var b = e.target.closest("button[data-set]"); if(!b) return;
-  var st = b.dataset.set, keys = Object.keys(selected);
-  keys.forEach(function(k){ setStatus(k, st); });
-  toast(keys.length+"件を「"+st+"」に変更しました","ok");
-  renderProgress(); renderTable();
+  var b = e.target.closest("button[data-set],button[data-nt]"); if(!b) return;
+  var keys = Object.keys(selected);
+  if(!keys.length) return;
+  var action = b.dataset.set ? ("st:"+b.dataset.set) : ("nt:"+b.dataset.nt);
+  if(!confirmBulk(keys.length, action)) return;
+  applyBulk(keys, action);
 });
 $("selClear").onclick = function(){ selected = Object.create(null); renderTable(); };
 
-/* modal close */
+/* 絞り込み全件への一括処理 */
+$("qbRun").onclick = function(){
+  var list = visible();
+  if(!list.length){ toast("対象がありません","err"); return; }
+  var action = $("qbAction").value;
+  if(!action){ toast("実行する操作を選んでください","err"); return; }
+  if(!confirmBulk(list.length, action)) return;
+  applyBulk(list.map(function(r){ return r.key; }), action);
+};
+
+/* モーダル */
 $("mask").addEventListener("click", function(e){ if(e.target===this) closeModal(); });
 document.addEventListener("keydown", function(e){
   if(e.key==="Escape" && modalKey) closeModal();
@@ -2499,17 +3866,28 @@ document.addEventListener("keydown", function(e){
 /* ---------- 使い方モーダル ---------- */
 function openHelp(){
   modalKey = "__help__";
-  var tpl = $("helpContent").innerHTML;
+  var src = $("helpContent");
   $("modal").classList.add("wide");
   $("modal").innerHTML =
     '<div class="mhead">'+
       '<div class="mi"><svg><use href="#i-book"/></svg></div>'+
       '<div style="flex:1;min-width:0"><h2>このツールの使い方</h2>'+
-        '<div class="sub">社内エージェント棚卸・最適化ダッシュボード　v'+HELP_VERSION+'　／　'+
-        '判定基準日: '+isoDate(new Date())+'</div></div>'+
+        '<div class="sub">社内エージェント棚卸・最適化ダッシュボード　v'+HELP_VERSION+'　／　判定基準日: '+today()+'</div></div>'+
       '<button class="mclose" id="mx">×</button>'+
     '</div>'+
-    '<div class="mbody">'+tpl+'</div>';
+    '<div class="mbody" id="helpBody"></div>';
+  /* innerHTML ではなく実ノードを複製して差し込む（サニタイザ等の影響を受けにくい） */
+  var body = $("helpBody");
+  if(src){
+    var clone = src.cloneNode(true);
+    clone.removeAttribute("id");
+    clone.removeAttribute("aria-hidden");
+    clone.style.display = "";
+    while(clone.firstChild) body.appendChild(clone.firstChild);
+  }
+  if(!body.childElementCount){
+    body.innerHTML = '<div class="crit-note"><p>使い方の本文を読み込めませんでした。HTMLソース内の <code>&lt;div id="helpContent"&gt;</code> が削除されていないかご確認ください。</p></div>';
+  }
   $("mask").classList.add("open");
   document.body.style.overflow = "hidden";
   $("mx").onclick = closeModal;
@@ -2524,7 +3902,6 @@ document.addEventListener("keydown", function(e){
 /* boot */
 loadSample();
 
-/* 初回のみ「使い方」ボタンをそっと目立たせる */
 try{
   if(!localStorage.getItem("agentInventory.helpSeen")){
     var hb = $("btnHelp");
