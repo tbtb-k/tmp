@@ -330,7 +330,10 @@ input[type=text]:focus{border-color:var(--cue);box-shadow:0 0 0 3px rgba(255,210
 .opt{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;text-align:left;background:rgba(255,255,255,.05);
   border:1.5px solid var(--line2);border-radius:15px;padding:12px 14px;margin-bottom:10px;color:var(--text);cursor:pointer;font:inherit;transition:all .15s}
 .opt.sel{border-color:var(--cue);background:rgba(255,210,63,.13);box-shadow:0 0 0 2px rgba(255,210,63,.25)}
-.opt .ol{min-width:0}
+.opt .ck{flex:0 0 26px;width:26px;height:26px;border-radius:8px;border:2px solid var(--line2);display:grid;place-items:center;
+  font-weight:900;font-size:16px;color:#241a00;transition:all .15s}
+.opt.sel .ck{background:var(--cue);border-color:var(--cue)}
+.opt .ol{min-width:0;flex:1}
 .opt .ot{font-family:var(--f-marker);font-size:19px;line-height:1.35;overflow-wrap:anywhere}
 .opt .on{font-size:12px;color:var(--dim);font-weight:700;margin-top:2px}
 .opt .or{display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex:0 0 auto}
@@ -343,6 +346,12 @@ input[type=text]:focus{border-color:var(--cue);box-shadow:0 0 0 3px rgba(255,210
 .vd-names{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin:4px 0 12px;opacity:0;transform:translateY(8px);transition:all .35s cubic-bezier(.2,1.4,.4,1)}
 .vd-names.in{opacity:1;transform:none}
 .plus{font-family:var(--f-display);font-weight:900;font-synthesis:none;color:var(--cue);font-size:15px}
+.vd-multi{text-align:center;font-size:28px;margin:8px 0 18px;--tb:var(--shu);animation:pop .5s cubic-bezier(.2,1.6,.4,1)}
+.vd-grid{display:grid;grid-template-columns:1fr 1fr;gap:26px 14px;margin-bottom:18px;padding:0 4px}
+.vd-item .board{animation:boardIn .5s cubic-bezier(.2,1.4,.4,1)}
+.vd-names.sm{margin:16px 0 0;justify-content:flex-start;gap:6px}
+.vd-names.sm .pchip{font-size:12.5px;padding:3px 9px 3px 3px}
+.vd-names.sm .av{width:22px;height:22px;font-size:11px}
 .vd-none{text-align:center;font-size:30px;margin:40px 0 10px;--tb:var(--night3)}
 .unani-badge{display:table;margin:0 auto 10px;background:linear-gradient(180deg,#ffe27a,#ffb800);color:#3a2300;font-weight:900;font-size:13px;
   padding:4px 14px;border-radius:99px;box-shadow:0 4px 14px rgba(255,184,0,.45)}
@@ -453,7 +462,7 @@ input[type=text]:focus{border-color:var(--cue);box-shadow:0 0 0 3px rgba(255,210
 <div id="sheet" aria-hidden="true">
   <div class="sheet-panel" role="dialog" aria-modal="true" aria-labelledby="sheet-h">
     <h3 id="sheet-h" class="telop" tabindex="-1">どれを正解にする？</h3>
-    <p class="tiny">みんなの「それな」は参考。最後は司会のあなたが決めます。</p>
+    <p class="tiny">正解はいくつ選んでもOK。みんなの「それな」は参考で、最後は司会のあなたが決めます。</p>
     <div id="sheet-list"></div>
     <button class="btn red" id="sheet-ok" type="button" disabled>この答えを正解にする</button>
     <button class="btn ghost" id="sheet-cancel" type="button">もどる</button>
@@ -491,7 +500,7 @@ input[type=text]:focus{border-color:var(--cue);box-shadow:0 0 0 3px rgba(255,210
     <li><b>考える時間</b>に、自分のスマホのフリップへこっそり答えを書いて出します。時間切れのときは、書きかけの答えがそのまま出ます。</li>
     <li>1人ずつ自分のフリップを<b>めくって</b>、なぜその答えなのかをプレゼン。答えがかぶると「かぶった！」の札が出ます。</li>
     <li><b>激論タイム</b>。「それな！」と思う答えをタップして票を入れます。自分の答え以外に1人1票、何度でも変えられます。</li>
-    <li>みんなの様子を見て、<b>司会が正解を1つ決めます</b>。かぶった答えが正解なら、書いた全員に1点。</li>
+    <li>みんなの様子を見て、<b>司会が正解を決めます</b>。正解はいくつ選んでもOK。正解に選ばれた答えを書いた人は1点（かぶった答えなら、書いた全員に1点）。</li>
     <li><b>全5問</b>で正解がいちばん多い人が優勝。同点なら延長戦で決着をつけられます。</li>
   </ol>
   <div class="panel tipbox">
@@ -1134,7 +1143,7 @@ function freshState(){
     settings:{hostPlays:true, think:60, debate:60},
     round:1, total:TOTAL_ROUNDS, extra:0,
     letter:"", topic:"", rerollLeft:1, usedL:[], usedT:[],
-    answerers:[], answers:{}, order:[], flipped:0, groups:[], sorena:{}, chosen:null,
+    answerers:[], answers:{}, order:[], flipped:0, groups:[], sorena:{}, chosen:[],
     deadline:0, autoCloseAt:0, history:[], game:0 };
 }
 var S=freshState();
@@ -1178,7 +1187,7 @@ function startRound(only){
   pickTopic();
   S.rerollLeft=1;
   S.answerers = only || S.players.filter(plays).map(function(p){ return p.id; });
-  S.answers={}; S.order=[]; S.flipped=0; S.groups=[]; S.sorena={}; S.chosen=null;
+  S.answers={}; S.order=[]; S.flipped=0; S.groups=[]; S.sorena={}; S.chosen=[];
   S.deadline=0; S.autoCloseAt=0;
   S.phase="theme"; commit();
 }
@@ -1213,7 +1222,7 @@ function startDebate(){
     if(!map[k]){ map[k]={key:"g"+groups.length,text:a.text,pids:[]}; groups.push(map[k]); }
     map[k].pids.push(id);
   });
-  S.groups=groups; S.sorena={}; S.chosen=null;
+  S.groups=groups; S.sorena={}; S.chosen=[];
   S.phase="debate"; S.deadline=S.settings.debate?Date.now()+S.settings.debate*1000:0;
   commit();
 }
@@ -1221,14 +1230,20 @@ function unanimous(g){
   var voters=S.players.filter(function(p){ return plays(p) && !p.gone && g.pids.indexOf(p.id)<0; });
   return voters.length>=2 && voters.every(function(p){ return S.sorena[p.id]===g.key; });
 }
-function decide(key){
+/* 司会が正解を決める（いくつ選んでもよい。空の配列なら「正解なし」） */
+function decide(keys){
   if(S.phase!=="debate") return;
-  var g=null; S.groups.forEach(function(x){ if(x.key===key) g=x; });
-  S.chosen=g?g.key:null;
-  if(g) g.pids.forEach(function(id){ var p=byId(id); if(p) p.score=(p.score||0)+1; });
+  if(!Array.isArray(keys)) keys = keys==null ? [] : [keys];
+  var chosen=S.groups.filter(function(g){ return keys.indexOf(g.key)>=0; });
+  S.chosen=chosen.map(function(g){ return g.key; });
+  var got={};                                   // 同じ人に2点入らないように
+  chosen.forEach(function(g){ g.pids.forEach(function(id){
+    if(got[id]) return; got[id]=1;
+    var p=byId(id); if(p) p.score=(p.score||0)+1;
+  }); });
   S.history.push({label:roundLabel(), letter:S.letter, topic:S.topic,
-    text:g?g.text:null, names:g?g.pids.map(function(id){ var p=byId(id); return p?p.name:"?"; }):[],
-    unani:g?unanimous(g):false});
+    hits:chosen.map(function(g){ return {text:g.text, unani:unanimous(g),
+      names:g.pids.map(function(id){ var p=byId(id); return p?p.name:"?"; })}; })});
   S.phase="verdict"; S.deadline=0; commit();
 }
 function goNext(){
@@ -1255,7 +1270,7 @@ function backToLobby(){
   S.players=S.players.filter(function(p){ return p.host || !p.gone; });
   S.players.forEach(function(p){ p.score=0; });
   S.round=1; S.extra=0; S.history=[]; S.answerers=[]; S.answers={}; S.order=[]; S.groups=[]; S.sorena={};
-  S.chosen=null; S.deadline=0; S.autoCloseAt=0; S.letter=""; S.topic="";
+  S.chosen=[]; S.deadline=0; S.autoCloseAt=0; S.letter=""; S.topic="";
   S.phase="lobby"; commit();
 }
 
@@ -1311,7 +1326,7 @@ function pubState(){
       return {id:p.id,name:p.name,color:p.color,score:p.score||0,gone:!!p.gone,host:!!p.host,
               ans:S.answerers.indexOf(p.id)>=0, sub:!!(a&&a.sub), plays:plays(p)};
     }),
-    order:[], flipped:0, reveals:[], absent:[], groups:[], sorena:{}, chosen:null,
+    order:[], flipped:0, reveals:[], absent:[], groups:[], sorena:{}, chosen:[],
     history:S.history.slice() };
   if(ph==="reveal"||all){
     pub.order=S.order.slice();
@@ -1327,7 +1342,7 @@ function pubState(){
   if(all){
     pub.groups=S.groups.map(function(g){ return {key:g.key,text:g.text,pids:g.pids.slice(),unani:unanimous(g)}; });
     var so={}; for(var k in S.sorena) so[k]=S.sorena[k]; pub.sorena=so;
-    pub.chosen=S.chosen;
+    pub.chosen=(S.chosen||[]).slice();
   }
   return pub;
 }
@@ -1797,10 +1812,10 @@ function onCardTap(key){
   if(nk) SFX.sorena(); else SFX.unsorena();
   if(S.mode!=="host"){ if(nk) pub.sorena[m.id]=nk; else delete pub.sorena[m.id]; renderDebate(); }
 }
-/* 司会の判定シート */
-var sheetOpen=false, sheetSel;
+/* 司会の判定シート（正解はいくつ選んでもよい） */
+var sheetOpen=false, sheetSel=[], sheetNone=false;
 function openSheet(){
-  sheetOpen=true; sheetSel=undefined; paintSheet();
+  sheetOpen=true; sheetSel=[]; sheetNone=false; paintSheet();
   var s=$("sheet"); s.classList.add("on"); s.setAttribute("aria-hidden","false");
   setTimeout(function(){ try{ $("sheet-h").focus(); }catch(e){} },50);
 }
@@ -1810,38 +1825,51 @@ function closeSheet(){
 function paintSheet(){
   if(!V) return;
   var pub=V.pub, list=$("sheet-list"); list.innerHTML="";
+  sheetSel=sheetSel.filter(function(k){ return pub.groups.some(function(g){ return g.key===k; }); });
   var gs=pub.groups.slice().sort(function(a,b){ return votersOf(pub,b.key).length-votersOf(pub,a.key).length; });
   gs.forEach(function(g){
-    var o=el("button","opt"+(sheetSel===g.key?" sel":"")); o.type="button"; o.setAttribute("data-key",g.key);
-    o.setAttribute("aria-pressed",sheetSel===g.key?"true":"false");
+    var on=sheetSel.indexOf(g.key)>=0;
+    var o=el("button","opt"+(on?" sel":"")); o.type="button"; o.setAttribute("data-key",g.key);
+    o.setAttribute("role","checkbox"); o.setAttribute("aria-checked",on?"true":"false");
+    o.appendChild(el("span","ck",on?"✓":""));
     var l=el("div","ol"); l.appendChild(el("div","ot",g.text));
     l.appendChild(el("div","on",g.pids.map(function(id){ var p=pById(id); return p?p.name:""; }).join("・")));
     o.appendChild(l);
     var r=el("div","or"); r.appendChild(el("span","oc","それな "+votersOf(pub,g.key).length));
     if(g.unani) r.appendChild(el("span","tag gold","満場一致"));
     o.appendChild(r);
-    o.onclick=function(){ sheetSel=g.key; SFX.select(); paintSheet(); };
+    o.onclick=function(){
+      var i=sheetSel.indexOf(g.key);
+      if(i>=0) sheetSel.splice(i,1); else sheetSel.push(g.key);
+      sheetNone=false; SFX.select(); paintSheet();
+    };
     list.appendChild(o);
   });
-  var z=el("button","opt none"+(sheetSel===null?" sel":""),"今回は正解なし"); z.type="button"; z.setAttribute("data-key","none");
-  z.onclick=function(){ sheetSel=null; SFX.select(); paintSheet(); };
+  var z=el("button","opt none"+(sheetNone?" sel":""),"今回は正解なし"); z.type="button"; z.setAttribute("data-key","none");
+  z.setAttribute("aria-pressed",sheetNone?"true":"false");
+  z.onclick=function(){ sheetNone=!sheetNone; if(sheetNone) sheetSel=[]; SFX.select(); paintSheet(); };
   list.appendChild(z);
-  var ok=$("sheet-ok");
-  ok.disabled=(sheetSel===undefined);
-  ok.textContent=sheetSel===null?"正解なしで進める":"この答えを正解にする";
+  var ok=$("sheet-ok"), n=sheetSel.length;
+  ok.disabled=(!n && !sheetNone);
+  ok.textContent = sheetNone ? "正解なしで進める" : n>1 ? "この"+n+"つを正解にする" : n===1 ? "この答えを正解にする" : "正解を選んでください";
 }
 
 /* ---- 判定 ---- */
 var verdictKey="";
+function chosenGroups(pub){
+  var ch=Array.isArray(pub.chosen)?pub.chosen:(pub.chosen?[pub.chosen]:[]);
+  return pub.groups.filter(function(g){ return ch.indexOf(g.key)>=0; });
+}
 function renderVerdict(){
   show("verdict");
-  var pub=V.pub, key=roundKey(pub), g=null;
-  pub.groups.forEach(function(x){ if(x.key===pub.chosen) g=x; });
+  var pub=V.pub, key=roundKey(pub), gs=chosenGroups(pub), gain=[];
+  gs.forEach(function(g){ g.pids.forEach(function(id){ if(gain.indexOf(id)<0) gain.push(id); }); });
   paintStrip("vd-strip",false);
   if(key!==verdictKey){
     verdictKey=key;
     var main=$("vd-main"); main.innerHTML="";
-    if(g){
+    if(gs.length===1){
+      var g=gs[0];
       var wrap=el("div","vd-wrap"), b=boardEl({text:g.text,open:true,size:"big"}), st=stampEl();
       b.appendChild(st); wrap.appendChild(b); main.appendChild(wrap);
       var nm=el("div","vd-names");
@@ -1852,13 +1880,32 @@ function renderVerdict(){
         st.classList.add("hit"); SFX.stamp(); shake(wrap); flash("red");
         setTimeout(function(){ confetti(90,{x:.5,y:.32}); nm.classList.add("in"); },160);
       },REDUCED?0:560);
+    } else if(gs.length>1){
+      // 正解が複数：小さいフリップを並べて、1枚ずつハンコを押していく
+      main.appendChild(el("div","vd-multi telop","正解が"+gs.length+"つ！"));
+      var grid=el("div","vd-grid"); main.appendChild(grid);
+      var items=gs.map(function(g){
+        var it=el("div","vd-item"), bb=boardEl({text:g.text,open:true,size:"mini"}), s2=stampEl();
+        bb.appendChild(s2); it.appendChild(bb);
+        var nm2=el("div","vd-names sm");
+        g.pids.forEach(function(id){ var p=pById(id); if(p) nm2.appendChild(pchip(p,el("span","plus","+1"))); });
+        if(g.unani) nm2.appendChild(el("span","tag gold","満場一致"));
+        it.appendChild(nm2); grid.appendChild(it);
+        return {it:it,st:s2,nm:nm2};
+      });
+      items.forEach(function(x,i){
+        setTimeout(function(){
+          x.st.classList.add("hit"); SFX.stamp(); shake(x.it); x.nm.classList.add("in");
+          if(i===items.length-1){ flash("red"); setTimeout(function(){ confetti(120,{x:.5,y:.35}); },160); }
+        },REDUCED?0:520+i*420);
+      });
     } else {
       main.appendChild(el("div","vd-none telop","今回は正解なし"));
       main.appendChild(el("p","center dim","だれにも点は入りません"));
       SFX.none();
     }
   }
-  paintScore($("vd-score"),pub,g?g.pids:[]);
+  paintScore($("vd-score"),pub,gain);
   var a=$("vd-act"); a.innerHTML="";
   if(S.mode==="host"){
     var last=pub.extra||pub.round>=pub.total;
@@ -1915,12 +1962,14 @@ function renderFinal(){
       var hd=el("div","rh"); hd.appendChild(el("span","rl",h.label));
       hd.appendChild(el("span","ltile sm",h.letter)); hd.appendChild(el("span","rt",h.topic));
       row.appendChild(hd);
-      if(h.text){
-        var ans=el("div","ra"); ans.appendChild(el("span","rtx",h.text));
-        ans.appendChild(el("span","rn",h.names.join("・")));
-        if(h.unani) ans.appendChild(el("span","tag gold","満場一致"));
+      var hits=h.hits || (h.text?[{text:h.text,names:h.names||[],unani:h.unani}]:[]);
+      hits.forEach(function(x){
+        var ans=el("div","ra"); ans.appendChild(el("span","rtx",x.text));
+        ans.appendChild(el("span","rn",x.names.join("・")));
+        if(x.unani) ans.appendChild(el("span","tag gold","満場一致"));
         row.appendChild(ans);
-      } else row.appendChild(el("div","ra none","正解なし"));
+      });
+      if(!hits.length) row.appendChild(el("div","ra none","正解なし"));
       rc.appendChild(row);
     });
   }
@@ -2377,7 +2426,7 @@ document.addEventListener("visibilitychange",function(){
   $("tk-send").onclick=sendAnswer;
   $("tk-redo").onclick=redoAnswer;
 
-  $("sheet-ok").onclick=function(){ if(sheetSel===undefined) return; var k=sheetSel; closeSheet(); decide(k); };
+  $("sheet-ok").onclick=function(){ if(!sheetSel.length && !sheetNone) return; var ks=sheetNone?[]:sheetSel.slice(); closeSheet(); decide(ks); };
   $("sheet-cancel").onclick=closeSheet;
   $("sheet").addEventListener("click",function(e){ if(e.target===this) closeSheet(); });
   document.addEventListener("keydown",function(e){ if(e.key==="Escape" && sheetOpen) closeSheet(); });
