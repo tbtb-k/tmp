@@ -4,265 +4,652 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>ゲーム棚</title>
-<meta name="description" content="自作のブラウザゲームをまとめた棚です。タップするとすぐ遊べます。">
+<meta name="description" content="自作のブラウザゲームをまとめた棚です。人数やタグでさがして、タップするとすぐ遊べます。">
 <meta property="og:title" content="ゲーム棚">
-<meta property="og:description" content="自作のブラウザゲームをまとめた棚です。タップするとすぐ遊べます。">
+<meta property="og:description" content="自作のブラウザゲームをまとめた棚です。人数やタグでさがして、タップするとすぐ遊べます。">
 <meta property="og:type" content="website">
-<meta name="theme-color" content="#23254A">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect x='4' y='4' width='56' height='56' rx='14' fill='%23F4B942'/%3E%3Ccircle cx='21' cy='21' r='6' fill='%231D1A33'/%3E%3Ccircle cx='32' cy='32' r='6' fill='%231D1A33'/%3E%3Ccircle cx='43' cy='43' r='6' fill='%231D1A33'/%3E%3C/svg%3E">
+<meta name="theme-color" content="#0A0918">
+<meta name="color-scheme" content="dark">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect x='4' y='4' width='56' height='56' rx='14' fill='%23FFC94A'/%3E%3Ccircle cx='21' cy='21' r='6' fill='%23141026'/%3E%3Ccircle cx='32' cy='32' r='6' fill='%23141026'/%3E%3Ccircle cx='43' cy='43' r='6' fill='%23141026'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=M+PLUS+Rounded+1c:wght@500;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=M+PLUS+Rounded+1c:wght@500;800&family=Unbounded:wght@500;700;900&display=swap" rel="stylesheet">
 <style>
   :root{
-    --night:#23254A;
-    --night-2:#2F3262;
-    --line:#474A86;
-    --paper:#F7F4FF;
-    --muted:#B4B6DE;
-    --ink:#1D1A33;
-    --gold:#F4B942;
+    --bg:#0A0918;
+    --glass:rgba(255,255,255,.055);
+    --glass-2:rgba(255,255,255,.09);
+    --line:rgba(255,255,255,.1);
+    --line-2:rgba(255,255,255,.2);
+    --text:#F7F5FF;
+    --muted:#A9A6CE;
+    --dim:#7A77A3;
+    --ink:#141026;
+    --gold:#FFC94A;
+    --pink:#FF6FAE;
+    --blue:#56A8FF;
+    --mint:#34D9B0;
     --display:"Dela Gothic One","Hiragino Sans","Hiragino Kaku Gothic StdN","Yu Gothic","Noto Sans CJK JP","Noto Sans JP",sans-serif;
     --body:"M PLUS Rounded 1c","Hiragino Maru Gothic ProN","Hiragino Sans","Yu Gothic","Noto Sans CJK JP","Noto Sans JP",sans-serif;
+    --latin:"Unbounded","M PLUS Rounded 1c","Hiragino Sans",sans-serif;
+    --ease-out:cubic-bezier(.16,1,.3,1);
+    --ease-spring:cubic-bezier(.34,1.56,.64,1);
+    color-scheme:dark;
   }
   *{box-sizing:border-box}
   [hidden]{display:none !important}
-  html{-webkit-text-size-adjust:100%}
+  html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
   body{
     margin:0;
     min-height:100vh;
-    background:var(--night);
-    color:var(--paper);
+    background:var(--bg);
+    color:var(--text);
     font-family:var(--body);
     font-weight:500;
     line-height:1.65;
     -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
   }
-  .top, main{max-width:1120px;margin:0 auto;padding-inline:16px}
-  @media (min-width:720px){ .top, main{padding-inline:32px} }
+  body:has(dialog[open]){overflow:hidden}
+  button{font:inherit;color:inherit}
+  .wrap{max-width:1180px;margin:0 auto;padding-inline:16px}
+  @media (min-width:720px){ .wrap{padding-inline:32px} }
 
-  /* ---------- 見出し ---------- */
-  .top{padding-top:clamp(32px,7vw,72px);padding-bottom:8px}
-  h1{
-    margin:0 0 .3em;
-    font-family:var(--display);
-    font-weight:900;
-    font-synthesis:none;
-    font-size:clamp(2.75rem,13vw,5.5rem);
-    line-height:1;
-    letter-spacing:.02em;
+  /* ---------- 背景：オーロラ＋ドット＋ざらつき ---------- */
+  .bg{position:fixed;inset:0;z-index:-2;overflow:hidden;
+      background:radial-gradient(120% 70% at 50% -10%, #1D1848 0%, var(--bg) 62%)}
+  .bg::after{
+    content:"";position:absolute;inset:0;
+    background:radial-gradient(rgba(255,255,255,.08) 1px, transparent 1.6px) 0 0/26px 26px;
+    -webkit-mask-image:radial-gradient(90% 60% at 50% 0%, #000 0%, transparent 75%);
+            mask-image:radial-gradient(90% 60% at 50% 0%, #000 0%, transparent 75%);
   }
-  .lead{margin:0;max-width:42em;color:var(--muted);font-size:clamp(.9rem,2.6vw,1rem)}
-  .actions{display:flex;align-items:center;gap:16px;margin-top:22px;flex-wrap:wrap}
-  .spin{
-    display:inline-flex;align-items:center;gap:.55em;
-    padding:.8em 1.25em;
-    border:0;border-radius:14px;
-    background:var(--gold);color:var(--ink);
-    font:800 1rem/1 var(--body);
-    box-shadow:0 5px 0 #A9761F;
+  .orb{position:absolute;width:75vmax;height:75vmax;border-radius:50%;will-change:transform}
+  .o1{top:-38vmax;left:-26vmax;background:radial-gradient(circle, rgba(124,77,255,.5), transparent 62%);animation:drift1 26s ease-in-out infinite alternate}
+  .o2{top:-8vmax;right:-40vmax;background:radial-gradient(circle, rgba(255,79,160,.3), transparent 62%);animation:drift2 32s ease-in-out infinite alternate}
+  .o3{bottom:-48vmax;left:0;background:radial-gradient(circle, rgba(31,200,176,.2), transparent 62%);animation:drift3 38s ease-in-out infinite alternate}
+  @keyframes drift1{to{transform:translate(20vmax,14vmax) scale(1.15)}}
+  @keyframes drift2{to{transform:translate(-18vmax,18vmax) scale(.9)}}
+  @keyframes drift3{to{transform:translate(16vmax,-14vmax) scale(1.1)}}
+  .grain{
+    position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.06;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .7 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  /* ---------- ヒーロー ---------- */
+  .hero{position:relative;padding-top:clamp(36px,8vw,96px)}
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:.6em;margin:0;
+    padding:.5em 1em .5em .8em;
+    border:1px solid var(--line);border-radius:999px;
+    background:var(--glass);
+    -webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);
+    font:500 .75rem/1 var(--latin);letter-spacing:.06em;color:var(--muted);
+    animation:fadeUp .8s var(--ease-out) both;
+  }
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--mint);animation:ping 2.2s ease-out infinite}
+  @keyframes ping{0%{box-shadow:0 0 0 0 rgba(52,217,176,.7)}70%,100%{box-shadow:0 0 0 9px rgba(52,217,176,0)}}
+
+  .title{
+    margin:.3em 0 .28em;
+    font-family:var(--display);font-weight:400;font-synthesis:none;
+    font-size:clamp(3.6rem,18vw,9rem);
+    line-height:1.02;letter-spacing:.01em;
+    white-space:nowrap;
+  }
+  .title .ch{
+    display:inline-block;
+    text-shadow:.045em .045em 0 var(--pink), .09em .09em 0 var(--blue);
+    animation:drop .95s var(--ease-spring) both;
+    animation-delay:calc(var(--i) * 90ms + 120ms);
+    cursor:default;
+  }
+  .title .ch:last-child{color:var(--gold)}
+  .title .ch:hover{animation:jelly .7s var(--ease-out)}
+  @keyframes drop{from{opacity:0;transform:translateY(-.55em) rotate(-14deg) scale(.7)}}
+  @keyframes jelly{
+    30%{transform:scale(1.18,.84)} 50%{transform:scale(.9,1.12) translateY(-.08em)}
+    70%{transform:scale(1.05,.96)} 100%{transform:none}
+  }
+  .lead{
+    margin:0;max-width:33em;word-break:auto-phrase;color:var(--muted);
+    font-size:clamp(.95rem,2.8vw,1.1rem);
+    animation:fadeUp .9s var(--ease-out) .5s both;
+  }
+  @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}}
+
+  .stats{
+    list-style:none;margin:26px 0 0;padding:0;
+    display:flex;flex-wrap:wrap;gap:10px;
+    animation:fadeUp .9s var(--ease-out) .65s both;
+  }
+  .stats li{
+    display:flex;align-items:baseline;gap:.4em;
+    padding:.55em 1em;border-radius:14px;
+    background:var(--glass);border:1px solid var(--line);
+    font-size:.82rem;color:var(--muted);
+  }
+  .stats b{font:700 1.35rem/1 var(--latin);color:var(--text);font-variant-numeric:tabular-nums}
+  @media (max-width:480px){ .stats{gap:8px} .stats li{padding:.5em .8em;font-size:.76rem} .stats b{font-size:1.1rem} }
+
+  .cta{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin-top:28px;animation:fadeUp .9s var(--ease-out) .8s both}
+  .btn-spin{
+    position:relative;overflow:hidden;
+    display:inline-flex;align-items:center;gap:.6em;
+    padding:1em 1.6em;border:0;border-radius:18px;
+    background:linear-gradient(135deg,#FFE08A 0%,#FFC94A 45%,#FFA62E 100%);
+    color:var(--ink);font:800 1.05rem/1 var(--body);
+    box-shadow:0 18px 40px -14px rgba(255,170,46,.75), inset 0 -3px 0 rgba(0,0,0,.14);
     cursor:pointer;
-    transition:transform .08s ease, box-shadow .08s ease;
+    transition:transform .35s var(--ease-spring), box-shadow .3s;
   }
-  .spin:active:not(:disabled){transform:translateY(4px);box-shadow:0 1px 0 #A9761F}
-  .spin:disabled{opacity:.45;cursor:default}
-  .spin:focus-visible{outline:3px solid var(--paper);outline-offset:4px}
-  .die{width:1.25em;height:1.25em;flex:none}
-  body.is-spinning .die{animation:roll .45s linear infinite}
-  @keyframes roll{to{transform:rotate(360deg)}}
-  .count{color:var(--muted);font-size:.9rem}
+  .btn-spin::after{
+    content:"";position:absolute;top:0;bottom:0;left:-60%;width:40%;
+    background:linear-gradient(100deg,transparent,rgba(255,255,255,.7),transparent);
+    transform:skewX(-18deg);
+    animation:sheen 4.5s ease-in-out 1.6s infinite;
+  }
+  @keyframes sheen{0%{left:-60%}28%,100%{left:130%}}
+  .btn-spin:hover:not(:disabled){transform:translateY(-3px) scale(1.02);box-shadow:0 24px 50px -14px rgba(255,170,46,.9), inset 0 -3px 0 rgba(0,0,0,.14)}
+  .btn-spin:active:not(:disabled){transform:translateY(1px) scale(.98)}
+  .btn-spin:disabled{opacity:.5;cursor:default}
+  .btn-spin:hover:not(:disabled) .die{animation:shake .6s var(--ease-out)}
+  .die{width:1.35em;height:1.35em;flex:none}
+  @keyframes shake{25%{transform:rotate(-22deg)}55%{transform:rotate(16deg)}80%{transform:rotate(-6deg)}}
+  .btn-ghost{
+    display:inline-flex;align-items:center;gap:.5em;
+    padding:1em 1.3em;border-radius:18px;
+    border:1px solid var(--line-2);background:var(--glass);
+    color:var(--text);font:800 .95rem/1 var(--body);text-decoration:none;
+    transition:background .25s, border-color .25s;
+  }
+  .btn-ghost:hover{background:var(--glass-2);border-color:rgba(255,255,255,.35)}
+  .btn-ghost svg{width:1em;height:1em;transition:transform .3s var(--ease-out)}
+  .btn-ghost:hover svg{transform:translateY(3px)}
+  :is(.btn-spin,.btn-ghost,.chip,.num,.seg button,.fab,.btn-go,.btn-again,.rl-close,.card,.more):focus-visible{outline:3px solid var(--gold);outline-offset:3px}
 
-  .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:22px}
-  .chip{
-    padding:.4em 1em;
-    border:2px solid var(--line);border-radius:999px;
-    background:transparent;color:var(--paper);
-    font:800 .875rem/1.2 var(--body);
+  /* 広い画面：右側に浮かぶゲームの箱 */
+  .hero .wrap{position:relative}
+  .hero-art{display:none}
+  @media (min-width:1000px){
+    .hero-art{display:block;position:absolute;top:0;right:32px;width:440px;height:430px;transform-origin:top right}
+  }
+  @media (min-width:1000px) and (max-width:1199px){ .hero-art{transform:scale(.74)} }
+  .ha-wrap{
+    position:absolute;
+    transform:translate3d(var(--px,0px),var(--py,0px),0);
+    transition:transform .9s var(--ease-out);
+    animation:enter 1.1s var(--ease-spring) both;
+  }
+  .ha-wrap:nth-child(1){left:0;top:96px;animation-delay:.55s}
+  .ha-wrap:nth-child(2){left:200px;top:0;animation-delay:.7s}
+  .ha-wrap:nth-child(3){left:168px;top:206px;z-index:2;animation-delay:.85s}
+  @keyframes enter{from{opacity:0;scale:.6;translate:0 60px}}
+  .ha{
+    --c:#FFC94A;
+    position:relative;display:flex;align-items:flex-end;overflow:hidden;isolation:isolate;
+    width:214px;aspect-ratio:1;padding:16px;border-radius:36px;
+    background:var(--c);
+    background-image:linear-gradient(145deg,rgba(255,255,255,.35) 0%,rgba(255,255,255,0) 45%,rgba(0,0,0,.2) 100%);
+    box-shadow:0 34px 70px -24px var(--c), inset 0 0 0 1px rgba(255,255,255,.25);
+    color:var(--ink);text-decoration:none;
+    animation:bob 6s ease-in-out infinite alternate;
+    transition:scale .4s var(--ease-spring);
+  }
+  .ha:hover{scale:1.05}
+  .ha-wrap:nth-child(1) .ha{--r:-11deg;animation-delay:-2s}
+  .ha-wrap:nth-child(2) .ha{--r:9deg;animation-delay:-4s;width:190px}
+  .ha-wrap:nth-child(3) .ha{--r:-3deg}
+  @keyframes bob{from{transform:translateY(-9px) rotate(var(--r,0deg))}to{transform:translateY(9px) rotate(calc(var(--r,0deg) + 2.5deg))}}
+  .ha::before{
+    content:"";position:absolute;inset:0;z-index:-1;
+    background:radial-gradient(rgba(20,16,38,.16) 1.4px, transparent 2px) 0 0/14px 14px;
+    -webkit-mask-image:linear-gradient(150deg,transparent 30%,#000 95%);
+            mask-image:linear-gradient(150deg,transparent 30%,#000 95%);
+  }
+  .ha .g{
+    position:absolute;right:-.05em;bottom:-.2em;z-index:-1;
+    font:150px/1 var(--display);color:rgba(20,16,38,.2);
+  }
+  @supports (color:color-mix(in srgb, red 50%, blue)){ .ha .g{color:color-mix(in srgb, var(--c) 72%, #000)} }
+  .ha .t{padding:.45em .75em;border-radius:12px;background:var(--ink);color:#fff;font:.85rem/1.2 var(--display);white-space:nowrap}
+  .ha .t small{display:block;margin-bottom:.35em;font:700 .58rem/1 var(--latin);letter-spacing:.14em;color:var(--c)}
+
+  /* ---------- 流れるゲームの帯 ---------- */
+  .marquee{
+    margin-top:clamp(40px,7vw,72px);
+    padding-block:18px;
+    overflow:hidden;
+    -webkit-mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);
+            mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);
+    animation:fadeUp 1s var(--ease-out) 1s both;
+  }
+  .marquee-inner{transform:rotate(-2.4deg) scale(1.05)}
+  .track{display:flex;width:max-content;animation:slide var(--dur,60s) linear infinite}
+  .track + .track{margin-top:12px;animation-direction:reverse}
+  .marquee:hover .track{animation-play-state:paused}
+  @keyframes slide{to{transform:translateX(-50%)}}
+  .mq{
+    --c:#FFC94A;
+    display:flex;align-items:center;gap:12px;flex:none;
+    margin-right:12px;padding:7px 18px 7px 7px;
+    border-radius:18px;border:1px solid var(--line);
+    background:rgba(255,255,255,.045);
+    color:var(--text);text-decoration:none;white-space:nowrap;
+    transition:background .25s, transform .3s var(--ease-out);
+  }
+  .mq:hover{background:rgba(255,255,255,.1);transform:translateY(-3px)}
+  .mq-g{
+    display:grid;place-items:center;width:46px;height:46px;border-radius:13px;
+    background:var(--c);color:var(--ink);
+    font:1.35rem/1 var(--display);
+  }
+  .mq-n{font:1rem/1 var(--display);letter-spacing:.02em}
+
+  /* ---------- さがすパネル ---------- */
+  .sec-head{margin-top:clamp(48px,8vw,96px);display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap}
+  .sec-title{margin:0;font:clamp(1.7rem,6vw,2.6rem)/1.15 var(--display);font-weight:400}
+  .sec-title small{display:block;margin-bottom:.5em;font:700 .72rem/1 var(--latin);letter-spacing:.2em;color:var(--gold)}
+  .panel{
+    margin-top:20px;padding:clamp(16px,3vw,24px);
+    border:1px solid var(--line);border-radius:26px;
+    background:linear-gradient(180deg,rgba(255,255,255,.065),rgba(255,255,255,.025));
+    -webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);
+  }
+  .search{position:relative}
+  .search svg{position:absolute;left:16px;top:50%;width:20px;height:20px;transform:translateY(-50%);color:var(--dim);pointer-events:none}
+  .search input{
+    width:100%;height:52px;padding:0 16px 0 46px;
+    border:1px solid var(--line);border-radius:16px;
+    background:rgba(0,0,0,.25);color:var(--text);
+    font:500 1rem/1 var(--body);
+    transition:border-color .2s, background .2s, box-shadow .2s;
+  }
+  .search input::placeholder{color:var(--dim)}
+  .search input:focus{outline:none;border-color:var(--gold);background:rgba(0,0,0,.35);box-shadow:0 0 0 4px rgba(255,201,74,.18)}
+  .row{display:grid;gap:10px;margin-top:18px}
+  @media (min-width:720px){ .row{grid-template-columns:8em 1fr;align-items:start} .row-label{padding-top:.6em} }
+  .row-label{font-size:.82rem;font-weight:800;color:var(--muted)}
+  .nums, .tags{display:flex;flex-wrap:wrap;gap:8px}
+  .num, .chip, .more{
+    display:inline-flex;align-items:center;justify-content:center;gap:.4em;
+    height:42px;padding:0 14px;
+    border:1px solid var(--line);border-radius:14px;
+    background:var(--glass);color:var(--text);
     cursor:pointer;
+    transition:background .2s, border-color .2s, color .2s, transform .25s var(--ease-spring);
   }
-  .chip[aria-pressed="true"]{background:var(--paper);border-color:var(--paper);color:var(--ink)}
-  .chip:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+  .num{min-width:44px;font:700 .95rem/1 var(--latin)}
+  .num.all{font:800 .85rem/1 var(--body)}
+  .chip{border-radius:999px;font:800 .85rem/1 var(--body)}
+  .chip .n{font:500 .68rem/1 var(--latin);color:var(--dim)}
+  .more{border-style:dashed;border-radius:999px;font:800 .8rem/1 var(--body);color:var(--muted)}
+  :is(.num,.chip,.more):hover{background:var(--glass-2);border-color:var(--line-2)}
+  :is(.num,.chip):active{transform:scale(.94)}
+  :is(.num,.chip)[aria-pressed="true"]{background:var(--text);border-color:var(--text);color:var(--ink)}
+  .chip[aria-pressed="true"] .n{color:#5A567E}
+  .foot{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:20px;padding-top:16px;border-top:1px solid var(--line)}
+  .count{font-size:.85rem;color:var(--muted)}
+  .count b{font:700 1.1rem/1 var(--latin);color:var(--text);margin-right:.15em}
+  .seg{display:inline-flex;padding:4px;border-radius:14px;background:rgba(0,0,0,.28);border:1px solid var(--line)}
+  .seg button{
+    height:34px;padding:0 14px;border:0;border-radius:10px;background:transparent;
+    color:var(--muted);font:800 .8rem/1 var(--body);cursor:pointer;transition:background .2s,color .2s;
+  }
+  .seg button[aria-pressed="true"]{background:var(--glass-2);color:var(--text)}
 
-  /* ---------- 棚（ゲームの箱） ---------- */
-  .shelf{
-    list-style:none;margin:0;padding:28px 0 72px;
-    display:grid;
-    grid-template-columns:repeat(auto-fill,minmax(148px,1fr));
-    gap:26px 14px;
+  /* ---------- ゲームの一覧 ---------- */
+  .note{margin:16px 0 0;padding:.8em 1em;border-radius:14px;background:rgba(255,201,74,.1);border:1px solid rgba(255,201,74,.3);font-size:.85rem;color:#FFE4A6}
+  .grid{
+    list-style:none;margin:22px 0 0;padding:0 0 96px;
+    display:grid;grid-template-columns:repeat(auto-fill,minmax(156px,1fr));
+    gap:14px;grid-auto-flow:dense;
   }
-  @media (min-width:720px){
-    .shelf{grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:36px 26px;padding-top:36px}
-  }
-  .shelf:empty{display:none}
-  body.has-pick .shelf{padding-bottom:200px}
+  @media (min-width:720px){ .grid{grid-template-columns:repeat(auto-fill,minmax(224px,1fr));gap:22px} }
+  .item{opacity:0;transform:translateY(30px) scale(.96);transition:opacity .7s var(--ease-out) var(--d,0ms), transform .9s var(--ease-out) var(--d,0ms)}
+  .item.in{opacity:1;transform:none}
 
-  .box{
-    --c:#F4B942;
-    --edge:rgba(0,0,0,.38);
-    --glyph:rgba(0,0,0,.14);
-    display:block;color:inherit;text-decoration:none;outline:none;
+  .card{
+    --c:#FFC94A;
+    position:relative;display:flex;flex-direction:column;height:100%;
+    padding:7px;border-radius:22px;
+    background:var(--glass);border:1px solid var(--line);
+    color:inherit;text-decoration:none;
+    transform:perspective(900px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg));
+    transition:transform .7s var(--ease-out), border-color .3s, box-shadow .4s, background .3s;
     -webkit-tap-highlight-color:transparent;
   }
-  @supports (color:color-mix(in srgb, red 50%, blue)){
-    .box{
-      --edge:color-mix(in srgb, var(--c) 58%, #000);
-      --glyph:color-mix(in srgb, var(--c) 80%, #000);
-    }
+  .card.tilting{transition:transform .12s linear, border-color .3s, box-shadow .4s, background .3s}
+  .card:hover{
+    background:rgba(255,255,255,.08);
+    border-color:rgba(255,255,255,.22);
+    box-shadow:0 26px 60px -26px var(--c);
   }
-  .lid{
-    position:relative;display:block;
-    aspect-ratio:1/1;
-    border-radius:14px;
-    background:var(--c);
-    color:var(--ink);
-    overflow:hidden;
+  .card:active{transform:scale(.97)}
+  .card::after{
+    content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+    background:radial-gradient(380px circle at var(--mx,50%) var(--my,0%), rgba(255,255,255,.13), transparent 45%);
+    opacity:0;transition:opacity .35s;
+  }
+  .card:hover::after{opacity:1}
+
+  .art{
+    position:relative;overflow:hidden;isolation:isolate;
+    aspect-ratio:4/3;border-radius:16px;
     container-type:inline-size;
-    box-shadow:0 8px 0 var(--edge);
-    transition:transform .12s ease, box-shadow .12s ease, filter .15s ease;
+    background:var(--c);
+    background-image:linear-gradient(145deg,rgba(255,255,255,.3) 0%,rgba(255,255,255,0) 45%,rgba(0,0,0,.18) 100%);
+    color:var(--ink);
   }
-  /* 箱のふちの印刷っぽい枠 */
-  .lid::after{
-    content:"";position:absolute;inset:8px;
-    border:2px solid rgba(29,26,51,.13);border-radius:8px;
-    pointer-events:none;
+  .art::before{
+    content:"";position:absolute;inset:0;z-index:-1;
+    background:radial-gradient(rgba(20,16,38,.16) 1.3px, transparent 1.8px) 0 0/12px 12px;
+    -webkit-mask-image:linear-gradient(150deg,transparent 30%,#000 95%);
+            mask-image:linear-gradient(150deg,transparent 30%,#000 95%);
   }
+  .art::after{
+    content:"";position:absolute;inset:-10% auto -10% 0;width:45%;
+    background:linear-gradient(100deg,transparent,rgba(255,255,255,.45),transparent);
+    transform:translateX(-160%) skewX(-16deg);pointer-events:none;
+  }
+  .card:hover .art::after{transform:translateX(330%) skewX(-16deg);transition:transform 1s var(--ease-out)}
   .glyph{
-    position:absolute;right:-.06em;bottom:-.2em;
-    font-family:var(--display);font-weight:900;font-synthesis:none;
-    font-size:7rem;font-size:78cqw;line-height:1;
-    color:var(--glyph);
+    position:absolute;right:-.05em;bottom:-.2em;z-index:-1;
+    font-family:var(--display);font-synthesis:none;
+    font-size:7rem;font-size:74cqw;line-height:1;
+    color:rgba(20,16,38,.2);
     user-select:none;pointer-events:none;
+    transition:transform .8s var(--ease-out);
   }
-  .genre{
-    position:relative;z-index:1;
-    display:inline-block;margin:16px 0 0 16px;
-    padding:.15em .6em;border-radius:6px;
-    background:var(--ink);color:var(--c);
-    font-size:.7rem;font-weight:800;line-height:1.5;
+  @supports (color:color-mix(in srgb, red 50%, blue)){ .glyph{color:color-mix(in srgb, var(--c) 72%, #000)} }
+  .card:hover .glyph{transform:translate(-5%,-5%) rotate(-5deg) scale(1.06)}
+  .pic{position:absolute;inset:0;z-index:-1;width:100%;height:100%;object-fit:cover}
+  .badges{position:absolute;inset:9px 9px auto 9px;display:flex;justify-content:space-between;align-items:flex-start;gap:6px}
+  .new{
+    display:inline-flex;align-items:center;gap:.4em;
+    padding:.35em .6em;border-radius:8px;
+    background:var(--ink);color:#fff;
+    font:700 .62rem/1 var(--latin);letter-spacing:.08em;
   }
+  .new::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--c);animation:blink 1.4s ease-in-out infinite}
+  @keyframes blink{50%{opacity:.25}}
+  .ppl{
+    margin-left:auto;padding:.35em .6em;border-radius:8px;
+    background:rgba(20,16,38,.8);color:#fff;
+    font:700 .7rem/1 var(--latin);white-space:nowrap;
+  }
+  .ppl span{font:800 .66rem/1 var(--body);margin-left:.1em}
+  .body{display:flex;flex-direction:column;gap:6px;flex:1;padding:12px 8px 6px}
   .name{
-    position:relative;z-index:1;
-    display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden;
-    padding:14px 16px 0;
-    font-family:var(--display);font-weight:900;font-synthesis:none;
-    font-size:1.05rem;font-size:clamp(.95rem,9.5cqw,1.4rem);
-    line-height:1.3;
+    margin:0;font-family:var(--display);font-weight:400;
+    font-size:clamp(.98rem,1.2vw + .6rem,1.2rem);line-height:1.3;
     word-break:auto-phrase;overflow-wrap:anywhere;
   }
-  .genre + .name{padding-top:8px}
-  .has-art{display:flex;flex-direction:column;align-items:flex-start}
-  .has-art::after{display:none}
-  .art{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-  .has-art .genre{margin:12px 0 0 12px}
-  .has-art .name{
-    display:block;max-width:calc(100% - 20px);
-    margin:10px;padding:.35em .65em;border-radius:8px;
-    background:var(--ink);color:var(--paper);
-    font-size:.95rem;
-  }
-  .has-art .genre + .name{margin-top:6px;padding-top:.35em}
   .desc{
     display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;
-    margin-top:16px;
-    color:var(--muted);font-size:.8125rem;line-height:1.55;
+    margin:0;color:var(--muted);font-size:.8rem;line-height:1.6;
   }
+  .meta{display:flex;flex-wrap:wrap;gap:4px 10px;margin-top:auto;padding-top:4px;font-size:.72rem;font-weight:800;color:var(--dim)}
 
-  /* 押したとき・キーボード */
-  .box:active .lid{transform:translateY(6px);box-shadow:0 2px 0 var(--edge)}
-  .box:focus-visible .lid{outline:3px solid var(--paper);outline-offset:4px}
-
-  /* ルーレット中 */
-  .box.is-lit .lid,
-  .box.is-picked .lid{
-    transform:translateY(-8px);
-    box-shadow:0 16px 0 var(--edge);
-    outline:4px solid var(--paper);outline-offset:4px;
+  /* いちばん新しいゲームは大きく */
+  .item.is-feature{grid-column:span 2}
+  .is-feature .art{aspect-ratio:16/9}
+  .is-feature .glyph{font-size:52cqw}
+  .is-feature .name{font-size:clamp(1.3rem,3vw,2rem)}
+  .is-feature .desc{-webkit-line-clamp:3;font-size:.9rem}
+  .feat{
+    display:none;
+    position:absolute;left:12px;bottom:12px;
+    padding:.45em .8em;border-radius:10px;
+    background:var(--ink);color:#fff;
+    font:800 .74rem/1 var(--body);
   }
-  body.is-spinning .box:not(.is-lit) .lid,
-  body.has-pick .box:not(.is-picked) .lid{filter:brightness(.5) saturate(.6)}
+  .is-feature .feat{display:block}
+  .feat b{font:700 .66rem/1 var(--latin);letter-spacing:.12em;color:var(--c);margin-right:.6em}
+  @media (min-width:900px){
+    .item.is-feature{grid-row:span 2}
+    .is-feature .art{aspect-ratio:auto;flex:1;min-height:220px}
+  }
 
   /* 読み込み中 */
-  .skeleton .lid{background:var(--night-2);box-shadow:0 8px 0 #1A1C3A}
-  .skeleton .lid::after{display:none}
-  .skeleton .bar{display:block;height:.8em;width:70%;margin-top:18px;border-radius:6px;background:var(--night-2)}
-  .skeleton{animation:pulse 1.4s ease-in-out infinite alternate}
-  @keyframes pulse{to{opacity:.45}}
+  .skel .card{pointer-events:none}
+  .skel .art, .skel .bar{background:linear-gradient(100deg,rgba(255,255,255,.05) 30%,rgba(255,255,255,.12) 50%,rgba(255,255,255,.05) 70%) 0 0/300% 100%;animation:shimmer 1.4s linear infinite}
+  .skel .art::before, .skel .art::after{display:none}
+  .skel .bar{display:block;height:.9em;width:70%;margin:14px 8px 8px;border-radius:6px}
+  .skel .bar + .bar{width:45%;margin-top:0}
+  @keyframes shimmer{from{background-position:100% 0}to{background-position:-50% 0}}
 
   /* お知らせ・エラー */
-  .state{max-width:36em;padding:36px 0 72px;color:var(--muted)}
-  .state.is-note{padding:0 0 8px;font-size:.85rem}
-  .state strong{display:block;margin-bottom:.4em;color:var(--paper);font-size:1.15rem}
+  .state{max-width:36em;margin:0 auto;padding:40px 0 96px;text-align:center;color:var(--muted)}
+  .state .big{display:block;font:2.6rem/1 var(--display);margin-bottom:.4em}
+  .state strong{display:block;margin-bottom:.4em;color:var(--text);font-size:1.15rem}
   .state p{margin:0 0 1.2em}
 
-  /* ルーレットの結果 */
-  .result{
-    position:fixed;z-index:10;left:50%;
+  /* 右下のサイコロ */
+  .fab{
+    position:fixed;z-index:20;
+    right:max(16px, env(safe-area-inset-right));
     bottom:max(16px, env(safe-area-inset-bottom));
-    width:min(560px, calc(100% - 32px));
-    transform:translateX(-50%);
-    padding:16px 56px 18px 20px;
-    border-radius:18px;
-    background:var(--paper);color:var(--ink);
-    box-shadow:0 10px 0 rgba(0,0,0,.35);
-    animation:rise .3s cubic-bezier(.2,.9,.3,1.25);
+    display:grid;place-items:center;width:62px;height:62px;
+    border:0;border-radius:20px;
+    background:linear-gradient(135deg,#FFE08A,#FFA62E);color:var(--ink);
+    box-shadow:0 16px 36px -10px rgba(255,166,46,.8);
+    cursor:pointer;
+    transform:translateY(140%) rotate(20deg);visibility:hidden;
+    transition:transform .55s var(--ease-spring), visibility 0s .55s;
   }
-  @keyframes rise{from{transform:translate(-50%,28px);opacity:0}}
-  .result-label{margin:0;font-size:.8rem;font-weight:800;color:#5B5880}
-  .result-title{
-    margin:.1em 0 .65em;
-    font-family:var(--display);font-weight:900;font-synthesis:none;
-    font-size:clamp(1.3rem,5.5vw,1.75rem);line-height:1.25;
-    word-break:auto-phrase;overflow-wrap:anywhere;
+  .fab.show{transform:none;visibility:visible;transition:transform .55s var(--ease-spring), visibility 0s}
+  .fab svg{width:30px;height:30px}
+  .fab.show svg{animation:shake .8s var(--ease-out) 3s infinite alternate}
+
+  /* ---------- ルーレット ---------- */
+  dialog.rl{
+    position:fixed;inset:0;width:100%;height:100%;max-width:none;max-height:none;
+    margin:0;padding:16px;border:0;
+    background:transparent;color:var(--text);
+    display:grid;place-items:center;overflow:hidden;
   }
-  .result-actions{display:flex;gap:10px;flex-wrap:wrap}
+  dialog.rl:not([open]){display:none}
+  dialog.rl::backdrop{background:rgba(6,5,16,.74);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
+  .rl-card{
+    position:relative;width:min(460px,100%);
+    padding:30px 20px 22px;border-radius:30px;
+    background:linear-gradient(180deg,#1E1A40,#110F26);
+    border:1px solid var(--line-2);
+    box-shadow:0 50px 120px -30px rgba(0,0,0,.8);
+    text-align:center;
+    animation:pop .55s var(--ease-spring);
+  }
+  @keyframes pop{from{opacity:0;transform:translateY(24px) scale(.9)}}
+  .rl-label{margin:0;font:700 .72rem/1 var(--latin);letter-spacing:.2em;color:var(--gold)}
+  .rl-head{margin:.45em 0 0;font:1.5rem/1.3 var(--display);font-weight:400}
+  .rl-sub{margin:.4em 0 0;font-size:.82rem;color:var(--muted)}
+  .reel{
+    --h:66px;
+    position:relative;height:calc(var(--h) * 3);overflow:hidden;
+    margin:18px 0 4px;border-radius:20px;background:rgba(0,0,0,.35);
+    -webkit-mask-image:linear-gradient(transparent,#000 28%,#000 72%,transparent);
+            mask-image:linear-gradient(transparent,#000 28%,#000 72%,transparent);
+  }
+  .reel::before{
+    content:"";position:absolute;left:8px;right:8px;top:var(--h);height:var(--h);z-index:1;
+    border:2px solid var(--gold);border-radius:16px;
+    box-shadow:0 0 28px rgba(255,201,74,.35), inset 0 0 20px rgba(255,201,74,.12);
+    pointer-events:none;
+  }
+  .reel-list{list-style:none;margin:0;padding:0;will-change:transform;transition:filter .4s}
+  .reel.fast .reel-list{filter:blur(1.6px)}
+  .reel-list li{
+    display:flex;align-items:center;justify-content:center;gap:12px;
+    height:var(--h);padding-inline:24px;
+    font:clamp(1.1rem,5vw,1.45rem)/1 var(--display);
+    white-space:nowrap;overflow:hidden;
+  }
+  .reel-list i{flex:none;width:14px;height:14px;border-radius:5px;background:var(--c)}
+  .reel-list span{overflow:hidden;text-overflow:ellipsis}
+
+  .rl-card[data-state="done"] .reel, .rl-card[data-state="done"] .rl-head{display:none}
+  .rl-card:not([data-state="done"]) .rl-result{display:none}
+  .rl-result{margin-top:18px}
+  .rl-art{
+    --c:#FFC94A;
+    position:relative;display:grid;place-items:center;
+    width:132px;height:132px;margin:0 auto;border-radius:34px;
+    background:var(--c);
+    background-image:linear-gradient(145deg,rgba(255,255,255,.35),rgba(255,255,255,0) 50%,rgba(0,0,0,.2));
+    color:var(--ink);font:4.4rem/1 var(--display);
+    box-shadow:0 0 0 8px rgba(255,255,255,.06), 0 20px 60px -10px var(--c);
+    animation:reveal .8s var(--ease-spring) both;
+  }
+  @keyframes reveal{0%{opacity:0;transform:scale(.3) rotate(-30deg)}100%{opacity:1;transform:none}}
+  .rl-title{margin:.6em 0 .2em;font:clamp(1.6rem,7vw,2.1rem)/1.25 var(--display);font-weight:400;animation:fadeUp .6s var(--ease-out) .15s both}
+  .rl-desc{margin:0 auto;max-width:26em;text-wrap:balance;word-break:auto-phrase;color:var(--muted);font-size:.9rem;animation:fadeUp .6s var(--ease-out) .25s both}
+  .rl-meta{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin:12px 0 0;animation:fadeUp .6s var(--ease-out) .3s both}
+  .rl-meta span{padding:.35em .7em;border-radius:999px;background:var(--glass-2);font-size:.75rem;font-weight:800;color:var(--muted)}
+  .rl-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:22px;animation:fadeUp .6s var(--ease-out) .38s both}
   .btn-go, .btn-again{
-    display:inline-block;padding:.75em 1.4em;border-radius:12px;
+    display:inline-flex;align-items:center;gap:.5em;
+    padding:.95em 1.5em;border-radius:16px;
     font:800 1rem/1 var(--body);text-decoration:none;cursor:pointer;
+    transition:transform .3s var(--ease-spring), background .2s;
   }
-  .btn-go{background:var(--ink);color:var(--paper);border:2px solid var(--ink)}
-  .btn-again{background:transparent;color:var(--ink);border:2px solid var(--ink)}
-  .btn-go:focus-visible, .btn-again:focus-visible, .result-close:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
-  .result-close{
-    position:absolute;top:8px;right:8px;width:44px;height:44px;
-    border:0;border-radius:10px;background:transparent;color:var(--ink);
-    font-size:1.5rem;line-height:1;cursor:pointer;
+  .btn-go{border:0;background:linear-gradient(135deg,#FFE08A,#FFA62E);color:var(--ink);box-shadow:0 14px 30px -12px rgba(255,166,46,.8)}
+  .btn-go:hover{transform:translateY(-2px) scale(1.03)}
+  .btn-again{border:1px solid var(--line-2);background:var(--glass);color:var(--text)}
+  .btn-again:hover{background:var(--glass-2)}
+  .rl-close{
+    position:absolute;top:10px;right:10px;width:44px;height:44px;
+    border:0;border-radius:14px;background:transparent;color:var(--muted);
+    font-size:1.6rem;line-height:1;cursor:pointer;
   }
+  .rl-close:hover{background:var(--glass);color:var(--text)}
+  .confetti{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:2}
+
+  /* ---------- 棚卸し（管理用） ---------- */
+  .kanri{margin-top:28px;padding:clamp(16px,3vw,24px);border:1px dashed rgba(255,201,74,.45);border-radius:22px;background:rgba(255,201,74,.05)}
+  .kanri h2{margin:0 0 .3em;font:1.4rem/1.3 var(--display);font-weight:400}
+  .kanri p{margin:0 0 1em;font-size:.85rem;color:var(--muted)}
+  .kanri .sum{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+  .kanri .sum span{padding:.4em .8em;border-radius:10px;background:var(--glass-2);font-size:.8rem;font-weight:800}
+  .kanri .scroll{overflow-x:auto;border-radius:14px;border:1px solid var(--line)}
+  .kanri table{width:100%;border-collapse:collapse;font-size:.8rem;min-width:640px}
+  .kanri th, .kanri td{padding:.6em .8em;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+  .kanri th{font-weight:800;color:var(--muted);background:rgba(0,0,0,.2)}
+  .kanri td code{font-size:.75rem;color:var(--dim);word-break:break-all}
+  .kanri .auto{display:inline-block;margin-left:.4em;padding:.1em .45em;border-radius:6px;background:rgba(255,201,74,.18);color:#FFD77A;font-size:.68rem}
+  .kanri .warn{color:#FF9A8A}
+  .kanri h3{margin:20px 0 8px;font-size:.95rem}
+  .kanri .tagsum{display:flex;flex-wrap:wrap;gap:6px}
+  .kanri .tagsum span{padding:.3em .7em;border-radius:999px;background:var(--glass);border:1px solid var(--line);font-size:.78rem}
+  .kanri .tagsum .one{border-color:rgba(255,154,138,.5)}
+
+  footer{padding:32px 0 max(40px, env(safe-area-inset-bottom));border-top:1px solid var(--line);text-align:center;font-size:.78rem;color:var(--dim)}
+  footer b{font-family:var(--display);font-weight:400;color:var(--muted);margin-right:.5em}
+
+  ::view-transition-group(*){animation-duration:.45s;animation-timing-function:cubic-bezier(.2,.8,.2,1)}
 
   @media (prefers-reduced-motion:reduce){
-    .lid, .spin{transition:none}
-    .result, .skeleton, body.is-spinning .die{animation:none}
+    html{scroll-behavior:auto}
+    *, *::before, *::after{animation:none !important}
+    .item{opacity:1;transform:none;transition:none}
+    .card, .glyph, .art::after{transition:none !important}
+    .card:hover .glyph{transform:none}
+    .ha-wrap{transition:none}
+    .marquee{overflow-x:auto}
+    .marquee-inner{transform:none}
   }
 </style>
 </head>
 <body>
 
-<header class="top">
-  <h1 id="siteTitle">ゲーム棚</h1>
-  <p class="lead">自作のブラウザゲームを並べています。箱をタップすると、すぐに遊べます。</p>
-  <div class="actions">
-    <button id="spin" class="spin" type="button" disabled>
-      <svg class="die" viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="2.5" width="19" height="19" rx="5" fill="none" stroke="currentColor" stroke-width="2.4"/><circle cx="8" cy="8" r="1.9" fill="currentColor"/><circle cx="12" cy="12" r="1.9" fill="currentColor"/><circle cx="16" cy="16" r="1.9" fill="currentColor"/></svg>
-      ルーレットで決める
-    </button>
-    <span id="count" class="count"></span>
+<div class="bg" aria-hidden="true"><i class="orb o1"></i><i class="orb o2"></i><i class="orb o3"></i></div>
+<div class="grain" aria-hidden="true"></div>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="hero-art" id="heroArt" aria-hidden="true"></div>
+    <p class="eyebrow"><span class="dot"></span><span id="eyebrow">GAME SHELF</span></p>
+    <h1 id="siteTitle" class="title">ゲーム棚</h1>
+    <p class="lead">自作のブラウザゲームを並べています。人数やタグでさがして、タップすればすぐに遊べます。インストールはいりません。</p>
+    <ul class="stats" id="stats" hidden>
+      <li><b id="stCount">0</b>本のゲーム</li>
+      <li id="stPplBox"><b id="stPpl">–</b>人で遊べる</li>
+      <li id="stNewBox"><b id="stNew">0</b>本の新作</li>
+    </ul>
+    <div class="cta">
+      <button id="spin" class="btn-spin" type="button" disabled>
+        <svg class="die" viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="2.5" width="19" height="19" rx="5" fill="none" stroke="currentColor" stroke-width="2.4"/><circle cx="8" cy="8" r="1.9" fill="currentColor"/><circle cx="12" cy="12" r="1.9" fill="currentColor"/><circle cx="16" cy="16" r="1.9" fill="currentColor"/></svg>
+        ルーレットで決める
+      </button>
+      <a class="btn-ghost" href="#find">一覧を見る<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v15m0 0-6-6m6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+    </div>
   </div>
-  <nav id="chips" class="chips" aria-label="ジャンルで絞り込む" hidden></nav>
+  <div class="marquee" id="marquee" aria-hidden="true" hidden>
+    <div class="marquee-inner"><div class="track"></div><div class="track"></div></div>
+  </div>
 </header>
 
-<main>
-  <ul id="shelf" class="shelf"></ul>
+<main class="wrap" id="find">
+  <div class="sec-head">
+    <h2 class="sec-title"><small>ALL GAMES</small>ゲームをさがす</h2>
+  </div>
+
+  <section class="panel" aria-label="ゲームをさがす">
+    <label class="search">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="m20 20-3.6-3.6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+      <input id="q" type="search" placeholder="ゲーム名・説明・タグでさがす" autocomplete="off" aria-label="ゲームをさがす">
+    </label>
+    <div class="row" id="pplRow" hidden>
+      <span class="row-label" id="pplLabel">何人で遊ぶ？</span>
+      <div class="nums" id="ppl" role="group" aria-labelledby="pplLabel"></div>
+    </div>
+    <div class="row" id="tagRow" hidden>
+      <span class="row-label" id="tagLabel">タグ</span>
+      <div class="tags" id="tags" role="group" aria-labelledby="tagLabel"></div>
+    </div>
+    <div class="foot">
+      <span id="count" class="count" aria-live="polite"></span>
+      <div class="seg" id="sort" role="group" aria-label="並び順">
+        <button type="button" data-sort="new" aria-pressed="true">新着順</button>
+        <button type="button" data-sort="name" aria-pressed="false">なまえ順</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="kanri" class="kanri" hidden></section>
+  <p id="note" class="note" hidden></p>
+  <ul id="grid" class="grid"></ul>
   <div id="state" class="state" hidden></div>
 </main>
 
-<section id="result" class="result" aria-live="polite" aria-label="ルーレットの結果" hidden>
-  <p class="result-label">今日はこれで遊ぼう</p>
-  <p id="resultTitle" class="result-title"></p>
-  <div class="result-actions">
-    <a id="resultGo" class="btn-go" href="#">あそぶ</a>
-    <button id="resultAgain" class="btn-again" type="button">もう一回</button>
+<footer><b id="footTitle">ゲーム棚</b><span id="footText"></span></footer>
+
+<button id="fab" class="fab" type="button" aria-label="ルーレットで決める" tabindex="-1">
+  <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="2.5" width="19" height="19" rx="5" fill="none" stroke="currentColor" stroke-width="2.2"/><circle cx="8" cy="8" r="1.8" fill="currentColor"/><circle cx="12" cy="12" r="1.8" fill="currentColor"/><circle cx="16" cy="16" r="1.8" fill="currentColor"/></svg>
+</button>
+
+<dialog id="roulette" class="rl" aria-labelledby="rlLabel">
+  <div class="rl-card" id="rlCard" data-state="spin">
+    <p class="rl-label" id="rlLabel">TODAY'S PICK</p>
+    <p class="rl-head">今日の1本は…</p>
+    <p class="rl-sub" id="rlSub"></p>
+    <div class="reel" id="reel"><ul class="reel-list" id="reelList"></ul></div>
+    <div class="rl-result" aria-live="polite">
+      <div class="rl-art" id="rlArt" aria-hidden="true"></div>
+      <h2 class="rl-title" id="rlTitle"></h2>
+      <p class="rl-desc" id="rlDesc"></p>
+      <div class="rl-meta" id="rlMeta"></div>
+      <div class="rl-actions">
+        <a id="rlGo" class="btn-go" href="#">あそぶ<svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m0 0-6-6m6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+        <button id="rlAgain" class="btn-again" type="button">もう一回</button>
+      </div>
+    </div>
+    <button id="rlClose" class="rl-close" type="button" aria-label="閉じる">×</button>
   </div>
-  <button id="resultClose" class="result-close" type="button" aria-label="閉じる">×</button>
-</section>
+  <canvas id="confetti" class="confetti" aria-hidden="true"></canvas>
+</dialog>
+
+<noscript><p class="wrap">このページを表示するには JavaScript を有効にしてください。</p></noscript>
 
 <script>
 (() => {
@@ -274,30 +661,52 @@
     owner: "tbtb-k",     // GitHubのユーザー名（自動で分からないときだけ使う）
     repo:  "games",      // リポジトリ名（同上）
     dir:   "",           // ゲームを置くフォルダ。いちばん上に置くなら空のまま
-    // ファイル名の「_」より前をジャンルとして表示するときの呼び名
-    genres: { party:"パーティー", puzzle:"パズル", action:"アクション", quiz:"クイズ", board:"ボード", card:"カード" }
+    newDays: 7,          // 追加してから何日間「NEW」をつけるか
+    newMax:  5,          // 「NEW」をつけるのは新しい順に何本までか
+
+    // ゲームにタグが書かれていないとき、説明文にこの言葉があればタグを自動でつける
+    autoTags: {
+      "協力":   ["協力", "力を合わせ"],
+      "対戦":   ["対戦", "対決", "奪い合", "押しつけ合"],
+      "ブラフ": ["ブラフ", "はったり", "ウソ", "うそ", "言い張"],
+      "読み合い": ["読み合"],
+      "ことば": ["言葉", "ことば", "ヒント", "1文字", "しりとり"],
+      "お絵かき": ["絵を", "絵と", "お絵かき"],
+      "推理":   ["推理", "見抜", "探し出", "暴き", "当て合"],
+      "早押し": ["早押し", "早くタップ", "早く押"],
+      "演技":   ["演じ", "演技"],
+      "大喜利": ["大喜利", "ボケ"],
+      "以心伝心": ["同じ答え", "そろえ", "以心伝心"],
+      "正体隠し": ["ひとりだけ違う", "人狼", "正体"],
+      "ボード": ["盤", "ボードゲーム"]
+    }
   };
   /* ================================================ */
 
-  const PALETTE = ["#F4B942","#F27A5E","#5CC8A8","#6FA8F5","#F28DB2","#A98BEA","#B5D95A","#F79A3E"];
+  const PALETTE = ["#FFC94A","#FF7A59","#34D9B0","#56A8FF","#FF7EB6","#A98BFF","#B8E35A","#FF9F43"];
   const SKIP = new Set(["index.html","index.htm","404.html"]);
+  const DAY = 86400000;
 
   const $ = (s) => document.querySelector(s);
-  const shelf = $("#shelf"), stateBox = $("#state"), spinBtn = $("#spin");
-  const countEl = $("#count"), chipsEl = $("#chips");
-  const result = $("#result"), resultTitle = $("#resultTitle"), resultGo = $("#resultGo");
+  const grid = $("#grid"), stateBox = $("#state"), noteBox = $("#note");
+  const spinBtn = $("#spin"), fab = $("#fab"), qInput = $("#q");
+  const pplRow = $("#pplRow"), pplBox = $("#ppl"), tagRow = $("#tagRow"), tagBox = $("#tags");
+  const countEl = $("#count"), sortBox = $("#sort");
+  const dlg = $("#roulette"), rlCard = $("#rlCard"), reel = $("#reel"), reelList = $("#reelList");
 
-  let items = [];
-  let activeGenre = "";
-  let spinning = false;
+  const reduced = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const finePointer = matchMedia("(hover: hover) and (pointer: fine)");
 
-  document.title = CONFIG.title;
-  $("#siteTitle").textContent = CONFIG.title;
+  let all = [];        // 非表示も含めたぜんぶ
+  let items = [];      // 棚に並べるもの
+  const cards = new Map();
+  const state = { q: "", players: 0, tag: "", sort: "new", allTags: false };
 
   const repoInfo = detectRepo();
   const dir = (CONFIG.dir || "").replace(/^\/+|\/+$/g, "");
   const prefix = dir ? dir.split("/").map(encodeURIComponent).join("/") + "/" : "";
-  const STORE_KEY = "game-shelf:" + repoInfo.owner + "/" + repoInfo.repo + "/" + dir;
+  const KEY = "game-shelf:v2:" + repoInfo.owner + "/" + repoInfo.repo + "/" + dir;
+  const kanriMode = new URLSearchParams(location.search).has("kanri") || location.hash === "#kanri";
 
   function detectRepo(){
     const host = location.hostname;
@@ -310,12 +719,31 @@
     return { owner: CONFIG.owner, repo: CONFIG.repo };
   }
 
-  function el(tag, cls){ const n = document.createElement(tag); if (cls) n.className = cls; return n; }
+  function el(tag, cls, text){
+    const n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (text != null) n.textContent = text;
+    return n;
+  }
   function wait(ms){ return new Promise(r => setTimeout(r, ms)); }
-  function genreLabel(g){ return (CONFIG.genres && CONFIG.genres[g]) || g; }
+  function rand(n){ return Math.floor(Math.random() * n); }
+  function readStore(k){ try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } }
+  function writeStore(k, v){ try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
 
-  function saveItems(list){ try { localStorage.setItem(STORE_KEY, JSON.stringify(list)); } catch (e) {} }
-  function loadSaved(){ try { return JSON.parse(localStorage.getItem(STORE_KEY)); } catch (e) { return null; } }
+  /* ---------- タイトルの文字をひとつずつ動かす ---------- */
+  document.title = CONFIG.title;
+  $("#footTitle").textContent = CONFIG.title;
+  $("#footText").textContent = "© " + new Date().getFullYear() + " " + repoInfo.owner;
+  (function splitTitle(){
+    const h = $("#siteTitle");
+    h.setAttribute("aria-label", CONFIG.title);
+    h.replaceChildren(...Array.from(CONFIG.title).map((c, i) => {
+      const s = el("span", "ch", c === " " ? " " : c);
+      s.style.setProperty("--i", i);
+      s.setAttribute("aria-hidden", "true");
+      return s;
+    }));
+  })();
 
   /* ---------- GitHubからファイル一覧をもらう ---------- */
   async function fetchListing(){
@@ -328,17 +756,69 @@
     return data;
   }
 
-  /* ---------- 各ゲームの<title>と説明文を読む ---------- */
-  async function readMeta(href){
+  /* ---------- ゲームのファイルからラベルを読む ---------- */
+  function parsePlayers(s){
+    const n = String(s || "").normalize("NFKC").match(/\d+/g);
+    if (!n) return null;
+    const a = +n[0], b = n[1] ? +n[1] : a;
+    return (a >= 1 && a <= b && b <= 99) ? [a, b] : null;
+  }
+  // ラベルが無いときは、ゲームの中の「3〜8人」などから人数を推測する
+  function guessPlayers(html){
+    const t = html.normalize("NFKC");
+    const lo = t.match(/MIN_PLAYERS\s*=\s*(\d+)/), hi = t.match(/MAX_PLAYERS\s*=\s*(\d+)/);
+    if (lo && hi && +lo[1] <= +hi[1]) return [+lo[1], +hi[1]];
+    if (hi && +hi[1] === 2) return [2, 2];
+    const r = t.match(/(\d{1,2})\s*[〜~\-–—]\s*(\d{1,2})\s*人/);
+    if (r && +r[1] <= +r[2]) return [+r[1], +r[2]];
+    const y = t.match(/(\d{1,2})\s*人(用|専用|対戦)/);
+    if (y) return [+y[1], +y[1]];
+    return null;
+  }
+  function splitTags(s){
+    return [...new Set(String(s || "").normalize("NFKC").split(/[,、，\s]+/)
+      .map(t => t.replace(/^#/, "").trim()).filter(Boolean))];
+  }
+  function guessTags(text){
+    const out = [];
+    for (const [tag, words] of Object.entries(CONFIG.autoTags || {})) {
+      if (words.some(w => text.includes(w))) out.push(tag);
+    }
+    return out;
+  }
+  function parseDate(s){
+    const m = String(s || "").normalize("NFKC").match(/(20\d{2})[-/.年]?(\d{1,2})[-/.月]?(\d{1,2})(?:\D+(\d{1,2}):(\d{2}))?/);
+    if (!m || +m[2] < 1 || +m[2] > 12 || +m[3] < 1 || +m[3] > 31) return 0;
+    const d = new Date(+m[1], +m[2] - 1, +m[3], +(m[4] || 0), +(m[5] || 0));
+    return isNaN(d) ? 0 : d.getTime();
+  }
+  function validColor(c){ return c && window.CSS && CSS.supports("color", c) ? c : ""; }
+
+  function parseGame(html){
+    const doc = new DOMParser().parseFromString(html, "text/html");
+    const meta = (n) => (doc.querySelector('meta[name="' + n + '"]')?.getAttribute("content") || "").trim();
+    const og = (doc.querySelector('meta[property="og:description"]')?.getAttribute("content") || "").trim();
+    let players = parsePlayers(meta("game:players")), playersAuto = false;
+    if (!players) { players = guessPlayers(html); playersAuto = !!players; }
+    return {
+      title: (doc.querySelector("title")?.textContent || "").replace(/\s+/g, " ").trim(),
+      desc: meta("description") || og,
+      players, playersAuto,
+      tags: splitTags(meta("game:tags")),
+      time: meta("game:time"),
+      date: meta("game:date"),
+      color: meta("game:color"),
+      hidden: /^(true|yes|1|はい)$/i.test(meta("game:hidden"))
+    };
+  }
+
+  async function readGame(href){
     try {
       const r = await fetch(href, { cache: "no-cache" });
       if (!r.ok) return null;
       const type = r.headers.get("content-type") || "";
       if (type && !type.includes("html")) return null;
-      const doc = new DOMParser().parseFromString(await r.text(), "text/html");
-      const title = (doc.querySelector("title")?.textContent || "").replace(/\s+/g, " ").trim();
-      const d = doc.querySelector('meta[name="description"]') || doc.querySelector('meta[property="og:description"]');
-      return { title, desc: (d?.getAttribute("content") || "").trim() };
+      return parseGame(await r.text());
     } catch (e) { return null; }
   }
 
@@ -363,31 +843,49 @@
         href = prefix + encodeURIComponent(name) + "/";
         isDir = true;
       } else continue;
-      const us = base.indexOf("_");
-      const genre = us > 0 ? base.slice(0, us).toLowerCase() : "";
-      const plain = us > 0 ? base.slice(us + 1) : base;
       const img = images.get(base.toLowerCase());
-      cands.push({
-        key: base.toLowerCase(), href, isDir, genre,
-        fallback: plain.replace(/[-_]+/g, " ").trim() || base,
-        art: img ? prefix + encodeURIComponent(img) : ""
-      });
+      cands.push({ name, base, href, isDir, sha: f.sha || "",
+                   art: img ? prefix + encodeURIComponent(img) : "" });
     }
+
+    // 中身が変わっていないゲームは、前に読んだラベルを使う（2回目からは速い）
+    const cache = readStore(KEY + ":meta") || {};
+    const nextCache = {};
     const resolved = await Promise.all(cands.map(async (c) => {
-      const meta = await readMeta(c.isDir ? c.href + "index.html" : c.href);
-      if (!meta && c.isDir) return null;              // index.htmlが無いフォルダ（画像置き場など）は並べない
-      return { key: c.key, href: c.href, genre: c.genre, art: c.art,
-               title: (meta && meta.title) || c.fallback, desc: (meta && meta.desc) || "" };
+      let g = (c.sha && !c.isDir && cache[c.sha]) || null;
+      if (!g) g = await readGame(c.isDir ? c.href + "index.html" : c.href);
+      if (!g) {
+        if (c.isDir) return null;                     // index.htmlが無いフォルダ（画像置き場など）は並べない
+        g = { title: "", desc: "", players: null, playersAuto: false, tags: [], time: "", date: "", color: "", hidden: false };
+      } else if (c.sha && !c.isDir) nextCache[c.sha] = g;
+      return toItem(c, g);
     }));
-    const out = resolved.filter(Boolean).sort((a, b) => a.title.localeCompare(b.title, "ja"));
+    writeStore(KEY + ":meta", nextCache);
+    const out = resolved.filter(Boolean);
     assignColors(out);
     return out;
+  }
+
+  function toItem(c, g){
+    const fallback = c.base.replace(/^(game|1vs1)_/i, "").replace(/(^|_)20\d{6}(_|$)/, "$1").replace(/[-_]+/g, " ").trim() || c.base;
+    const title = g.title || fallback;
+    const tags = g.tags.length ? g.tags : guessTags(title + " " + g.desc);
+    return {
+      key: c.base.toLowerCase(), file: c.name, href: c.href, art: c.art,
+      title, desc: g.desc,
+      players: g.players, playersAuto: g.playersAuto,
+      tags, tagsAuto: !g.tags.length,
+      time: g.time,
+      date: parseDate(g.date) || parseDate(c.base), dateAuto: !g.date,
+      color: validColor(g.color), hidden: g.hidden
+    };
   }
 
   // ゲームごとの色：名前から決めて、なるべくかぶらないようにする
   function assignColors(list){
     const used = new Array(PALETTE.length).fill(0);
-    for (const it of list) {
+    for (const it of [...list].sort((a, b) => a.key < b.key ? -1 : 1)) {
+      if (it.color) continue;
       let h = 0;
       for (const ch of it.key) h = (h * 31 + ch.codePointAt(0)) >>> 0;
       const start = h % PALETTE.length;
@@ -401,68 +899,87 @@
     }
   }
 
+  /* ---------- 表示用の小さな道具 ---------- */
   function glyphOf(title){
     const s = title.replace(/^[\s\p{P}\p{S}]+/u, "");
-    const g = Array.from(s)[0] || Array.from(title)[0] || "?";
-    return g.toUpperCase();
+    return (Array.from(s)[0] || Array.from(title)[0] || "?").toUpperCase();
+  }
+  let newKeys = new Set();
+  function markNew(){
+    newKeys = new Set([...items].filter(i => i.date && Date.now() - i.date < CONFIG.newDays * DAY)
+      .sort(byNew).slice(0, CONFIG.newMax).map(i => i.key));
+  }
+  function isNew(it){ return newKeys.has(it.key); }
+  function pplText(p){ return p ? (p[0] === p[1] ? String(p[0]) : p[0] + "–" + p[1]) : ""; }
+  function fmtDate(t){ const d = new Date(t); return (d.getMonth() + 1) + "/" + d.getDate(); }
+  function norm(s){
+    return String(s).normalize("NFKC").toLowerCase()
+      .replace(/[ァ-ヶ]/g, ch => String.fromCharCode(ch.charCodeAt(0) - 0x60));
   }
 
-  /* ---------- 画面に並べる ---------- */
-  function glyphEl(title){
-    const g = el("span", "glyph");
-    g.setAttribute("aria-hidden", "true");
-    g.textContent = glyphOf(title);
-    return g;
-  }
-
-  function card(it){
+  /* ---------- カードを作る ---------- */
+  function makeCard(it, idx){
     const li = el("li", "item");
-    li.dataset.genre = it.genre;
-    const a = el("a", "box");
+    li.style.viewTransitionName = "g" + idx;
+    const a = el("a", "card");
     a.href = it.href;
-    a.dataset.title = it.title;
     a.style.setProperty("--c", it.color);
-    const lid = el("span", "lid" + (it.art ? " has-art" : ""));
+
+    const art = el("div", "art");
+    const glyph = el("span", "glyph", glyphOf(it.title));
+    glyph.setAttribute("aria-hidden", "true");
+    art.append(glyph);
     if (it.art) {
-      const img = el("img", "art");
+      const img = el("img", "pic");
       img.src = it.art; img.alt = ""; img.loading = "lazy"; img.decoding = "async";
-      img.onerror = () => { img.remove(); lid.classList.remove("has-art"); lid.prepend(glyphEl(it.title)); };
-      lid.append(img);
-    } else {
-      lid.append(glyphEl(it.title));
+      img.onerror = () => img.remove();
+      art.append(img);
     }
-    if (it.genre) { const g = el("span", "genre"); g.textContent = genreLabel(it.genre); lid.append(g); }
-    const name = el("span", "name"); name.textContent = it.title; lid.append(name);
-    a.append(lid);
-    if (it.desc) { const d = el("span", "desc"); d.textContent = it.desc; a.append(d); }
+    const badges = el("div", "badges");
+    if (isNew(it)) badges.append(el("span", "new", "NEW"));
+    if (it.players) {
+      const p = el("span", "ppl", pplText(it.players));
+      p.append(el("span", "", "人"));
+      badges.append(p);
+    }
+    art.append(badges);
+    const feat = el("span", "feat");
+    feat.append(el("b", "", "NEW ARRIVAL"), document.createTextNode("いちばん新しいゲーム"));
+    art.append(feat);
+
+    const body = el("div", "body");
+    body.append(el("h3", "name", it.title));
+    if (it.desc) body.append(el("p", "desc", it.desc));
+    const meta = el("div", "meta");
+    for (const t of it.tags.slice(0, 3)) meta.append(el("span", "", "#" + t));
+    if (it.time) meta.append(el("span", "", "⏱ " + it.time + (/\d$/.test(it.time) ? "分" : "")));
+    if (meta.childNodes.length) body.append(meta);
+
+    a.append(art, body);
     li.append(a);
     return li;
   }
 
+  /* ---------- 画面に並べる ---------- */
   function showSkeleton(){
-    shelf.innerHTML = "";
+    grid.replaceChildren();
     stateBox.hidden = true;
-    chipsEl.hidden = true;
-    for (let i = 0; i < 4; i++) {
-      const li = el("li", "item skeleton");
+    for (let i = 0; i < 8; i++) {
+      const li = el("li", "item in skel");
       li.setAttribute("aria-hidden", "true");
-      li.innerHTML = '<span class="box"><span class="lid"></span><span class="bar"></span></span>';
-      shelf.append(li);
+      li.innerHTML = '<div class="card"><div class="art"></div><span class="bar"></span><span class="bar"></span></div>';
+      grid.append(li);
     }
     countEl.textContent = "読み込み中…";
     spinBtn.disabled = true;
   }
 
   function showMessage(title, text, withRetry){
-    shelf.innerHTML = "";
-    chipsEl.hidden = true;
-    stateBox.className = "state";
-    stateBox.innerHTML = "";
-    const s = el("strong"); s.textContent = title;
-    const p = el("p"); p.textContent = text;
-    stateBox.append(s, p);
+    grid.replaceChildren();
+    stateBox.replaceChildren(el("span", "big", "( ˘ω˘ )"), el("strong", "", title), el("p", "", text));
     if (withRetry) {
-      const b = el("button", "chip"); b.type = "button"; b.textContent = "もう一度読み込む";
+      const b = el("button", "chip", "もう一度読み込む");
+      b.type = "button";
       b.addEventListener("click", load);
       stateBox.append(b);
     }
@@ -471,140 +988,474 @@
     spinBtn.disabled = true;
   }
 
+  const io = ("IntersectionObserver" in window) ? new IntersectionObserver((entries) => {
+    let k = 0;
+    for (const e of entries) {
+      if (!e.isIntersecting) continue;
+      e.target.style.setProperty("--d", Math.min(k++, 8) * 70 + "ms");
+      e.target.classList.add("in");
+      io.unobserve(e.target);
+    }
+  }, { rootMargin: "0px 0px -6% 0px" }) : null;
+
   function render(stale){
-    shelf.innerHTML = "";
+    markNew();
+    cards.clear();
+    items.forEach((it, i) => {
+      const li = makeCard(it, i);
+      if (io && !reduced()) io.observe(li); else li.classList.add("in");
+      cards.set(it.key, li);
+    });
+    noteBox.hidden = !stale;
+    if (stale) noteBox.textContent = "GitHubにつながらなかったため、前回読み込んだ一覧を表示しています。";
     if (!items.length) {
-      showMessage("まだゲームがありません",
-        "このリポジトリにゲームのHTMLファイルをアップロードすると、ここに自動で並びます。", false);
+      showMessage("まだゲームがありません", "このリポジトリにゲームのHTMLファイルをアップロードすると、ここに自動で並びます。", false);
       return;
     }
-    for (const it of items) shelf.append(card(it));
-    if (stale) {
-      stateBox.className = "state is-note";
-      stateBox.textContent = "GitHubにつながらなかったため、前回読み込んだ一覧を表示しています。";
-      stateBox.hidden = false;
-      shelf.before(stateBox);
-    } else {
-      stateBox.hidden = true;
-    }
-    const genres = [...new Set(items.map(i => i.genre).filter(Boolean))].sort();
-    if (!genres.includes(activeGenre)) activeGenre = "";
-    renderChips(genres);
-    applyFilter();
+    renderHero();
+    renderHeroArt();
+    renderMarquee();
+    renderPlayers();
+    renderTags();
+    applyFilter(false);
+    if (kanriMode) renderKanri();
   }
 
-  function renderChips(genres){
-    chipsEl.innerHTML = "";
-    if (genres.length < 2) { chipsEl.hidden = true; activeGenre = ""; return; }
-    const all = [["", "すべて"]].concat(genres.map(g => [g, genreLabel(g)]));
-    for (const [g, label] of all) {
-      const b = el("button", "chip");
+  function countUp(node, to){
+    if (reduced()) { node.textContent = to; return; }
+    const t0 = performance.now(), dur = 900;
+    const step = (t) => {
+      const p = Math.min(1, (t - t0) / dur);
+      node.textContent = Math.round(to * (1 - Math.pow(1 - p, 3)));
+      if (p < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }
+
+  function renderHero(){
+    const known = items.filter(i => i.players);
+    const newest = Math.max(0, ...items.map(i => i.date || 0));
+    const newCount = items.filter(isNew).length;
+    $("#stats").hidden = false;
+    countUp($("#stCount"), items.length);
+    $("#stPplBox").hidden = !known.length;
+    if (known.length) $("#stPpl").textContent = pplText([Math.min(...known.map(i => i.players[0])), Math.max(...known.map(i => i.players[1]))]);
+    $("#stNewBox").hidden = !newCount;
+    countUp($("#stNew"), newCount);
+    $("#eyebrow").textContent = newest ? "最終更新 " + fmtDate(newest) + " ・ " + items.length + " GAMES" : items.length + " GAMES";
+  }
+
+  function renderHeroArt(){
+    const box = $("#heroArt");
+    const pick = [...items].sort(byNew).slice(0, 3);
+    box.replaceChildren(...pick.map((it, i) => {
+      const w = el("div", "ha-wrap");
+      w.dataset.depth = [18, 30, 44][i];
+      const a = el("a", "ha");
+      a.href = it.href; a.tabIndex = -1;
+      a.style.setProperty("--c", it.color);
+      a.append(el("span", "g", glyphOf(it.title)));
+      const t = el("span", "t");
+      t.append(el("small", "", isNew(it) ? "NEW" : "PICK"), document.createTextNode(it.title));
+      a.append(t);
+      w.append(a);
+      return w;
+    }));
+  }
+  // マウスの動きに合わせて、浮かぶ箱を少しずらす（奥行きっぽく見せる）
+  let parallaxRaf = 0;
+  window.addEventListener("pointermove", (e) => {
+    if (e.pointerType !== "mouse" || reduced() || parallaxRaf) return;
+    parallaxRaf = requestAnimationFrame(() => {
+      parallaxRaf = 0;
+      if (window.scrollY > innerHeight) return;
+      const x = e.clientX / innerWidth - .5, y = e.clientY / innerHeight - .5;
+      for (const w of document.querySelectorAll(".ha-wrap")) {
+        const d = +w.dataset.depth;
+        w.style.setProperty("--px", (-x * d).toFixed(1) + "px");
+        w.style.setProperty("--py", (-y * d).toFixed(1) + "px");
+      }
+    });
+  });
+
+  function renderMarquee(){
+    const box = $("#marquee");
+    if (items.length < 3) { box.hidden = true; return; }
+    const base = [...items].sort(byNew);
+    const rows = [base, base.slice(Math.ceil(base.length / 2)).concat(base.slice(0, Math.ceil(base.length / 2))).reverse()];
+    box.querySelectorAll(".track").forEach((track, r) => {
+      let seq = [];
+      while (seq.length < 12) seq = seq.concat(rows[r]);
+      track.style.setProperty("--dur", seq.length * 3.4 + "s");
+      track.replaceChildren(...seq.concat(seq).map(it => {
+        const a = el("a", "mq");
+        a.href = it.href; a.tabIndex = -1;
+        a.style.setProperty("--c", it.color);
+        a.append(el("span", "mq-g", glyphOf(it.title)), el("span", "mq-n", it.title));
+        return a;
+      }));
+    });
+    box.hidden = false;
+  }
+
+  function renderPlayers(){
+    const known = items.filter(i => i.players);
+    if (!known.length) { pplRow.hidden = true; state.players = 0; return; }
+    const lo = Math.min(...known.map(i => i.players[0]));
+    const hi = Math.min(12, Math.max(...known.map(i => i.players[1])));
+    const opts = [0];
+    for (let n = lo; n <= hi; n++) opts.push(n);
+    if (!opts.includes(state.players)) state.players = 0;
+    pplBox.replaceChildren(...opts.map(n => {
+      const b = el("button", n ? "num" : "num all", n ? String(n) : "すべて");
       b.type = "button";
-      b.textContent = label;
-      b.setAttribute("aria-pressed", String(g === activeGenre));
+      if (n) b.setAttribute("aria-label", n + "人");
+      b.setAttribute("aria-pressed", String(state.players === n));
       b.addEventListener("click", () => {
-        activeGenre = g;
-        for (const c of chipsEl.children) c.setAttribute("aria-pressed", String(c === b));
-        applyFilter();
+        state.players = n;
+        for (const x of pplBox.children) x.setAttribute("aria-pressed", String(x === b));
+        applyFilter(true);
       });
-      chipsEl.append(b);
-    }
-    chipsEl.hidden = false;
+      return b;
+    }));
+    pplRow.hidden = false;
   }
 
-  function applyFilter(){
-    let n = 0;
-    for (const li of shelf.children) {
-      const show = !activeGenre || li.dataset.genre === activeGenre;
-      li.hidden = !show;
-      if (show) n++;
-    }
-    countEl.textContent = activeGenre ? items.length + "本中 " + n + "本" : items.length + "本";
-    spinBtn.disabled = n === 0 || spinning;
-    closeResult();
+  function tagCounts(){
+    const m = new Map();
+    for (const it of items) for (const t of it.tags) m.set(t, (m.get(t) || 0) + 1);
+    return [...m].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], "ja"));
   }
 
+  function renderTags(){
+    const list = tagCounts();
+    if (!list.length) { tagRow.hidden = true; state.tag = ""; return; }
+    if (state.tag && !list.some(([t]) => t === state.tag)) state.tag = "";
+    const LIMIT = 8;
+    const shown = state.allTags ? list : list.filter(([t], i) => i < LIMIT || t === state.tag);
+    const nodes = [["", "すべて", 0]].concat(shown.map(([t, n]) => [t, "#" + t, n])).map(([t, label, n]) => {
+      const b = el("button", "chip", label);
+      b.type = "button";
+      if (n) b.append(el("span", "n", String(n)));
+      b.setAttribute("aria-pressed", String(state.tag === t));
+      b.addEventListener("click", () => {
+        state.tag = (state.tag === t) ? "" : t;
+        for (const x of tagBox.querySelectorAll(".chip")) x.setAttribute("aria-pressed", "false");
+        (state.tag ? b : tagBox.firstChild).setAttribute("aria-pressed", "true");
+        applyFilter(true);
+      });
+      return b;
+    });
+    if (list.length > LIMIT) {
+      const more = el("button", "more", state.allTags ? "たたむ" : "ほか " + (list.length - shown.length) + " 個");
+      more.type = "button";
+      if (!state.allTags && list.length === shown.length) more.hidden = true;
+      more.addEventListener("click", () => { state.allTags = !state.allTags; renderTags(); });
+      nodes.push(more);
+    }
+    tagBox.replaceChildren(...nodes);
+    tagRow.hidden = false;
+  }
+
+  const byNew = (a, b) => (b.date || 0) - (a.date || 0) || a.title.localeCompare(b.title, "ja");
+  const byName = (a, b) => a.title.localeCompare(b.title, "ja");
+
+  function matches(it){
+    if (state.players && it.players && (state.players < it.players[0] || state.players > it.players[1])) return false;
+    if (state.tag && !it.tags.includes(state.tag)) return false;
+    if (state.q) {
+      const hay = norm([it.title, it.desc, it.tags.join(" "), it.file].join(" "));
+      if (!norm(state.q).split(/\s+/).filter(Boolean).every(w => hay.includes(w))) return false;
+    }
+    return true;
+  }
+  function filtered(){ return items.filter(matches).sort(state.sort === "name" ? byName : byNew); }
+  function hasFilter(){ return !!(state.q || state.players || state.tag); }
+
+  function applyFilter(animate){
+    const list = filtered();
+    const feature = state.sort === "new" && !hasFilter() && list.length >= 5;
+    const update = () => {
+      grid.replaceChildren(...list.map((it, i) => {
+        const li = cards.get(it.key);
+        li.classList.toggle("is-feature", feature && i === 0);
+        return li;
+      }));
+      if (!list.length) {
+        stateBox.replaceChildren(el("span", "big", "( ・◇・)?"), el("strong", "", "条件に合うゲームが見つかりませんでした"),
+                                 el("p", "", "人数やタグ、さがす言葉を変えてみてください。"));
+        const b = el("button", "chip", "条件をリセット");
+        b.type = "button";
+        b.addEventListener("click", resetFilters);
+        stateBox.append(b);
+        stateBox.hidden = false;
+      } else stateBox.hidden = true;
+    };
+    if (animate && document.startViewTransition && !reduced()) document.startViewTransition(update);
+    else update();
+
+    countEl.replaceChildren();
+    const b = el("b", "", String(list.length));
+    if (hasFilter()) countEl.append(document.createTextNode(items.length + "本中 "), b, document.createTextNode("本"));
+    else countEl.append(b, document.createTextNode("本のゲーム"));
+    spinBtn.disabled = !items.length;
+  }
+
+  function resetFilters(){
+    state.q = ""; state.players = 0; state.tag = "";
+    qInput.value = "";
+    renderPlayers(); renderTags();
+    applyFilter(true);
+  }
+
+  let qTimer = 0;
+  qInput.addEventListener("input", () => {
+    clearTimeout(qTimer);
+    qTimer = setTimeout(() => { state.q = qInput.value.trim(); applyFilter(false); }, 120);
+  });
+  sortBox.addEventListener("click", (e) => {
+    const b = e.target.closest("button[data-sort]");
+    if (!b || b.dataset.sort === state.sort) return;
+    state.sort = b.dataset.sort;
+    for (const x of sortBox.children) x.setAttribute("aria-pressed", String(x === b));
+    applyFilter(true);
+  });
+
+  /* ---------- カードを傾ける（マウスのとき） ---------- */
+  grid.addEventListener("pointermove", (e) => {
+    const card = e.target.closest(".card");
+    if (!card || e.pointerType !== "mouse") return;
+    const r = card.getBoundingClientRect();
+    const x = (e.clientX - r.left) / r.width, y = (e.clientY - r.top) / r.height;
+    card.style.setProperty("--mx", (x * 100).toFixed(1) + "%");
+    card.style.setProperty("--my", (y * 100).toFixed(1) + "%");
+    if (finePointer.matches && !reduced()) {
+      card.classList.add("tilting");
+      card.style.setProperty("--ry", ((x - .5) * 10).toFixed(2) + "deg");
+      card.style.setProperty("--rx", ((.5 - y) * 8).toFixed(2) + "deg");
+    }
+  });
+  grid.addEventListener("pointerout", (e) => {
+    const card = e.target.closest(".card");
+    if (!card || card.contains(e.relatedTarget)) return;
+    card.classList.remove("tilting");
+    card.style.removeProperty("--rx");
+    card.style.removeProperty("--ry");
+  });
+
+  /* ---------- 読み込み ---------- */
   async function load(){
     showSkeleton();
     let list = null, err = null;
     try { list = await fetchListing(); } catch (e) { err = e; }
     if (list) {
-      items = await resolveItems(list);
-      saveItems(items);
-      render(false);
-      return;
-    }
-    const saved = loadSaved();
-    if (Array.isArray(saved) && saved.length) {
-      items = saved;
-      render(true);
-      return;
-    }
-    if (err && err.status === 404) {
-      showMessage("リポジトリが見つかりませんでした",
-        "「" + repoInfo.owner + "/" + repoInfo.repo + "」を探しましたが見つかりません。リポジトリが公開（Public）になっているか、このファイルの設定（owner と repo）が合っているか確かめてください。", true);
+      all = await resolveItems(list);
+      writeStore(KEY + ":list", all);
     } else {
-      showMessage("ゲームの一覧を読み込めませんでした",
-        "GitHubの読み込み回数の上限（1時間に60回）に達したか、通信が不安定な可能性があります。少し待ってから、もう一度読み込んでください。", true);
+      const saved = readStore(KEY + ":list");
+      if (!Array.isArray(saved) || !saved.length) {
+        if (err && err.status === 404) {
+          showMessage("リポジトリが見つかりませんでした",
+            "「" + repoInfo.owner + "/" + repoInfo.repo + "」を探しましたが見つかりません。リポジトリが公開（Public）になっているか、このファイルの設定（owner と repo）が合っているか確かめてください。", true);
+        } else {
+          showMessage("ゲームの一覧を読み込めませんでした",
+            "GitHubの読み込み回数の上限（1時間に60回）に達したか、通信が不安定な可能性があります。少し待ってから、もう一度読み込んでください。", true);
+        }
+        return;
+      }
+      all = saved;
     }
+    items = all.filter(i => !i.hidden);
+    render(!list);
   }
 
   /* ---------- ルーレット ---------- */
-  function clearPicks(){
-    document.body.classList.remove("has-pick");
-    for (const b of shelf.querySelectorAll(".is-picked, .is-lit")) b.classList.remove("is-picked", "is-lit");
+  let spinToken = 0;
+
+  function poolLabel(n){
+    const parts = [];
+    if (state.players) parts.push(state.players + "人で遊べる");
+    if (state.tag) parts.push("#" + state.tag + " の");
+    if (state.q) parts.push("「" + state.q + "」に合う");
+    return (parts.length ? parts.join("・") + " " : "全") + n + "本の中から";
   }
-  function closeResult(){ result.hidden = true; clearPicks(); }
 
-  async function spin(){
-    if (spinning) return;
-    const boxes = [...shelf.children]
-      .filter(li => !li.hidden && !li.classList.contains("skeleton"))
-      .map(li => li.querySelector(".box"));
-    if (!boxes.length) return;
-    spinning = true;
-    spinBtn.disabled = true;
-    closeResult();
+  function openRoulette(){
+    if (!items.length) return;
+    if (!dlg.open) dlg.showModal();
+    runSpin();
+  }
 
-    const target = Math.floor(Math.random() * boxes.length);
-    const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  async function runSpin(){
+    const token = ++spinToken;
+    const vis = items.filter(matches);
+    const pool = vis.length ? vis : items;
+    const target = pool[rand(pool.length)];
+    const still = reduced() || pool.length < 2;
 
-    if (!reduce && boxes.length > 1) {
-      document.body.classList.add("is-spinning");
-      const laps = Math.max(1, Math.ceil(12 / boxes.length));
-      const steps = laps * boxes.length + target;
-      const raw = [];
-      for (let k = 1; k <= steps; k++) { const p = k / steps; raw.push(1 + 9 * p * p * p); }
-      const scale = 2600 / raw.reduce((a, b) => a + b, 0);
-      let prev = null;
-      for (let k = 0; k <= steps; k++) {
-        const b = boxes[k % boxes.length];
-        if (prev) prev.classList.remove("is-lit");
-        b.classList.add("is-lit");
-        prev = b;
-        if (k < steps) await wait(raw[k] * scale);
-      }
-      prev.classList.remove("is-lit");
-      document.body.classList.remove("is-spinning");
+    rlCard.dataset.state = "spin";
+    $("#rlSub").textContent = poolLabel(pool.length);
+    stopConfetti();
+
+    const rows = [];
+    const N = still ? 0 : 30 + rand(8);
+    let prev = null;
+    for (let i = 0; i < N; i++) {
+      let p;
+      do { p = pool[rand(pool.length)]; } while (pool.length > 1 && p === prev);
+      rows.push(p); prev = p;
     }
+    rows.push(target, pool[rand(pool.length)]);
+    reelList.replaceChildren(...rows.map(it => {
+      const li = el("li");
+      li.style.setProperty("--c", it.color);
+      li.append(el("i"), el("span", "", it.title));
+      return li;
+    }));
 
-    const picked = boxes[target];
-    picked.classList.add("is-picked");
-    document.body.classList.add("has-pick");
-    picked.scrollIntoView({ block: "center", behavior: reduce ? "auto" : "smooth" });
-    resultTitle.textContent = picked.dataset.title;
-    resultGo.href = picked.getAttribute("href");
-    result.hidden = false;
-    resultGo.focus({ preventScroll: true });
-
-    spinning = false;
-    spinBtn.disabled = false;
+    const h = reelList.firstChild.offsetHeight || 66;
+    reelList.style.transition = "none";
+    reelList.style.transform = "translateY(" + (still ? h : 0) + "px)";
+    void reelList.offsetHeight;
+    if (!still) {
+      const dur = 3300;
+      reel.classList.add("fast");
+      reelList.style.transition = "transform " + dur + "ms cubic-bezier(.1,.75,.12,1)";
+      reelList.style.transform = "translateY(" + (-(N - 1) * h) + "px)";
+      setTimeout(() => { if (token === spinToken) reel.classList.remove("fast"); }, dur * 0.42);
+      await wait(dur + 120);
+    } else {
+      await wait(250);
+    }
+    if (token !== spinToken || !dlg.open) return;
+    land(target);
   }
 
-  spinBtn.addEventListener("click", spin);
-  $("#resultAgain").addEventListener("click", spin);
-  $("#resultClose").addEventListener("click", () => { closeResult(); spinBtn.focus(); });
-  document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !result.hidden) closeResult(); });
+  function land(it){
+    const art = $("#rlArt");
+    art.style.setProperty("--c", it.color);
+    art.textContent = glyphOf(it.title);
+    $("#rlTitle").textContent = it.title;
+    $("#rlDesc").textContent = it.desc;
+    $("#rlDesc").hidden = !it.desc;
+    const meta = $("#rlMeta");
+    meta.replaceChildren();
+    if (it.players) meta.append(el("span", "", pplText(it.players) + "人"));
+    for (const t of it.tags.slice(0, 3)) meta.append(el("span", "", "#" + t));
+    $("#rlGo").href = it.href;
+    rlCard.dataset.state = "done";
+    $("#rlGo").focus({ preventScroll: true });
+    if (navigator.vibrate) { try { navigator.vibrate(30); } catch (e) {} }
+    burst(it.color);
+  }
+
+  /* 紙吹雪 */
+  let confettiRaf = 0;
+  function stopConfetti(){
+    cancelAnimationFrame(confettiRaf);
+    const cv = $("#confetti");
+    cv.getContext("2d").clearRect(0, 0, cv.width, cv.height);
+  }
+  function burst(main){
+    if (reduced()) return;
+    const cv = $("#confetti"), ctx = cv.getContext("2d");
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    const W = cv.clientWidth, H = cv.clientHeight;
+    cv.width = W * dpr; cv.height = H * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const r = $("#rlArt").getBoundingClientRect();
+    const ox = r.left + r.width / 2, oy = r.top + r.height / 2;
+    const colors = [main, ...PALETTE, "#FFFFFF"];
+    const parts = [];
+    for (let i = 0; i < 160; i++) {
+      const a = -Math.PI / 2 + (Math.random() - .5) * Math.PI * 1.1;
+      const v = 6 + Math.random() * 11;
+      parts.push({
+        x: ox, y: oy, vx: Math.cos(a) * v, vy: Math.sin(a) * v - 2,
+        rot: Math.random() * 6.28, vr: (Math.random() - .5) * .35,
+        w: 6 + Math.random() * 6, h: 9 + Math.random() * 8,
+        c: colors[rand(colors.length)], round: Math.random() < .3
+      });
+    }
+    const t0 = performance.now();
+    const frame = (t) => {
+      ctx.clearRect(0, 0, W, H);
+      const life = (t - t0) / 2600;
+      for (const p of parts) {
+        p.vy += .3; p.vx *= .985; p.vy *= .985;
+        p.x += p.vx; p.y += p.vy; p.rot += p.vr;
+        ctx.save();
+        ctx.globalAlpha = Math.max(0, 1 - Math.max(0, life - .6) / .4);
+        ctx.translate(p.x, p.y); ctx.rotate(p.rot);
+        ctx.fillStyle = p.c;
+        if (p.round) { ctx.beginPath(); ctx.arc(0, 0, p.w / 2, 0, 6.28); ctx.fill(); }
+        else ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h * Math.abs(Math.cos(p.rot * 1.7)) + 2);
+        ctx.restore();
+      }
+      if (life < 1) confettiRaf = requestAnimationFrame(frame);
+      else ctx.clearRect(0, 0, W, H);
+    };
+    confettiRaf = requestAnimationFrame(frame);
+  }
+
+  spinBtn.addEventListener("click", openRoulette);
+  fab.addEventListener("click", openRoulette);
+  $("#rlAgain").addEventListener("click", runSpin);
+  $("#rlClose").addEventListener("click", () => dlg.close());
+  dlg.addEventListener("click", (e) => { if (e.target === dlg) dlg.close(); });
+  dlg.addEventListener("close", () => { spinToken++; stopConfetti(); });
+
+  // ヒーローのボタンが見えなくなったら、右下にサイコロを出す
+  if ("IntersectionObserver" in window) {
+    new IntersectionObserver(([e]) => {
+      const show = !e.isIntersecting && items.length > 0;
+      fab.classList.toggle("show", show);
+      fab.tabIndex = show ? 0 : -1;
+    }).observe(spinBtn);
+  }
+
+  /* ---------- 棚卸し（index.html?kanri で開いたときだけ） ---------- */
+  function renderKanri(){
+    const box = $("#kanri");
+    const autoP = all.filter(i => !i.players || i.playersAuto).length;
+    const autoT = all.filter(i => i.tagsAuto).length;
+    const noDesc = all.filter(i => !i.desc).length;
+    const hid = all.filter(i => i.hidden).length;
+    box.replaceChildren(
+      el("h2", "", "棚卸し（管理用）"),
+      el("p", "", "URLの最後に ?kanri を付けたときだけ表示されます。「自動」はゲームにラベルが書かれていなくて、推測で埋めた項目です。")
+    );
+    const sum = el("div", "sum");
+    for (const s of ["全 " + all.length + " 本", "人数が自動 " + autoP + " 本", "タグが自動 " + autoT + " 本", "説明文なし " + noDesc + " 本", "非表示 " + hid + " 本"]) sum.append(el("span", "", s));
+    box.append(sum);
+
+    const table = el("table");
+    const head = el("tr");
+    for (const t of ["追加日", "タイトル", "人数", "タグ", "ファイル"]) head.append(el("th", "", t));
+    table.append(head);
+    for (const it of [...all].sort(byNew)) {
+      const tr = el("tr");
+      const tag = (td, on) => { if (on) td.append(el("span", "auto", "自動")); return td; };
+      tr.append(
+        tag(el("td", "", it.date ? new Date(it.date).toLocaleDateString("ja-JP") : "—"), it.date && it.dateAuto),
+        (() => { const td = el("td", "", it.title + (it.hidden ? "（非表示）" : "")); if (!it.desc) td.append(el("div", "warn", "説明文なし")); return td; })(),
+        tag(el("td", it.players ? "" : "warn", it.players ? pplText(it.players) + "人" : "不明"), it.players && it.playersAuto),
+        tag(el("td", it.tags.length ? "" : "warn", it.tags.length ? it.tags.join("、") : "なし"), it.tags.length && it.tagsAuto),
+        (() => { const td = el("td"); td.append(el("code", "", it.file)); return td; })()
+      );
+      table.append(tr);
+    }
+    const sc = el("div", "scroll");
+    sc.append(table);
+    box.append(sc);
+
+    box.append(el("h3", "", "タグの使われ方"));
+    const ts = el("div", "tagsum");
+    for (const [t, n] of tagCounts()) ts.append(el("span", n === 1 ? "one" : "", "#" + t + " × " + n));
+    box.append(ts);
+    box.append(el("p", "", "赤いふちのタグは1本だけで使われています。似たタグがあれば、どちらかにまとめると探しやすくなります。"));
+    box.hidden = false;
+  }
 
   load();
 })();
