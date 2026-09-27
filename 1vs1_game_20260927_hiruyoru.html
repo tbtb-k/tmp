@@ -1,0 +1,2042 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>ひるよる</title>
+<meta name="description" content="太陽と月の石ではさんで裏返し、盤を染め合う2人対戦ゲーム">
+<meta property="og:title" content="ひるよる">
+<meta property="og:description" content="太陽と月の石ではさんで裏返し、盤を染め合う2人対戦ゲーム">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#1b1842">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%23e4e9ff'/%3E%3Cpath d='M32 2a30 30 0 0 0 0 60z' fill='%23ffb530'/%3E%3Ccircle cx='32' cy='32' r='30' fill='none' stroke='%231b1842' stroke-width='3'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Kaisei+Tokumin:wght@700;800&family=Zen+Kaku+Gothic+New:wght@500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --night:#141233;
+  --dusk:#262060;
+  --cell:#342c7c;
+  --sun:#ffb530;
+  --ember:#f26a2a;
+  --moon:#e4e9ff;
+  --frost:#8e9be8;
+  --ink:#fbf8ff;
+  --mute:#b3aede;
+  --rose:#ff7aa8;
+  --line:rgba(255,255,255,.12);
+  --head:"Kaisei Tokumin","Hiragino Mincho ProN","Yu Mincho","Noto Serif JP","Noto Serif CJK JP",serif;
+  --body:"Zen Kaku Gothic New","Hiragino Sans","Hiragino Kaku Gothic ProN","Noto Sans JP","Noto Sans CJK JP","Yu Gothic",sans-serif;
+  --sun-bg:radial-gradient(circle,#fff4c9 0 16%,transparent 17%),radial-gradient(circle,transparent 0 55%,#f7952a 56% 100%),repeating-conic-gradient(#ffd666 0 15deg,#ffb12b 15deg 30deg);
+  --moon-bg:radial-gradient(circle at 60% 40%,#eaeeff 0 23%,transparent 23.5%),radial-gradient(circle at 50% 50%,#8e9be8 0 29%,transparent 29.5%),radial-gradient(circle at 35% 30%,#ffffff 0 6%,#e8ecff 30%,#c3cbf6 100%);
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{-webkit-text-size-adjust:100%;background:#141233}
+body{margin:0;min-height:100vh;min-height:100svh;background:transparent;color:var(--ink);font-family:var(--body);font-weight:500;line-height:1.6;-webkit-tap-highlight-color:transparent;overscroll-behavior-y:none}
+h1,h2,h3{font-synthesis:none}
+button{font-family:inherit}
+
+/* ---- 背景：夕暮れから夜へ ---- */
+#sky{position:fixed;inset:0;z-index:-1;overflow:hidden;background:
+  radial-gradient(70% 45% at 5% -5%,rgba(255,150,60,.30),transparent 70%),
+  radial-gradient(55% 40% at 100% 0%,rgba(150,165,255,.22),transparent 70%),
+  linear-gradient(180deg,#2a1f5a 0%,#1b1842 45%,#100e2b 100%)}
+#sky::before,#sky::after{content:"";position:absolute;inset:0;pointer-events:none}
+#sky::before{opacity:.6;background-image:
+  radial-gradient(1.6px 1.6px at 12% 18%,#fff 50%,transparent 52%),
+  radial-gradient(1.2px 1.2px at 27% 62%,#fff 50%,transparent 52%),
+  radial-gradient(1.4px 1.4px at 44% 12%,#fff 50%,transparent 52%),
+  radial-gradient(1px 1px at 58% 44%,#fff 50%,transparent 52%),
+  radial-gradient(1.6px 1.6px at 73% 28%,#fff 50%,transparent 52%),
+  radial-gradient(1.1px 1.1px at 86% 70%,#fff 50%,transparent 52%),
+  radial-gradient(1.3px 1.3px at 92% 12%,#fff 50%,transparent 52%),
+  radial-gradient(1px 1px at 8% 82%,#fff 50%,transparent 52%),
+  radial-gradient(1.4px 1.4px at 35% 90%,#fff 50%,transparent 52%),
+  radial-gradient(1.2px 1.2px at 66% 86%,#fff 50%,transparent 52%)}
+#sky::after{opacity:.0;animation:twinkle 7s ease-in-out infinite;background-image:
+  radial-gradient(1.8px 1.8px at 20% 36%,#fff 50%,transparent 52%),
+  radial-gradient(1.5px 1.5px at 52% 24%,#fff 50%,transparent 52%),
+  radial-gradient(1.6px 1.6px at 80% 48%,#fff 50%,transparent 52%),
+  radial-gradient(1.3px 1.3px at 16% 58%,#fff 50%,transparent 52%),
+  radial-gradient(1.5px 1.5px at 62% 66%,#fff 50%,transparent 52%)}
+@keyframes twinkle{0%,100%{opacity:.1}50%{opacity:.75}}
+
+#app{max-width:520px;margin:0 auto;padding:calc(18px + env(safe-area-inset-top)) 16px calc(120px + env(safe-area-inset-bottom))}
+body[data-screen="play"] #app{padding-top:calc(10px + env(safe-area-inset-top))}
+.screen{display:none}
+.screen.on{display:block;animation:scr .3s ease-out}
+@keyframes scr{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+h2{font-family:var(--head);font-weight:800;font-size:1.6rem;margin:6px 0 14px;letter-spacing:.04em;line-height:1.3}
+h3{font-size:1rem;font-weight:900;margin:0 0 8px}
+.card{background:rgba(255,255,255,.06);border:1.5px solid var(--line);border-radius:20px;padding:16px;margin:0 0 14px}
+.stack{display:grid;gap:12px}
+.label{font-size:.85rem;font-weight:700;color:var(--mute);margin:0 0 6px;display:block}
+.mt{margin-top:14px}
+.tiny{font-size:.8rem;color:var(--mute);margin:10px 0 0;line-height:1.6}
+.center{text-align:center}
+section > .btn{margin-top:12px}
+.input{width:100%;font:inherit;font-size:17px;font-weight:700;color:var(--ink);background:rgba(10,8,35,.55);border:1.5px solid rgba(255,255,255,.2);border-radius:14px;padding:12px 14px;outline:none;-webkit-appearance:none;appearance:none}
+.input::placeholder{color:rgba(179,174,222,.6)}
+.input:focus{border-color:var(--sun);box-shadow:0 0 0 3px rgba(255,181,48,.25)}
+.code-in{font-family:var(--head);font-weight:800;font-size:30px;letter-spacing:.45em;text-align:center;padding-left:calc(14px + .45em)}
+.err-box{margin-top:12px;padding:10px 12px;border-radius:12px;background:rgba(255,95,143,.15);border:1.5px solid rgba(255,122,168,.55);color:#ffd9e6;font-size:.9rem;font-weight:700}
+
+/* ---- ボタン ---- */
+.btn{appearance:none;-webkit-appearance:none;border:0;display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:56px;padding:12px 18px;border-radius:16px;font-weight:900;font-size:1.06rem;letter-spacing:.04em;color:#2a1600;
+  background:linear-gradient(180deg,#ffd76b,#ffb530 55%,#f5992a);box-shadow:0 4px 0 #b8621a,0 10px 24px rgba(255,150,40,.22);cursor:pointer;transition:transform .08s,box-shadow .08s,opacity .2s;touch-action:manipulation;line-height:1.3}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 #b8621a,0 4px 12px rgba(255,150,40,.2)}
+.btn.moon{color:#1b1a4a;background:linear-gradient(180deg,#ffffff,#e4e9ff 55%,#c9d1f8);box-shadow:0 4px 0 #7f8bd6,0 10px 24px rgba(140,155,232,.2)}
+.btn.moon:active{box-shadow:0 1px 0 #7f8bd6}
+.btn.sub{color:var(--ink);background:rgba(255,255,255,.08);box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.2)}
+.btn.sub:active{transform:translateY(1px);background:rgba(255,255,255,.14)}
+.btn.small{min-height:44px;font-size:.92rem;padding:8px 12px;border-radius:13px}
+.btn.armed{color:#fff;background:linear-gradient(180deg,#ff94b8,#ff5f8f);box-shadow:0 3px 0 #b83462}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.12)}
+.btn:focus-visible,.segbtn:focus-visible,.stamp:focus-visible{outline:3px solid var(--rose);outline-offset:2px}
+
+/* ---- 石（3Dでひっくり返る） ---- */
+.stone3d{position:relative;display:block;width:100%;height:100%;transform-style:preserve-3d;transition:transform .52s cubic-bezier(.35,1.45,.5,1)}
+.stone3d.m{transform:rotateY(180deg)}
+.stone3d.notr{transition:none!important}
+.face{position:absolute;inset:0;border-radius:50%;backface-visibility:hidden;-webkit-backface-visibility:hidden}
+.face.sun{background:var(--sun-bg);box-shadow:inset 0 -3px 0 rgba(120,40,0,.28),inset 0 2px 0 rgba(255,255,255,.45),0 3px 5px rgba(0,0,0,.4)}
+.face.moon{transform:rotateY(180deg);background:var(--moon-bg);box-shadow:inset 0 -3px 0 rgba(40,50,140,.28),inset 0 2px 0 rgba(255,255,255,.75),0 3px 5px rgba(0,0,0,.4)}
+.disc{display:inline-block;flex:none;border-radius:50%;width:28px;height:28px;vertical-align:middle}
+.disc.sun{background:var(--sun-bg);box-shadow:inset 0 -2px 0 rgba(120,40,0,.28),0 2px 4px rgba(0,0,0,.35)}
+.disc.moon{background:var(--moon-bg);box-shadow:inset 0 -2px 0 rgba(40,50,140,.28),0 2px 4px rgba(0,0,0,.35)}
+.disc.none{background:rgba(255,255,255,.08);box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.25)}
+
+/* ---- タイトル ---- */
+.hero{text-align:center;padding:26px 0 18px}
+.lstone{display:inline-block;width:112px;height:112px;perspective:500px;margin-bottom:6px}
+.lstone .stone3d{animation:logoflip 6s cubic-bezier(.5,0,.3,1) infinite;transition:none}
+@keyframes logoflip{0%,38%{transform:rotateY(0)}50%,88%{transform:rotateY(180deg)}100%{transform:rotateY(360deg)}}
+.logo{font-family:var(--head);font-weight:800;font-size:clamp(3rem,15vw,4.2rem);letter-spacing:.12em;margin:0;line-height:1.1;
+  background:linear-gradient(90deg,#ffd76b 0%,#ffb530 40%,#e4e9ff 60%,#aab5f2 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.tagline{margin:10px 0 0;font-weight:700;color:var(--mute);font-size:.98rem}
+
+/* ---- ロビー ---- */
+.code{display:flex;justify-content:center;gap:8px;margin:4px 0 14px}
+.code span{display:grid;place-items:center;width:58px;height:70px;border-radius:14px;background:linear-gradient(180deg,#fff,#e4e9ff);color:#1b1842;font-family:var(--head);font-weight:800;font-size:2.4rem;box-shadow:0 4px 0 #8e9be8;animation:pop .45s calc(var(--i)*.07s) both}
+@keyframes pop{0%{transform:scale(.4);opacity:0}70%{transform:scale(1.08);opacity:1}100%{transform:none}}
+.qrcard{display:flex;align-items:center;gap:12px;background:#fff;color:#15123d;border-radius:16px;padding:10px 12px;text-align:left}
+.qrwrap{flex:none}
+.qrwrap svg{display:block;width:118px;height:118px}
+.qrside{min-width:0;display:grid;gap:6px}
+.qrcap{font-weight:900;font-size:.88rem;line-height:1.4}
+.qrlink{font-size:.68rem;color:#6a6690;word-break:break-all;line-height:1.35}
+.qrside .btn.sub{color:#15123d;background:#eef0ff;box-shadow:inset 0 0 0 1.5px #c9cff5;min-height:38px;font-size:.84rem}
+.status-line{display:flex;align-items:center;justify-content:center;gap:8px;font-size:.9rem;font-weight:700;margin-top:12px}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;background:#888;flex:none}
+.dot.wait{background:var(--sun);animation:blink 1s infinite}
+.dot.ok{background:#5be49b;box-shadow:0 0 8px #5be49b}
+.dot.err{background:#ff5f8f}
+@keyframes blink{50%{opacity:.3}}
+.members{display:grid;gap:8px}
+.mem{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:14px;background:rgba(10,8,35,.4);min-height:50px}
+.mem.empty{opacity:.65;background:transparent;border:1.5px dashed rgba(255,255,255,.22)}
+.mav{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;flex:none;font-weight:900;font-size:.95rem;color:#1b1842;background:linear-gradient(135deg,#ffd666 0 50%,#e4e9ff 50% 100%);box-shadow:0 2px 4px rgba(0,0,0,.3)}
+.mav.none{background:transparent;color:var(--mute);box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.25)}
+.mem .mname{font-weight:900;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
+.mtags{display:flex;gap:6px;flex:none}
+.tag{font-size:.72rem;font-weight:900;padding:2px 8px;border-radius:99px;background:rgba(255,255,255,.12);color:var(--ink)}
+.tag.me{background:var(--sun);color:#2a1600}
+.tag.off{background:rgba(255,122,168,.25);color:#ffd3e2}
+.setrow+.setrow{margin-top:16px}
+.seg{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:8px}
+.segbtn{appearance:none;border:1.5px solid rgba(255,255,255,.16);background:rgba(10,8,35,.45);color:var(--ink);border-radius:14px;padding:10px 4px;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;touch-action:manipulation;transition:border-color .2s,background .2s,transform .08s}
+.segbtn:active{transform:scale(.97)}
+.segbtn.on{border-color:var(--sun);background:rgba(255,181,48,.16);box-shadow:0 0 0 3px rgba(255,181,48,.16)}
+.segt{font-weight:900;font-size:1.05rem;line-height:1.2}
+.segs{font-size:.72rem;color:var(--mute);line-height:1.3}
+.seg.ro .segbtn{cursor:default}
+.seg.ro .segbtn:not(.on){opacity:.35}
+.waiting{display:flex;align-items:center;justify-content:center;gap:10px;font-weight:900;margin:18px 0 6px;text-align:center}
+.dots{display:inline-flex;gap:4px}
+.dots i{width:7px;height:7px;border-radius:50%;background:var(--sun);animation:bounce 1.2s infinite}
+.dots i:nth-child(2){animation-delay:.15s;background:#f0d9a8}
+.dots i:nth-child(3){animation-delay:.3s;background:var(--moon)}
+@keyframes bounce{0%,60%,100%{transform:none}30%{transform:translateY(-6px)}}
+
+/* ---- 遊び方 ---- */
+.rules{margin:0;padding-left:1.3em;display:grid;gap:10px}
+.rules li::marker{font-family:var(--head);font-weight:800;color:var(--sun)}
+.rules b{color:#fff}
+.demo{display:grid;gap:10px;margin-top:14px;padding:12px;border-radius:16px;background:rgba(10,8,35,.45)}
+.drow{display:flex;align-items:center;justify-content:center;gap:6px}
+.drow .disc{width:32px;height:32px}
+.dslot{width:32px;height:32px;border-radius:50%;border:2px dashed var(--rose);display:grid;place-items:center;color:var(--rose);font-weight:900;font-size:.8rem}
+.darrow{text-align:center;color:var(--mute);font-size:.82rem;font-weight:700}
+.feat{margin:0;padding-left:1.1em;display:grid;gap:6px;font-size:.92rem}
+.card.warn{border-color:rgba(142,155,232,.45);background:rgba(142,155,232,.1)}
+
+/* ---- 対局画面 ---- */
+.plates{display:grid;grid-template-columns:1fr 1fr;gap:10px;position:relative;z-index:3}
+.plate{position:relative;display:flex;align-items:center;gap:8px;padding:9px 10px 13px;border-radius:16px;background:rgba(255,255,255,.06);border:1.5px solid rgba(255,255,255,.12);transition:border-color .25s,box-shadow .25s,transform .25s,opacity .25s;min-width:0}
+.plate.moon{flex-direction:row-reverse;text-align:right}
+.plate .disc{width:30px;height:30px}
+.pinfo{min-width:0;flex:1}
+.pname{display:block;font-weight:900;font-size:.95rem;line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.prow2{display:flex;gap:6px;align-items:center;margin-top:2px;flex-wrap:wrap}
+.plate.moon .prow2{justify-content:flex-end}
+.ptag{font-size:.66rem;font-weight:900;padding:1px 7px;border-radius:99px;background:rgba(255,255,255,.12);line-height:1.6}
+.plate.sun .ptag.me{background:var(--sun);color:#2a1600}
+.plate.moon .ptag.me{background:var(--moon);color:#1b1a4a}
+.pwins{font-size:.72rem;font-weight:900;color:#ffe29a}
+.pstate{font-size:.66rem;font-weight:900;color:var(--rose)}
+.pcount{font-family:var(--head);font-weight:800;font-size:1.75rem;line-height:1;min-width:1.4em;text-align:center}
+.pcount.bump{animation:bump .4s}
+@keyframes bump{40%{transform:scale(1.3)}}
+.plate.turn.sun{border-color:var(--sun);background:rgba(255,181,48,.1);box-shadow:0 0 0 3px rgba(255,181,48,.18),0 0 26px rgba(255,160,40,.3)}
+.plate.turn.moon{border-color:var(--moon);background:rgba(228,233,255,.09);box-shadow:0 0 0 3px rgba(228,233,255,.16),0 0 26px rgba(160,175,255,.3)}
+.plate.gone{opacity:.55}
+.ptimer{position:absolute;left:10px;right:10px;bottom:5px;height:4px;border-radius:4px;background:rgba(255,255,255,.1);overflow:hidden;visibility:hidden}
+.ptimer i{display:block;height:100%;width:100%;border-radius:4px;transform-origin:left center;background:var(--sun)}
+.plate.moon .ptimer i{transform-origin:right center;background:var(--moon)}
+.ptimer.low i{background:var(--rose)}
+.psec{position:absolute;top:-9px;right:10px;font-size:.7rem;font-weight:900;padding:0 7px;border-radius:99px;background:var(--rose);color:#fff;line-height:1.6}
+.plate.moon .psec{right:auto;left:10px}
+.psec:empty{display:none}
+.pbubble{position:absolute;top:calc(100% + 8px);left:6px;z-index:6;background:#fff;color:#1b1842;font-weight:900;font-size:.9rem;padding:6px 12px;border-radius:14px;white-space:nowrap;box-shadow:0 8px 20px rgba(0,0,0,.35);opacity:0;transform:translateY(-6px) scale(.85);transform-origin:20px 0;pointer-events:none;transition:opacity .2s,transform .25s cubic-bezier(.3,1.6,.5,1)}
+.pbubble::before{content:"";position:absolute;top:-6px;left:16px;border:6px solid transparent;border-top:0;border-bottom-color:#fff}
+.plate.moon .pbubble{left:auto;right:6px;transform-origin:calc(100% - 20px) 0}
+.plate.moon .pbubble::before{left:auto;right:16px}
+.pbubble.on{opacity:1;transform:none}
+.balance{height:7px;margin:10px 2px 0;border-radius:7px;background:linear-gradient(90deg,#c9d1f8,var(--moon));overflow:hidden;box-shadow:inset 0 0 0 1px rgba(255,255,255,.1)}
+.balance i{display:block;height:100%;width:50%;background:linear-gradient(90deg,#f5992a,var(--sun));border-radius:7px 0 0 7px;transition:width .6s cubic-bezier(.3,1.2,.5,1)}
+
+.boardwrap{display:flex;justify-content:center;margin:12px 0 10px}
+.board{--n:8;display:grid;grid-template-columns:repeat(var(--n),1fr);grid-template-rows:repeat(var(--n),1fr);gap:clamp(2px,.9vw,4px);padding:clamp(6px,2vw,10px);
+  width:min(100%,460px);width:min(100%,460px,max(272px,calc(100svh - 330px)));aspect-ratio:1/1;border-radius:20px;
+  background:linear-gradient(160deg,#2e2670,#1f1a55);box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.12),0 18px 40px rgba(0,0,0,.45);transition:box-shadow .3s}
+.board.mine.t1{box-shadow:inset 0 0 0 1.5px rgba(255,181,48,.55),0 0 0 3px rgba(255,181,48,.14),0 18px 40px rgba(0,0,0,.45)}
+.board.mine.t2{box-shadow:inset 0 0 0 1.5px rgba(228,233,255,.55),0 0 0 3px rgba(228,233,255,.12),0 18px 40px rgba(0,0,0,.45)}
+.cell{position:relative;display:block;border:0;padding:0;margin:0;min-width:0;background:var(--cell);border-radius:22%;cursor:pointer;perspective:320px;touch-action:manipulation;color:inherit;box-shadow:inset 0 -2px 0 rgba(0,0,0,.2);transition:background .15s}
+.cell:focus{outline:none}
+.cell:focus-visible{outline:2px solid var(--rose);outline-offset:1px}
+.cell .dot{position:absolute;left:37%;top:37%;width:26%;height:26%;border-radius:50%;opacity:0;transform:scale(.4);transition:opacity .2s,transform .2s;pointer-events:none;background:rgba(255,255,255,.5)}
+.board.t1 .cell .dot{background:rgba(255,181,48,.8);box-shadow:0 0 10px rgba(255,181,48,.7)}
+.board.t2 .cell .dot{background:rgba(228,233,255,.8);box-shadow:0 0 10px rgba(200,210,255,.7)}
+.cell.hint .dot{opacity:1;transform:none;animation:hintp 1.8s ease-in-out infinite}
+@keyframes hintp{0%,100%{transform:scale(.8)}50%{transform:scale(1.1)}}
+.cell .pos{position:absolute;inset:9%;transform:scale(0);transition:transform .22s ease-in;pointer-events:none}
+.cell.on .pos{transform:none;transition:none}
+.cell .ghost{position:absolute;inset:9%;border-radius:50%;opacity:0;transform:scale(.6);transition:opacity .15s,transform .2s;pointer-events:none}
+.cell .ghost.g1{background:var(--sun-bg)}
+.cell .ghost.g2{background:var(--moon-bg)}
+.cell.sel{background:#463c9c;box-shadow:inset 0 0 0 2px var(--rose)}
+.cell.sel .ghost{opacity:.6;transform:scale(.95)}
+.cell.tgt .pos{animation:wob .8s ease-in-out infinite}
+.cell.tgt::after{content:"";position:absolute;inset:3%;border-radius:50%;border:2px dashed var(--rose);pointer-events:none}
+.cell.last::before{content:"";position:absolute;right:6%;top:6%;width:17%;height:17%;border-radius:50%;background:var(--rose);box-shadow:0 0 6px var(--rose);z-index:2;pointer-events:none}
+.pos.drop{animation:drop .36s cubic-bezier(.3,1.6,.5,1) both}
+.pos.hop{animation:hop .55s ease-out both}
+@keyframes drop{0%{transform:scale(1.5)}55%{transform:scale(.92)}100%{transform:scale(1)}}
+@keyframes hop{0%{transform:scale(1)}40%{transform:scale(1.16)}100%{transform:scale(1)}}
+@keyframes wob{0%,100%{transform:rotate(0)}25%{transform:rotate(-8deg)}75%{transform:rotate(8deg)}}
+
+.status{display:flex;align-items:center;gap:10px;min-height:66px;padding:10px 14px;border-radius:16px;background:rgba(255,255,255,.06);border:1.5px solid rgba(255,255,255,.1);transition:border-color .25s,background .25s}
+.status.mine.t1{border-color:rgba(255,181,48,.6);background:rgba(255,181,48,.08)}
+.status.mine.t2{border-color:rgba(228,233,255,.55);background:rgba(228,233,255,.07)}
+.st-text{flex:1;min-width:0}
+.st-main{font-weight:900;font-size:1.05rem;line-height:1.4}
+.st-sub{font-size:.8rem;color:var(--mute);line-height:1.45;margin-top:2px}
+.status .btn{width:auto;flex:none;min-height:46px;padding:8px 14px}
+.actions{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:10px}
+.actions .btn{white-space:nowrap;letter-spacing:.01em;padding:8px 6px}
+.stamps{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin-top:10px}
+.stamp{appearance:none;border:0;border-radius:14px;min-height:46px;font-size:1.4rem;line-height:1;background:rgba(255,255,255,.07);box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.12);cursor:pointer;touch-action:manipulation;transition:transform .1s}
+.stamp:active{transform:scale(.9);background:rgba(255,255,255,.16)}
+.stamps-cap{font-size:.72rem;color:var(--mute);margin:10px 0 -4px;font-weight:700}
+
+/* ---- 結果（画面下のシート） ---- */
+#result{position:fixed;left:0;right:0;bottom:0;z-index:30;padding:0 10px calc(10px + env(safe-area-inset-bottom));pointer-events:none}
+.rcard{pointer-events:auto;position:relative;max-width:500px;margin:0 auto;background:linear-gradient(180deg,#30297a,#1d1850);border-radius:24px;box-shadow:0 -10px 44px rgba(0,0,0,.55),inset 0 0 0 1.5px rgba(255,255,255,.16);padding:12px 16px 16px;animation:up .45s cubic-bezier(.3,1.3,.5,1)}
+.rcard.win.w1{box-shadow:0 -10px 44px rgba(0,0,0,.55),inset 0 0 0 2px rgba(255,181,48,.75),0 0 40px rgba(255,160,40,.25)}
+.rcard.win.w2{box-shadow:0 -10px 44px rgba(0,0,0,.55),inset 0 0 0 2px rgba(228,233,255,.75),0 0 40px rgba(160,175,255,.25)}
+@keyframes up{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}
+.rtoggle{appearance:none;border:0;background:rgba(255,255,255,.1);color:var(--ink);font-weight:900;font-size:.78rem;padding:6px 12px;border-radius:99px;cursor:pointer;display:block;margin:0 auto 6px}
+.rtitle{font-family:var(--head);font-weight:800;font-size:1.7rem;text-align:center;line-height:1.3;letter-spacing:.03em}
+.rcard.win .rtitle{background:linear-gradient(90deg,#ffe08a,#ffb530,#fff1c4);-webkit-background-clip:text;background-clip:text;color:transparent}
+.rcard.win.w2 .rtitle{background:linear-gradient(90deg,#ffffff,#c9d1f8,#ffffff);-webkit-background-clip:text;background-clip:text;color:transparent}
+.rscore{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px;margin:10px 0 4px}
+.rside{display:flex;flex-direction:column;align-items:center;gap:2px;min-width:0}
+.rside .disc{width:34px;height:34px}
+.rnum{font-family:var(--head);font-weight:800;font-size:2.6rem;line-height:1.05}
+.rname{font-size:.8rem;font-weight:700;color:var(--mute);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rdash{font-family:var(--head);font-size:1.6rem;color:var(--mute)}
+.rreason{text-align:center;font-size:.86rem;font-weight:700;color:#e9e4ff}
+.rtally{text-align:center;font-size:.8rem;color:var(--mute);margin-top:4px}
+.rready{text-align:center;font-size:.84rem;font-weight:900;color:#ffe29a;min-height:1.4em;margin:6px 0 2px}
+.rbtns{display:grid;gap:8px;margin-top:6px}
+.rsub{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+#result.min .rbody{display:none}
+#result.min .rtitle{font-size:1.15rem}
+
+/* ---- シート（メニュー・待った） ---- */
+.sheet{position:fixed;inset:0;z-index:45;display:flex;align-items:flex-end;justify-content:center;background:rgba(8,6,25,.6);padding:12px 12px calc(12px + env(safe-area-inset-bottom));animation:fade .2s}
+@keyframes fade{from{opacity:0}}
+.panel{width:100%;max-width:480px;background:linear-gradient(180deg,#30297a,#1e1953);border-radius:22px;padding:18px 16px 16px;box-shadow:0 -10px 40px rgba(0,0,0,.5),inset 0 0 0 1.5px rgba(255,255,255,.15);animation:up .3s cubic-bezier(.3,1.3,.5,1)}
+.ptitle{font-weight:900;font-size:1.1rem;margin:0 0 12px;line-height:1.4}
+.askicon{font-size:2.4rem;line-height:1;margin-bottom:6px}
+.askbtns{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+
+/* ---- 演出・通知 ---- */
+#fx{position:fixed;inset:0;pointer-events:none;z-index:50}
+#flash{position:fixed;inset:0;pointer-events:none;z-index:49;opacity:0}
+#flash.win{animation:flw 1s ease-out}
+#flash.lose{animation:fll 1s ease-out}
+@keyframes flw{0%{opacity:0}15%{opacity:1}100%{opacity:0}}
+@keyframes fll{0%{opacity:0}20%{opacity:.8}100%{opacity:0}}
+#flash.win{background:radial-gradient(circle at 50% 40%,rgba(255,214,102,.55),rgba(255,181,48,0) 65%)}
+#flash.lose{background:radial-gradient(circle at 50% 40%,rgba(10,8,30,0),rgba(10,8,30,.8))}
+#toast{position:fixed;left:50%;top:calc(12px + env(safe-area-inset-top));z-index:60;pointer-events:none;opacity:0;transform:translate(-50%,-18px);transition:opacity .2s,transform .28s cubic-bezier(.3,1.4,.5,1);width:max-content;max-width:calc(100vw - 32px)}
+#toast.on{opacity:1;transform:translate(-50%,0)}
+.tbox{background:#fff;color:#1b1842;border-radius:16px;padding:10px 18px;box-shadow:0 12px 30px rgba(0,0,0,.45);text-align:center}
+#toast.ok .tbox{box-shadow:0 0 0 3px var(--sun),0 12px 30px rgba(0,0,0,.45)}
+#toast.ng .tbox{box-shadow:0 0 0 3px var(--rose),0 12px 30px rgba(0,0,0,.45)}
+#toast.warn .tbox{box-shadow:0 0 0 3px var(--frost),0 12px 30px rgba(0,0,0,.45)}
+.tmain{font-weight:900;font-size:1rem;line-height:1.4}
+.tsub{font-size:.8rem;color:#55527a;margin-top:2px;line-height:1.4}
+#netbar{position:fixed;left:10px;right:10px;top:calc(10px + env(safe-area-inset-top));z-index:70;display:none;align-items:center;gap:10px;flex-wrap:wrap;max-width:500px;margin:0 auto;padding:10px 14px;border-radius:14px;background:#2d2670;color:#fff;box-shadow:0 10px 30px rgba(0,0,0,.45),inset 0 0 0 1.5px rgba(255,255,255,.2);font-size:.88rem;font-weight:700}
+#netbar.on{display:flex}
+#netbar .dot{background:var(--sun);animation:blink 1s infinite}
+#netbar.ok .dot{background:#5be49b;animation:none}
+#netbar.err .dot{background:#ff5f8f;animation:none}
+#netbar.err{background:#5a1f45}
+#netbar .msg{flex:1;min-width:0}
+#netbar .acts{display:flex;gap:8px;width:100%;justify-content:flex-end}
+#netbar .acts button{appearance:none;border:0;border-radius:10px;padding:7px 12px;font-weight:900;font-size:.82rem;cursor:pointer;background:#fff;color:#1b1842}
+#netbar .acts .lc{background:rgba(255,255,255,.15);color:#fff}
+#sndbtn{position:fixed;right:12px;top:calc(12px + env(safe-area-inset-top));z-index:20;width:44px;height:44px;border-radius:50%;border:0;background:rgba(255,255,255,.1);box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.2);font-size:1.15rem;cursor:pointer;opacity:.6}
+#sndbtn.on{opacity:1}
+body[data-screen="play"] #sndbtn{display:none}
+.shake{animation:shake .45s}
+@keyframes shake{20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(3px)}}
+
+@media (max-width:370px){
+  .plate{padding:8px 8px 12px;gap:6px}
+  .plate .disc{width:24px;height:24px}
+  .pcount{font-size:1.5rem}
+  .pname{font-size:.88rem}
+  .code span{width:52px;height:64px;font-size:2.1rem}
+  .qrwrap svg{width:104px;height:104px}
+  .rnum{font-size:2.2rem}
+}
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation-duration:.001s!important;animation-iteration-count:1!important;transition-duration:.001s!important}
+  #sky::after{display:none}
+}
+</style>
+</head>
+<body data-screen="title">
+<div id="sky" aria-hidden="true"></div>
+<canvas id="fx" aria-hidden="true"></canvas><div id="flash" aria-hidden="true"></div><div id="toast" role="status" aria-live="polite"></div>
+<div id="netbar" role="status"><span class="dot"></span><span class="msg"></span><span class="acts"><button class="rt" type="button">再接続</button><button class="lc" type="button">タイトルへ</button></span></div>
+<button id="sndbtn" type="button" aria-label="音量">🔉</button>
+
+<main id="app">
+  <!-- タイトル -->
+  <section class="screen on" id="s-title">
+    <div class="hero">
+      <span class="lstone" aria-hidden="true"><span class="stone3d"><span class="face sun"></span><span class="face moon"></span></span></span>
+      <h1 class="logo">ひるよる</h1>
+      <p class="tagline">太陽と月の石をはさんで裏返す<br>2人の陣取りボードゲーム</p>
+    </div>
+    <div id="title-err"></div>
+    <div class="stack">
+      <button class="btn" id="btn-make" type="button">☀ 部屋をつくる</button>
+      <button class="btn moon" id="btn-enter" type="button">☾ あいことばで入る</button>
+      <button class="btn sub" id="btn-local" type="button">1台で交代にあそぶ</button>
+      <button class="btn sub" id="btn-howto" type="button">遊び方</button>
+    </div>
+    <p class="tiny center">2人用 ／ 1局 5〜15分 ／ それぞれのスマホで対戦</p>
+  </section>
+
+  <!-- 遊び方 -->
+  <section class="screen" id="s-howto">
+    <h2>遊び方</h2>
+    <div class="card">
+      <ol class="rules">
+        <li><b>☀ 太陽</b>と<b>☾ 月</b>に分かれます。先に置くのは ☀。先手は1局ごとに交代します。</li>
+        <li>相手の石を<b>自分の石ではさむ</b>ように置くと、はさんだ石がぜんぶ自分の色に裏返ります。たて・よこ・ななめ、どの向きでもOK。</li>
+        <li>置けるのは、相手の石を1つ以上はさめるマスだけ。置ける場所がないときは自動でパスになります。</li>
+        <li>2人とも置けなくなったら終わり。石が多いほうの勝ち！</li>
+      </ol>
+      <div class="demo" aria-label="はさむ例">
+        <div class="drow"><span class="disc sun"></span><span class="disc moon"></span><span class="disc moon"></span><span class="dslot">ここ</span></div>
+        <div class="darrow">☀ を「ここ」に置くと…</div>
+        <div class="drow"><span class="disc sun"></span><span class="disc sun"></span><span class="disc sun"></span><span class="disc sun"></span></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3>べんりな機能</h3>
+      <ul class="feat">
+        <li>マスを1回タップすると、裏返る石が揺れて見えます。同じマスをもう一度タップで決定。</li>
+        <li>「待った」は、相手がOKしたら自分の前の手までもどせます。</li>
+        <li>スタンプで気持ちを伝えられます。</li>
+        <li>持ち時間ありのときは、時間切れになると石がおまかせで置かれます。</li>
+      </ul>
+    </div>
+    <div class="card warn">
+      <h3>つながらないときは</h3>
+      <p class="tiny" style="margin:0">会社や学校のWi-Fiだとつながらないことがあります。そのときはWi-Fiをオフにして、モバイル回線で試してね。1台で交代に遊ぶこともできます。</p>
+    </div>
+    <button class="btn sub" id="howto-back" type="button">もどる</button>
+  </section>
+
+  <!-- 代表者のロビー -->
+  <section class="screen" id="s-host">
+    <h2>部屋ができました</h2>
+    <div class="card center">
+      <div class="label">あいことば</div>
+      <div class="code" id="host-code" aria-label="あいことば"></div>
+      <div id="host-qr"></div>
+      <div class="status-line"><span class="dot wait" id="host-dot"></span><span id="host-status">部屋を準備しています…</span></div>
+    </div>
+    <div class="card">
+      <label class="label" for="host-name">あなたの名前</label>
+      <input id="host-name" class="input" maxlength="8" autocomplete="off" placeholder="8文字まで">
+      <div class="label mt">メンバー</div>
+      <div id="host-members" class="members"></div>
+    </div>
+    <div class="card">
+      <div id="host-settings"></div>
+      <p class="tiny">先手（☀）は1局目はランダム。そのあとは1局ごとに交代します。</p>
+    </div>
+    <button class="btn" id="btn-start" type="button" disabled>対局をはじめる</button>
+    <p class="tiny center" id="start-note">あいてが入ったら始められます</p>
+    <button class="btn sub" id="btn-host-close" type="button">部屋を閉じる</button>
+  </section>
+
+  <!-- 参加 -->
+  <section class="screen" id="s-join">
+    <h2>部屋に入る</h2>
+    <div class="card">
+      <label class="label" for="join-code">あいことば（4けたの数字）</label>
+      <input id="join-code" class="input code-in" inputmode="numeric" pattern="[0-9]*" maxlength="4" autocomplete="off" placeholder="0000">
+      <label class="label mt" for="join-name">あなたの名前</label>
+      <input id="join-name" class="input" maxlength="8" autocomplete="off" placeholder="8文字まで">
+      <div id="join-err"></div>
+      <div class="status-line" id="join-row" hidden><span class="dot wait" id="join-dot"></span><span id="join-status">つないでいます…</span></div>
+    </div>
+    <button class="btn moon" id="btn-join" type="button">入る</button>
+    <button class="btn sub" id="join-back" type="button">もどる</button>
+    <p class="tiny center">会社や学校のWi-Fiだとつながらないことがあります。<br>そのときはモバイル回線で試してね。</p>
+  </section>
+
+  <!-- 参加者のロビー -->
+  <section class="screen" id="s-wait">
+    <h2 id="wait-title">つながりました！</h2>
+    <div class="card"><div class="label">メンバー</div><div id="wait-members" class="members"></div></div>
+    <div class="card"><div id="wait-settings"></div></div>
+    <div class="waiting"><span class="dots"><i></i><i></i><i></i></span><span id="wait-text">代表が始めるのを待っています</span></div>
+    <button class="btn sub" id="wait-leave" type="button">部屋を出る</button>
+  </section>
+
+  <!-- 1台で遊ぶ -->
+  <section class="screen" id="s-local">
+    <h2>1台で交代にあそぶ</h2>
+    <div class="card">
+      <label class="label" for="local-n1">ひとりめの名前</label>
+      <input id="local-n1" class="input" maxlength="8" autocomplete="off" placeholder="プレイヤー1">
+      <label class="label mt" for="local-n2">ふたりめの名前</label>
+      <input id="local-n2" class="input" maxlength="8" autocomplete="off" placeholder="プレイヤー2">
+    </div>
+    <div class="card">
+      <div id="local-settings"></div>
+      <p class="tiny">1つの画面を2人で見ながら、交代でタップしてね。</p>
+    </div>
+    <button class="btn" id="local-start" type="button">対局をはじめる</button>
+    <button class="btn sub" id="local-back" type="button">タイトルへ</button>
+  </section>
+
+  <!-- 対局 -->
+  <section class="screen" id="s-play">
+    <div class="plates">
+      <div class="plate sun" id="pl-1">
+        <span class="disc sun" aria-hidden="true"></span>
+        <div class="pinfo"><span class="pname">―</span><div class="prow2"><span class="ptag"></span><span class="pwins"></span><span class="pstate"></span></div></div>
+        <div class="pcount" aria-label="太陽の石の数">2</div>
+        <div class="ptimer"><i></i></div><span class="psec"></span>
+        <div class="pbubble"></div>
+      </div>
+      <div class="plate moon" id="pl-2">
+        <span class="disc moon" aria-hidden="true"></span>
+        <div class="pinfo"><span class="pname">―</span><div class="prow2"><span class="ptag"></span><span class="pwins"></span><span class="pstate"></span></div></div>
+        <div class="pcount" aria-label="月の石の数">2</div>
+        <div class="ptimer"><i></i></div><span class="psec"></span>
+        <div class="pbubble"></div>
+      </div>
+    </div>
+    <div class="balance" aria-hidden="true"><i id="bal-sun"></i></div>
+    <div class="boardwrap"><div class="board" id="board" aria-label="盤面"></div></div>
+    <div class="status" id="status">
+      <div class="st-text"><div class="st-main" id="st-main"></div><div class="st-sub" id="st-sub"></div></div>
+      <button class="btn" id="btn-place" type="button" hidden>ここに置く</button>
+    </div>
+    <div class="actions" id="actions">
+      <button class="btn sub small" id="btn-undo" type="button">↶ 待った</button>
+      <button class="btn sub small" id="btn-resign" type="button">降参</button>
+      <button class="btn sub small" id="btn-menu" type="button">メニュー</button>
+    </div>
+    <div id="stamp-area">
+      <div class="stamps-cap">スタンプ</div>
+      <div class="stamps" id="stamps"></div>
+    </div>
+  </section>
+</main>
+
+<!-- 結果 -->
+<div id="result" hidden>
+  <div class="rcard" id="r-card">
+    <button class="rtoggle" id="r-toggle" type="button">▼ 盤面を見る</button>
+    <div class="rtitle" id="r-title"></div>
+    <div class="rbody">
+      <div class="rscore">
+        <div class="rside"><span class="disc sun"></span><span class="rnum" id="r-c1">0</span><span class="rname" id="r-n1"></span></div>
+        <div class="rdash">−</div>
+        <div class="rside"><span class="disc moon"></span><span class="rnum" id="r-c2">0</span><span class="rname" id="r-n2"></span></div>
+      </div>
+      <div class="rreason" id="r-reason"></div>
+      <div class="rtally" id="r-tally"></div>
+      <div class="rready" id="r-ready"></div>
+      <div class="rbtns">
+        <button class="btn" id="r-again" type="button">もう一局（先手交代）</button>
+        <div class="rsub"><button class="btn sub small" id="r-lobby" type="button">ロビーへ</button><button class="btn sub small" id="r-close" type="button">部屋を閉じる</button></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 待ったのお願い -->
+<div class="sheet" id="ask" hidden>
+  <div class="panel center">
+    <div class="askicon" aria-hidden="true">✋</div>
+    <div class="ptitle" id="ask-text"></div>
+    <p class="tiny" id="ask-sub" style="margin-top:0"></p>
+    <div class="askbtns"><button class="btn" id="ask-yes" type="button">いいよ</button><button class="btn sub" id="ask-no" type="button">だめ</button></div>
+    <p class="tiny" id="ask-count"></p>
+  </div>
+</div>
+
+<!-- メニュー -->
+<div class="sheet" id="menu" hidden>
+  <div class="panel"><div class="ptitle">メニュー</div><div id="menu-items" class="stack"></div></div>
+</div>
+
+<script>
+"use strict";
+/* ============ 小道具 ============ */
+var $  = function(id){ return document.getElementById(id); };
+var el = function(tag,cls,txt){ var e=document.createElement(tag); if(cls)e.className=cls; if(txt!=null)e.textContent=txt; return e; };
+var REDUCED=false; try{ REDUCED=matchMedia("(prefers-reduced-motion: reduce)").matches; }catch(e){}
+function pick(a){ return a[Math.floor(Math.random()*a.length)]; }
+function msg(wrapId,cls,text){ var w=$(wrapId); if(!w) return; w.innerHTML=""; if(text) w.appendChild(el("div",cls,text)); }
+
+/* ============ ゲームの基本設定 ============ */
+var MAX_PLAYERS=2;
+var COLORS=["#ffb530","#e4e9ff"];
+var NAME_KEY="hiruyoru.name.v1", HINT_KEY="hiruyoru.hint.v1";
+var SIZES=[6,8], TIMES=[0,30,60];
+var UNDO_WAIT=20000;
+var SIDE_ICON={1:"☀",2:"☾"};
+var STAMPS=[
+  {k:"clap",e:"👏",t:"うまい！"},
+  {k:"wow", e:"😱",t:"うそでしょ"},
+  {k:"hmm", e:"🤔",t:"うーん…"},
+  {k:"lol", e:"😂",t:"わらう"},
+  {k:"plz", e:"🙏",t:"おてやわらかに"},
+  {k:"fire",e:"🔥",t:"本気だす"}
+];
+function savedName(){ try{ return localStorage.getItem(NAME_KEY)||""; }catch(e){ return ""; } }
+function rememberName(n){ try{ if(n) localStorage.setItem(NAME_KEY,n); }catch(e){} }
+function cleanName(s,fb){
+  s=String(s==null?"":s).replace(/[\u0000-\u001f\u007f\u2028\u2029]/g,"").replace(/\s+/g," ").trim();
+  s=Array.from(s).slice(0,8).join("");
+  return s||fb;
+}
+function freeColor(){ return COLORS[1]; }
+var HINTS=true; try{ if(localStorage.getItem(HINT_KEY)==="0") HINTS=false; }catch(e){}
+function setHints(on){ HINTS=!!on; try{ localStorage.setItem(HINT_KEY,on?"1":"0"); }catch(e){} repaint(); paintMenu(); }
+
+/* ============ ルール（はさんで裏返す） ============ */
+var DIRS=[[-1,-1],[-1,0],[-1,1],[0,-1],[0,1],[1,-1],[1,0],[1,1]];
+function flipsFor(b,n,idx,side){
+  if(b[idx]!==0) return [];
+  var r0=Math.floor(idx/n), c0=idx%n, other=3-side, out=[];
+  for(var d=0;d<8;d++){
+    var dr=DIRS[d][0], dc=DIRS[d][1], r=r0+dr, c=c0+dc, line=[];
+    while(r>=0&&r<n&&c>=0&&c<n&&b[r*n+c]===other){ line.push(r*n+c); r+=dr; c+=dc; }
+    if(line.length && r>=0&&r<n&&c>=0&&c<n&&b[r*n+c]===side) out=out.concat(line);
+  }
+  return out;
+}
+function legalMoves(b,n,side){ var L=[]; for(var i=0;i<n*n;i++) if(b[i]===0 && flipsFor(b,n,i,side).length) L.push(i); return L; }
+function countStones(b){ var s=0,m=0; for(var i=0;i<b.length;i++){ if(b[i]===1)s++; else if(b[i]===2)m++; } return {sun:s,moon:m}; }
+function initialBoard(n){
+  var b=[]; for(var i=0;i<n*n;i++) b.push(0);
+  var h=n/2;
+  b[(h-1)*n+(h-1)]=2; b[h*n+h]=2; b[(h-1)*n+h]=1; b[h*n+(h-1)]=1;
+  return b;
+}
+
+/* ============ 状態（代表者だけが本物を持つ） ============ */
+function freshState(){
+  return {mode:null, phase:"lobby", players:[], nextId:0, set:{size:8,time:0},
+          g:null, gameNo:0, wins:{}, ready:{}, lastSun:null,
+          evs:[], evSeq:0, react:null, reactSeq:0, undoSeq:0};
+}
+var S=freshState(), V=null, myId=null;
+function hostP(){ for(var i=0;i<S.players.length;i++) if(S.players[i].host) return S.players[i]; return null; }
+function pById(id){ for(var i=0;i<S.players.length;i++) if(S.players[i].id===id) return S.players[i]; return null; }
+function otherOf(id){ for(var i=0;i<S.players.length;i++) if(S.players[i].id!==id) return S.players[i]; return null; }
+function sideOf(id){ var g=S.g; if(!g) return 0; return g.sunId===id?1:g.moonId===id?2:0; }
+function turnPlayer(){ var g=S.g; if(!g) return null; return pById(g.turn===1?g.sunId:g.moonId); }
+function hasHist(g,side){ for(var i=0;i<g.hist.length;i++) if(g.hist[i].side===side) return true; return false; }
+function emit(k,extra){
+  var e={seq:++S.evSeq,k:k,at:Date.now()};
+  if(extra) for(var x in extra) e[x]=extra[x];
+  S.evs.push(e); if(S.evs.length>4) S.evs.shift();
+}
+function armTimer(){ var g=S.g; if(!g) return; g.frozenRem=null; g.deadline=S.set.time?Date.now()+S.set.time*1000:0; }
+
+function startGame(){
+  var host=hostP(); if(!host) return;
+  var guest=otherOf(host.id); if(!guest) return;
+  S.gameNo++;
+  var sunId;
+  if(S.lastSun==null) sunId=Math.random()<0.5?host.id:guest.id;
+  else sunId=(S.lastSun===host.id)?guest.id:host.id;
+  S.lastSun=sunId;
+  var n=S.set.size;
+  S.g={n:n,b:initialBoard(n),turn:1,sunId:sunId,moonId:(sunId===host.id?guest.id:host.id),
+       ver:1,moveNo:0,last:-1,hist:[],deadline:0,frozenRem:null,undo:null,result:null};
+  S.ready={}; S.phase="play";
+  armTimer();
+  emit("start",{no:S.gameNo,sunName:pById(sunId).name});
+  commit();
+}
+function doMove(idx){
+  var g=S.g, side=g.turn, fl=flipsFor(g.b,g.n,idx,side);
+  if(!fl.length) return false;
+  g.hist.push({b:g.b.slice(),turn:g.turn,last:g.last,moveNo:g.moveNo,side:side});
+  if(g.hist.length>100) g.hist.shift();
+  g.b[idx]=side; for(var i=0;i<fl.length;i++) g.b[fl[i]]=side;
+  g.last=idx; g.moveNo++; g.ver++; g.undo=null;
+  advanceTurn(side);
+  return true;
+}
+function advanceTurn(side){
+  var g=S.g, other=3-side;
+  if(legalMoves(g.b,g.n,other).length){ g.turn=other; armTimer(); return; }
+  if(legalMoves(g.b,g.n,side).length){ g.turn=side; emit("pass",{side:other}); armTimer(); return; }
+  finishGame(0);
+}
+function finishGame(resignSide){
+  var g=S.g, c=countStones(g.b), winSide, reason;
+  if(resignSide){ winSide=3-resignSide; reason="resign"; }
+  else {
+    winSide=c.sun>c.moon?1:c.moon>c.sun?2:0;
+    reason=(c.sun===0||c.moon===0)?"wipe":(c.sun+c.moon===g.n*g.n)?"full":"stuck";
+  }
+  var winId=winSide===1?g.sunId:winSide===2?g.moonId:null;
+  if(winId) S.wins[winId]=(S.wins[winId]||0)+1;
+  g.result={winSide:winSide,winId:winId,sun:c.sun,moon:c.moon,reason:reason,
+            resigner:resignSide?(resignSide===1?g.sunId:g.moonId):null};
+  g.deadline=0; g.frozenRem=null; g.undo=null; g.ver++;
+  S.phase="result"; S.ready={};
+}
+function revertTo(side){
+  var g=S.g, k=-1;
+  for(var i=g.hist.length-1;i>=0;i--) if(g.hist[i].side===side){ k=i; break; }
+  if(k<0) return false;
+  var h=g.hist[k];
+  g.hist=g.hist.slice(0,k);
+  g.b=h.b.slice(); g.turn=h.turn; g.last=h.last; g.moveNo=h.moveNo; g.ver++;
+  return true;
+}
+function resolveUndo(ok,expired){
+  var g=S.g; if(!g||!g.undo) return;
+  var from=g.undo.from; g.undo=null;
+  if(ok){ revertTo(sideOf(from)); g.ver++; emit("undoOk",{by:from}); armTimer(); }
+  else {
+    emit(expired?"undoExp":"undoNo",{by:from});
+    if(g.deadline && g.frozenRem!=null) g.deadline=Date.now()+g.frozenRem;
+    g.frozenRem=null; g.ver++;
+  }
+  commit();
+}
+function timeoutMove(){
+  var g=S.g, L=legalMoves(g.b,g.n,g.turn);
+  if(!L.length){ advanceTurn(g.turn); commit(); return; }
+  emit("timeout",{side:g.turn});
+  doMove(pick(L));
+  commit();
+}
+/* 代表者の見張り：時間切れ・待ったの期限 */
+function hostTick(){
+  if(S.mode!=="host" && S.mode!=="local") return;
+  if(S.phase!=="play" || !S.g) return;
+  var g=S.g, now=Date.now();
+  if(g.undo && now-g.undo.at>UNDO_WAIT){ resolveUndo(false,true); return; }
+  if(!g.deadline) return;
+  var tp=turnPlayer();
+  var frozen=!!g.undo || !!(tp && tp.gone);
+  if(frozen){ if(g.frozenRem==null) g.frozenRem=Math.max(3000,g.deadline-now); g.deadline=now+g.frozenRem; return; }
+  if(g.frozenRem!=null) g.frozenRem=null;
+  if(now>=g.deadline) timeoutMove();
+}
+
+/* ---- 操作を受け取って処理する（代表者だけ） ---- */
+function handleAction(p,m){
+  if(!p || !m || typeof m!=="object") return;
+  var g=S.g, boss=!!p.host || S.mode==="local", now=Date.now();
+  switch(m.type){
+  case "bye":
+    p.left=true; return;
+  case "rename":
+    if(!p.host) return;
+    p.name=cleanName(m.name,p.name); commit(); return;
+  case "settings":
+    if(!boss || S.phase!=="lobby") return;
+    if(SIZES.indexOf(m.size)>=0) S.set.size=m.size;
+    if(TIMES.indexOf(m.time)>=0) S.set.time=m.time;
+    commit(); return;
+  case "start":
+    if(!boss || S.phase!=="lobby") return;
+    var opp=null; S.players.forEach(function(x){ if(!x.host) opp=x; });
+    if(!opp || opp.gone) return;
+    startGame(); return;
+  case "move":
+    if(S.phase!=="play" || !g || g.undo) return;
+    if(m.ver!==g.ver) return;
+    if(sideOf(p.id)!==g.turn) return;
+    var idx=m.idx;
+    if(typeof idx!=="number" || idx%1!==0 || idx<0 || idx>=g.n*g.n) return;
+    if(doMove(idx)) commit();
+    return;
+  case "undo":
+    if(S.phase!=="play" || !g || g.undo) return;
+    if(S.mode==="local"){
+      if(!g.hist.length) return;
+      revertTo(g.hist[g.hist.length-1].side);
+      emit("undoOk",{by:p.id}); armTimer(); commit(); return;
+    }
+    if(!hasHist(g,sideOf(p.id))) return;
+    g.undo={from:p.id,seq:++S.undoSeq,at:now};
+    g.ver++;
+    commit(); return;
+  case "undoAns":
+    if(!g || !g.undo || g.undo.from===p.id || m.seq!==g.undo.seq) return;
+    resolveUndo(!!m.ok,false); return;
+  case "resign":
+    if(S.phase!=="play" || !g) return;
+    var sd=sideOf(p.id); if(!sd) return;
+    finishGame(sd); commit(); return;
+  case "react":
+    if(S.mode==="local" || !g) return;
+    if(!STAMPS.some(function(s){ return s.k===m.k; })) return;
+    if(p.rt && now-p.rt<800) return;
+    p.rt=now;
+    S.react={seq:++S.reactSeq,from:p.id,k:m.k,at:now};
+    commit(); return;
+  case "again":
+    if(S.phase!=="result") return;
+    if(S.mode==="local"){ startGame(); return; }
+    S.ready[p.id]=!S.ready[p.id];
+    var all=S.players.length===2 && S.players.every(function(x){ return S.ready[x.id] && !x.gone; });
+    if(all) startGame(); else commit();
+    return;
+  case "lobby":
+    if(!boss) return;
+    S.phase="lobby"; S.g=null; S.ready={}; commit(); return;
+  }
+}
+
+/* ---- 配る情報（盤は全員に見えるので秘密はなし） ---- */
+function pubState(){
+  var now=Date.now(), g=S.g;
+  var pub={phase:S.phase, local:S.mode==="local", set:{size:S.set.size,time:S.set.time}, gameNo:S.gameNo,
+    players:S.players.map(function(p){ return {id:p.id,name:p.name,host:!!p.host,gone:!!p.gone,left:!!p.left,wins:S.wins[p.id]||0,ready:!!S.ready[p.id]}; }),
+    evs:S.evs.map(function(e){ var o={}; for(var k in e) if(k!=="at") o[k]=e[k]; o.age=now-e.at; return o; }),
+    react:S.react?{seq:S.react.seq,from:S.react.from,k:S.react.k,age:now-S.react.at}:null,
+    g:null};
+  if(g){
+    var tp=turnPlayer(), frozen=!!g.undo || !!(tp && tp.gone);
+    pub.g={n:g.n,b:g.b.slice(),turn:g.result?0:g.turn,sunId:g.sunId,moonId:g.moonId,ver:g.ver,last:g.last,
+      total:g.deadline?S.set.time*1000:0,
+      remain:g.deadline?((frozen&&g.frozenRem!=null)?g.frozenRem:Math.max(0,g.deadline-now)):0,
+      frozen:frozen,
+      undo:g.undo?{from:g.undo.from,seq:g.undo.seq,remain:Math.max(0,UNDO_WAIT-(now-g.undo.at))}:null,
+      hist:{1:hasHist(g,1),2:hasHist(g,2)}, histAny:g.hist.length>0,
+      lastSide:g.hist.length?g.hist[g.hist.length-1].side:0,
+      result:g.result};
+  }
+  return pub;
+}
+function youFor(p){ return {id:p?p.id:null}; }
+function localActor(){ if(S.g && S.phase==="play"){ var tp=turnPlayer(); if(tp) return tp; } return S.players[0]; }
+
+/* ============ 画面を描く（代表者も参加者も同じ関数） ============ */
+var boardKey="", boardCells=[], prevB=null, prevVer=-1, prevMine=false, sel=-1, sentVer=-1;
+var resultSeen=0, resultMin=false, lastEvSeq=-1, lastReactSeq=-1, askShownSeq=-1, lastTick=-1, reactAt=0;
+function findP(pub,id){ for(var i=0;i<pub.players.length;i++) if(pub.players[i].id===id) return pub.players[i]; return null; }
+function nameOf(pub,id){ var p=findP(pub,id); return p?p.name:"？"; }
+
+function applyView(pub,you){
+  var first=!V;
+  V={pub:pub,you:you||{},at:performance.now()};
+  if(you && you.id) myId=you.id;
+  if(pub.phase==="lobby"){
+    boardKey=""; prevB=null; prevVer=-1; sel=-1;
+    $("result").hidden=true; $("ask").hidden=true;
+    if(S.mode==="host"){ route("host"); renderHostLobby(pub); }
+    else if(S.mode==="local"){ route("local"); renderLocalSetup(); }
+    else { route("wait"); renderGuestLobby(pub); }
+  } else {
+    route("play");
+    renderPlay(pub,first);
+  }
+  showEvents(pub);
+  var rc=pub.react;
+  if(rc && rc.seq!==lastReactSeq){ lastReactSeq=rc.seq; if(rc.age<3500) showReact(pub,rc); }
+}
+function repaint(){ if(V && V.pub && V.pub.phase!=="lobby") renderPlay(V.pub,false); }
+
+function renderSettings(box,set,editable,onPick){
+  box.innerHTML="";
+  var rows=[
+    {key:"size",label:"盤の大きさ",opts:[{v:6,t:"6×6",s:"さくっと5分"},{v:8,t:"8×8",s:"じっくり15分"}]},
+    {key:"time",label:"1手の持ち時間",opts:[{v:0,t:"なし",s:"のんびり"},{v:30,t:"30秒",s:"テンポよく"},{v:60,t:"60秒",s:"ほどほど"}]}
+  ];
+  rows.forEach(function(r){
+    var wrap=el("div","setrow");
+    wrap.appendChild(el("div","label",r.label));
+    var seg=el("div","seg"+(editable?"":" ro"));
+    r.opts.forEach(function(o){
+      var b=el("button","segbtn"+(set[r.key]===o.v?" on":"")); b.type="button";
+      b.appendChild(el("span","segt",o.t)); b.appendChild(el("span","segs",o.s));
+      b.setAttribute("aria-pressed",set[r.key]===o.v?"true":"false");
+      if(editable) b.onclick=function(){ onPick(r.key,o.v); };
+      else { b.tabIndex=-1; b.setAttribute("aria-disabled","true"); }
+      seg.appendChild(b);
+    });
+    wrap.appendChild(seg); box.appendChild(wrap);
+  });
+}
+function renderMembers(box,players,meId){
+  box.innerHTML="";
+  for(var i=0;i<2;i++){
+    var p=players[i], row=el("div","mem"+(p?"":" empty"));
+    row.appendChild(el("span","mav"+(p?"":" none"),p?Array.from(p.name)[0]:"？"));
+    if(p){
+      row.appendChild(el("span","mname",p.name));
+      var tags=el("span","mtags");
+      if(p.host) tags.appendChild(el("span","tag","代表"));
+      if(p.id===meId) tags.appendChild(el("span","tag me","あなた"));
+      if(p.gone) tags.appendChild(el("span","tag off","接続待ち"));
+      row.appendChild(tags);
+    } else row.appendChild(el("span","mname","あいてを待っています…"));
+    box.appendChild(row);
+  }
+}
+function renderHostLobby(pub){
+  renderMembers($("host-members"),pub.players,myId);
+  renderSettings($("host-settings"),pub.set,true,function(k,v){
+    var m={type:"settings",size:pub.set.size,time:pub.set.time}; m[k]=v; act(m);
+  });
+  var opp=null; pub.players.forEach(function(p){ if(!p.host) opp=p; });
+  var ok=!!opp && !opp.gone;
+  $("btn-start").disabled=!ok;
+  $("start-note").textContent=ok?(opp.name+" がそろいました！"):"あいてが入ったら始められます";
+}
+function renderGuestLobby(pub){
+  $("wait-title").textContent="つながりました！";
+  renderMembers($("wait-members"),pub.players,myId);
+  renderSettings($("wait-settings"),pub.set,false);
+  var h=null; pub.players.forEach(function(p){ if(p.host) h=p; });
+  $("wait-text").textContent=(h?h.name:"代表")+" が始めるのを待っています";
+}
+function renderLocalSetup(){
+  renderSettings($("local-settings"),S.set,true,function(k,v){ S.set[k]=v; renderLocalSetup(); });
+}
+
+/* ---- 盤 ---- */
+function buildBoard(n){
+  var bd=$("board"); bd.innerHTML=""; bd.style.setProperty("--n",n); boardCells=[];
+  for(var i=0;i<n*n;i++){
+    var c=el("button","cell"); c.type="button";
+    c.setAttribute("aria-label",(Math.floor(i/n)+1)+"行"+(i%n+1)+"列");
+    var dot=el("span","dot"), gh=el("span","ghost"), pos=el("span","pos"), st=el("span","stone3d");
+    st.appendChild(el("span","face sun")); st.appendChild(el("span","face moon"));
+    pos.appendChild(st); c.appendChild(dot); c.appendChild(gh); c.appendChild(pos);
+    c._pos=pos; c._st=st; c._gh=gh; c._v=0;
+    pos.addEventListener("animationend",function(e){ if(e.animationName==="drop"||e.animationName==="hop"){ this.classList.remove("drop","hop"); this.style.animationDelay="0s"; } });
+    (function(k){ c.onclick=function(){ onCell(k); }; })(i);
+    bd.appendChild(c); boardCells.push(c);
+  }
+}
+function setSide(st,v,anim){
+  if(!anim){
+    st.classList.add("notr"); st.style.transitionDelay="0s";
+    st.classList.toggle("m",v===2);
+    void st.offsetWidth; st.classList.remove("notr");
+  } else st.classList.toggle("m",v===2);
+}
+function restartAnim(pos,cls,delay){
+  pos.classList.remove("drop","hop"); pos.style.animationDelay=(delay||0)+"s";
+  void pos.offsetWidth; pos.classList.add(cls);
+}
+function paintBoard(g,mySide,myTurn){
+  var n=g.n, prev=prevB, L=myTurn?legalMoves(g.b,n,mySide):[], Lset={};
+  L.forEach(function(i){ Lset[i]=1; });
+  if(sel>=0 && !Lset[sel]) sel=-1;
+  var tg={}; if(sel>=0) flipsFor(g.b,n,sel,mySide).forEach(function(i){ tg[i]=1; });
+  var lr=g.last>=0?[Math.floor(g.last/n),g.last%n]:null;
+  var fx={placed:0,flipped:0,removed:0};
+  var bd=$("board");
+  var t=myTurn?mySide:g.turn;
+  bd.classList.toggle("t1",t===1); bd.classList.toggle("t2",t===2); bd.classList.toggle("mine",myTurn);
+  for(var i=0;i<n*n;i++){
+    var c=boardCells[i], v=g.b[i];
+    if(v!==0){
+      if(!c.classList.contains("on")){
+        setSide(c._st,v,false); c.classList.add("on");
+        if(!REDUCED) restartAnim(c._pos,"drop",prev?0:0.05*(i%4));
+        if(prev) fx.placed++;
+      } else if(c._v!==v){
+        var dist=lr?Math.max(Math.abs(Math.floor(i/n)-lr[0]),Math.abs(i%n-lr[1])):1;
+        var d=REDUCED?0:0.1+dist*0.075;
+        c._st.style.transitionDelay=d+"s";
+        setSide(c._st,v,true);
+        if(!REDUCED) restartAnim(c._pos,"hop",d);
+        fx.flipped++;
+      }
+    } else if(c.classList.contains("on")){
+      c.classList.remove("on"); c._pos.classList.remove("drop","hop"); fx.removed++;
+    }
+    c._v=v;
+    c.classList.toggle("hint",HINTS && !!Lset[i] && sel!==i);
+    c.classList.toggle("sel",sel===i);
+    c.classList.toggle("tgt",!!tg[i]);
+    c.classList.toggle("last",g.last===i);
+    if(sel===i) c._gh.className="ghost g"+mySide;
+  }
+  return fx;
+}
+function renderPlay(pub,first){
+  var g=pub.g; if(!g) return;
+  var key=pub.gameNo+":"+g.n;
+  if(key!==boardKey){ buildBoard(g.n); boardKey=key; prevB=null; prevVer=-1; sel=-1; sentVer=-1; prevMine=false; }
+  var mySide=pub.local?g.turn:(g.sunId===myId?1:g.moonId===myId?2:0);
+  var myTurn=pub.phase==="play" && !!mySide && g.turn===mySide && !g.undo;
+  if(g.ver!==prevVer) sel=-1;
+  var fx=paintBoard(g,mySide,myTurn);
+  if(prevB && g.ver!==prevVer){
+    if(fx.placed) SFX.place();
+    if(fx.flipped) SFX.flips(fx.flipped);
+    if(fx.removed && !fx.placed) SFX.back();
+  }
+  paintPlates(pub,g);
+  paintStatus(pub,g,mySide,myTurn);
+  paintActions(pub,g,mySide);
+  paintAsk(pub,g);
+  paintResult(pub,g,first);
+  if(myTurn && !prevMine && !first && !pub.local) SFX.myturn();
+  prevMine=myTurn;
+  prevB=g.b.slice(); prevVer=g.ver;
+  updateTimers();
+}
+function bump(node){ node.classList.remove("bump"); void node.offsetWidth; node.classList.add("bump"); }
+function paintPlates(pub,g){
+  var c=countStones(g.b);
+  [1,2].forEach(function(side){
+    var pid=side===1?g.sunId:g.moonId, p=findP(pub,pid)||{name:"？",wins:0};
+    var box=$("pl-"+side);
+    box.querySelector(".pname").textContent=p.name;
+    var tag=box.querySelector(".ptag");
+    if(pub.local){ tag.textContent=side===1?"先手":"後手"; tag.className="ptag"; }
+    else { tag.textContent=pid===myId?"あなた":"あいて"; tag.className="ptag"+(pid===myId?" me":""); }
+    box.querySelector(".pwins").textContent=p.wins?("★"+p.wins):"";
+    var cnt=side===1?c.sun:c.moon, ce=box.querySelector(".pcount");
+    if(ce.textContent!==String(cnt)){ ce.textContent=cnt; if(prevB) bump(ce); }
+    box.classList.toggle("turn",pub.phase==="play" && g.turn===side);
+    box.classList.toggle("gone",!!p.gone);
+    box.querySelector(".pstate").textContent=p.gone?(p.left?"退出":"接続待ち"):(pub.phase==="result"&&p.ready?"もう一局OK":"");
+  });
+  var tot=c.sun+c.moon;
+  $("bal-sun").style.width=(tot?c.sun/tot*100:50)+"%";
+}
+function paintStatus(pub,g,mySide,myTurn){
+  var box=$("status");
+  if(pub.phase!=="play"){ box.hidden=true; return; }
+  box.hidden=false;
+  box.className="status t"+(myTurn?mySide:g.turn)+(myTurn?" mine":"");
+  var tp=findP(pub,g.turn===1?g.sunId:g.moonId)||{name:"？"};
+  var main="", sub="";
+  var hintText=HINTS?"光っているマスに置けます":"相手の石をはさめるマスを探そう";
+  var again=g.lastSide===g.turn;
+  if(g.undo){
+    if(g.undo.from===myId){ main="「待った」の返事を待っています…"; sub="OKがでると、あなたの前の手までもどります"; }
+    else { main=nameOf(pub,g.undo.from)+" が「待った」をお願い中"; sub="「いいよ」か「だめ」で答えてね"; }
+  } else if(pub.local){
+    main=SIDE_ICON[g.turn]+" "+tp.name+" の番"+(again?"（続けて）":"");
+    sub=sel>=0?"同じマスをもう一度タップで決定":(again?SIDE_ICON[3-g.turn]+" は置ける場所がないのでパス。"+hintText:hintText);
+  } else if(myTurn){
+    main=sel>=0?"ここに置く？":(again?"続けてあなたの番です":"あなたの番です");
+    sub=sel>=0?"同じマスをもう一度タップで決定（ほかのマスで選び直し）":(again?"あいては置ける場所がないのでパスしました":hintText);
+  } else {
+    main=tp.name+(again?" が続けて考えています…":" が考えています…");
+    sub=tp.gone?"接続が切れています。もどってくるのを待っています":(again?"あなたは置ける場所がないのでパスです":"スタンプで話しかけてもいいよ");
+  }
+  $("st-main").textContent=main; $("st-sub").textContent=sub;
+  $("btn-place").hidden=!(myTurn && sel>=0);
+}
+function paintActions(pub,g,mySide){
+  var play=pub.phase==="play";
+  $("actions").hidden=!play;
+  var can=play && !g.undo && (pub.local?g.histAny:!!(mySide && g.hist[mySide]));
+  $("btn-undo").disabled=!can;
+  var rb=$("btn-resign");
+  if(!rb._armed) rb.textContent=pub.local?("降参（"+SIDE_ICON[g.turn]+"）"):"降参";
+  rb.disabled=!play || (!pub.local && !mySide);
+  $("stamp-area").hidden=!!pub.local;
+}
+function paintAsk(pub,g){
+  var on=pub.phase==="play" && !!g.undo && g.undo.from!==myId && !pub.local;
+  $("ask").hidden=!on;
+  if(!on) return;
+  var nm=nameOf(pub,g.undo.from);
+  $("ask-text").textContent="「待った」のお願い";
+  $("ask-sub").textContent=nm+" が、自分の前の手までもどしたいそうです";
+  $("ask-yes").disabled=false; $("ask-no").disabled=false;
+  if(askShownSeq!==g.undo.seq){ askShownSeq=g.undo.seq; SFX.alert(); }
+}
+var REASON={full:"盤がぜんぶ埋まりました",stuck:"2人とも置ける場所がなくなりました",wipe:"相手の石がひとつも残りませんでした"};
+function paintResult(pub,g,first){
+  var box=$("result");
+  if(pub.phase!=="result" || !g.result){ box.hidden=true; resultMin=false; box.classList.remove("min"); return; }
+  box.hidden=false;
+  var r=g.result, cls, title;
+  var sunP=findP(pub,g.sunId)||{name:"？",wins:0}, moonP=findP(pub,g.moonId)||{name:"？",wins:0};
+  if(r.winSide===0){ title="引き分け！"; cls="draw"; }
+  else if(pub.local){ title=SIDE_ICON[r.winSide]+" "+nameOf(pub,r.winId)+" の勝ち！"; cls="win"; }
+  else if(r.winId===myId){ title="あなたの勝ち！"; cls="win"; }
+  else { title=nameOf(pub,r.winId)+" の勝ち…！"; cls="lose"; }
+  $("r-title").textContent=title;
+  $("r-card").className="rcard "+cls+" w"+r.winSide;
+  $("r-n1").textContent=SIDE_ICON[1]+" "+sunP.name; $("r-n2").textContent=SIDE_ICON[2]+" "+moonP.name;
+  $("r-reason").textContent=r.reason==="resign"?(nameOf(pub,r.resigner)+" が降参しました"):REASON[r.reason];
+  var p0=pub.players[0], p1=pub.players[1];
+  $("r-tally").textContent=(p0&&p1)?("通算　"+p0.name+" "+p0.wins+"勝 − "+p1.wins+"勝 "+p1.name):"";
+  var again=$("r-again"), lob=$("r-lobby"), cl=$("r-close"), rd=$("r-ready");
+  if(pub.local){
+    again.textContent="もう一局（先手交代）"; again.disabled=false;
+    lob.textContent="設定にもどる"; lob.hidden=false; cl.textContent="タイトルへ";
+    rd.textContent="";
+  } else {
+    var me=findP(pub,myId), op=null; pub.players.forEach(function(p){ if(p.id!==myId) op=p; });
+    var myR=!!(me&&me.ready), opR=!!(op&&op.ready), opGone=!op||op.gone;
+    again.disabled=opGone;
+    again.textContent=myR?"相手を待っています（取り消す）":(opR?"もう一局やる！":"もう一局（先手交代）");
+    again.className="btn"+(myR?" sub":"");
+    rd.textContent=opGone?(op&&op.left?"あいては部屋を出ました":"あいての接続が切れています")
+                  :opR&&!myR?(op.name+" は「もう一局」を押しています"):myR?(op.name+" が押すと始まります"):"";
+    lob.hidden=S.mode!=="host"; lob.textContent="ロビーへ";
+    cl.textContent=S.mode==="host"?"部屋を閉じる":"部屋を出る";
+  }
+  lob.parentNode.style.gridTemplateColumns=lob.hidden?"1fr":"1fr 1fr";
+  if(resultSeen!==pub.gameNo){
+    resultSeen=pub.gameNo; resultMin=false;
+    countUp($("r-c1"),r.sun); countUp($("r-c2"),r.moon);
+    if(!first){
+      if(cls==="win"){ SFX.fanfare(); confetti(170,{x:0.5,y:0.55}); flash("win"); }
+      else if(cls==="lose"){ SFX.lose(); flash("lose"); }
+      else SFX.confirm();
+    }
+  }
+  box.classList.toggle("min",resultMin);
+  $("r-toggle").textContent=resultMin?"▲ 結果を見る":"▼ 盤面を見る";
+}
+function countUp(node,to){
+  if(REDUCED){ node.textContent=to; return; }
+  var t0=performance.now(), dur=900;
+  (function f(now){ var k=Math.min(1,(now-t0)/dur); node.textContent=Math.round(to*(1-Math.pow(1-k,3))); if(k<1) requestAnimationFrame(f); })(t0);
+}
+
+/* ---- 盤のタップ ---- */
+function onCell(i){
+  ac();
+  if(!V || !V.pub.g || V.pub.phase!=="play") return;
+  var pub=V.pub, g=pub.g;
+  var mySide=pub.local?g.turn:(g.sunId===myId?1:g.moonId===myId?2:0);
+  if(!mySide) return;
+  if(g.undo){ SFX.deny(); return; }
+  if(g.turn!==mySide){ SFX.deny(); toast("いまは相手の番です",null,"ng"); return; }
+  if(!flipsFor(g.b,g.n,i,mySide).length){
+    SFX.deny(); shake(boardCells[i]);
+    if(sel>=0){ sel=-1; repaint(); }
+    return;
+  }
+  if(sel===i){ confirmPlace(); return; }
+  sel=i; SFX.select(); repaint();
+}
+function confirmPlace(){
+  if(!V || !V.pub.g || sel<0) return;
+  var g=V.pub.g;
+  if(sentVer===g.ver) return;
+  if(act({type:"move",idx:sel,ver:g.ver})) sentVer=g.ver;
+}
+
+/* ---- 一時的な知らせ（パス・時間切れ・待った） ---- */
+function showEvents(pub){
+  var list=(pub.evs||[]).filter(function(e){ return e.seq>lastEvSeq; });
+  if(!list.length) return;
+  list.forEach(function(e){ if(e.seq>lastEvSeq) lastEvSeq=e.seq; });
+  list=list.filter(function(e){ return e.age<4000; });
+  list.forEach(function(e,i){ setTimeout(function(){ showEvent(e); },i*1500); });
+}
+function sideName(side){
+  if(!V || !V.pub.g) return "";
+  var g=V.pub.g; return SIDE_ICON[side]+" "+nameOf(V.pub,side===1?g.sunId:g.moonId);
+}
+function showEvent(e){
+  if(!V) return;
+  switch(e.k){
+  case "start":  toast("第"+e.no+"局 はじめ！","☀ "+e.sunName+" が先手です","ok"); SFX.start(); break;
+  case "pass":   toast("パス！",sideName(e.side)+" は置ける場所がありません","warn"); SFX.pass(); break;
+  case "timeout":toast("時間切れ！",sideName(e.side)+" の石をおまかせで置きました","warn"); SFX.expire(); break;
+  case "undoOk": toast("待った成立！",V.pub.local?"1手もどしました":(nameOf(V.pub,e.by)+" の前の手までもどしました"),"ok"); break;
+  case "undoNo": if(e.by===myId){ toast("待ったはダメでした…","このまま続けよう","ng"); SFX.deny(); } else toast("待ったをことわりました",null,"warn"); break;
+  case "undoExp":toast("待ったは時間切れ","このまま続けます","warn"); break;
+  }
+}
+function showReact(pub,rc){
+  var g=pub.g; if(!g) return;
+  var side=rc.from===g.sunId?1:rc.from===g.moonId?2:0; if(!side) return;
+  var st=null; STAMPS.forEach(function(s){ if(s.k===rc.k) st=s; }); if(!st) return;
+  var b=$("pl-"+side).querySelector(".pbubble");
+  b.textContent=st.e+" "+st.t;
+  b.classList.remove("on"); void b.offsetWidth; b.classList.add("on");
+  clearTimeout(b._t); b._t=setTimeout(function(){ b.classList.remove("on"); },2400);
+  SFX.pop(); if(rc.from!==myId) buzz(20);
+}
+
+/* ---- 持ち時間の表示 ---- */
+function updateTimers(){
+  if(!V || !V.pub.g || curScreen!=="play") return;
+  var pub=V.pub, g=pub.g, el0=performance.now()-V.at;
+  var mySide=pub.local?g.turn:(g.sunId===myId?1:g.moonId===myId?2:0);
+  [1,2].forEach(function(side){
+    var box=$("pl-"+side), tm=box.querySelector(".ptimer"), bar=tm.firstChild, sec=box.querySelector(".psec");
+    if(pub.phase!=="play" || !g.total || g.turn!==side){ tm.style.visibility="hidden"; sec.textContent=""; return; }
+    var rem=g.frozen?g.remain:Math.max(0,g.remain-el0);
+    tm.style.visibility="visible";
+    bar.style.transform="scaleX("+Math.max(0,Math.min(1,rem/g.total))+")";
+    tm.classList.toggle("low",rem<=10000);
+    var s=Math.ceil(rem/1000);
+    sec.textContent=g.frozen?"一時停止":(rem<=10000?s+"秒":"");
+    if(side===mySide && !g.frozen && !g.undo && rem<=5000 && rem>0 && s!==lastTick){ lastTick=s; SFX.tick(); }
+  });
+  if(!$("ask").hidden && g.undo){
+    var r=Math.max(0,g.undo.remain-el0);
+    $("ask-count").textContent="あと"+Math.ceil(r/1000)+"秒で「だめ」あつかいになります";
+  }
+}
+
+/* ---- メニュー ---- */
+function armBtn(btn,label2,fn){
+  if(btn._armed){ btn._armed=false; clearTimeout(btn._t); btn.classList.remove("armed"); btn.textContent=btn._orig; fn(); return; }
+  btn._armed=true; btn._orig=btn.textContent; btn.textContent=label2; btn.classList.add("armed"); SFX.alert();
+  btn._t=setTimeout(function(){ btn._armed=false; btn.classList.remove("armed"); btn.textContent=btn._orig; },3000);
+}
+function openMenu(){ paintMenu(); $("menu").hidden=false; }
+function closeMenu(){ $("menu").hidden=true; }
+function closeSheets(){ var a=$("menu"),b=$("ask"); if(a) a.hidden=true; if(b) b.hidden=true; }
+function paintMenu(){
+  var box=$("menu-items"); if(!box) return; box.innerHTML="";
+  var inPlay=!!(V && V.pub && V.pub.phase==="play");
+  function add(label,fn,opt){
+    var b=el("button","btn sub"+(opt&&opt.small?" small":""),label); b.type="button";
+    b.onclick=function(){ if(opt&&opt.danger&&inPlay) armBtn(b,"もう一度押すと確定",fn); else fn(); };
+    box.appendChild(b);
+  }
+  add("遊び方を見る",function(){ closeMenu(); openHowto(); });
+  add("置ける場所の表示："+(HINTS?"ON":"OFF"),function(){ setHints(!HINTS); SFX.select(); });
+  add("音量："+VOL_NAME[VOL],function(){ setVol((VOL+1)%4); paintMenu(); });
+  if(S.mode==="host"){
+    add("ロビーへもどる（設定を変える）",function(){ closeMenu(); act({type:"lobby"}); },{danger:true});
+    add("部屋を閉じる",function(){ closeMenu(); closeRoom(); },{danger:true});
+  } else if(S.mode==="guest"){
+    add("部屋を出る",function(){ closeMenu(); leaveRoom(); },{danger:true});
+  } else if(S.mode==="local"){
+    add("設定にもどる",function(){ closeMenu(); act({type:"lobby"}); },{danger:true});
+    add("タイトルへ",function(){ closeMenu(); goTitle(); },{danger:true});
+  }
+  add("閉じる",closeMenu,{small:true});
+}
+var howtoFrom=null;
+function openHowto(){ howtoFrom=curScreen==="howto"?"title":curScreen; show("howto"); }
+function closeHowto(){ var to=howtoFrom||"title"; howtoFrom=null; show(to); repaint(); updateTimers(); }
+function route(id){ if(curScreen==="howto" && howtoFrom){ howtoFrom=id; return; } show(id); }
+
+/* ============ 1台で遊ぶ ============ */
+function startLocal(){
+  cleanupNet(); clearHost(); clearSession(); msg("title-err",null,null);
+  S.mode="local";
+  S.players=[{id:"p0",name:"プレイヤー1",token:"host",conn:null,gone:false,host:true,color:COLORS[0]},
+             {id:"p1",name:"プレイヤー2",token:"local",conn:null,gone:false,host:false,color:COLORS[1]}];
+  S.nextId=1; myId="p0";
+  show("local"); renderLocalSetup();
+}
+
+/* ============ 参加用のリンクとQR ============ */
+function roomUrl(code){
+  if(location.protocol==="file:") return "";
+  return location.origin+location.pathname+"?r="+code;
+}
+function copyText(text,btn){
+  var done=function(){ if(!btn) return; var old=btn.textContent; btn.textContent="コピーしました"; setTimeout(function(){ btn.textContent=old; },1600); };
+  try{
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text).then(done)["catch"](fallback); return;
+    }
+  }catch(e){}
+  fallback();
+  function fallback(){
+    try{
+      var ta=document.createElement("textarea"); ta.value=text; ta.style.position="fixed"; ta.style.opacity="0";
+      document.body.appendChild(ta); ta.select(); document.execCommand("copy"); document.body.removeChild(ta); done();
+    }catch(e){}
+  }
+}
+function renderCode(code){
+  var box=$("host-code"); box.innerHTML="";
+  String(code||"····").split("").forEach(function(c,i){ var s=el("span",null,c); s.style.setProperty("--i",i); box.appendChild(s); });
+  box.setAttribute("aria-label","あいことば "+(code||""));
+}
+function renderQR(code){
+  var box=$("host-qr"); if(!box) return; box.innerHTML="";
+  var url=roomUrl(code);
+  if(!url){ box.appendChild(el("p","tiny center","このファイルを直接開いているため、QRコードは出せません。ネット上に置くと使えるようになります。")); return; }
+  var svg=null; try{ svg=QR.svg(url,4,"#15123d","#ffffff"); }catch(e){}
+  var card=el("div","qrcard");
+  if(svg){ var w=el("div","qrwrap"); w.innerHTML=svg; card.appendChild(w); }
+  var side=el("div","qrside");
+  side.appendChild(el("div","qrcap","カメラで読むと参加できます"));
+  side.appendChild(el("div","qrlink",url));
+  var cp=el("button","btn sub small","リンクをコピー"); cp.type="button"; cp.onclick=function(){ copyText(url,cp); };
+  side.appendChild(cp);
+  card.appendChild(side);
+  box.appendChild(card);
+}
+
+/* ============ 通信（PeerJS：スマホ同士を直接つなぐ） ============ */
+var ROOM_PREFIX="hiruyoru-v1-";
+var PEER_SRC="https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.4/peerjs.min.js";
+var peer=null, gConn=null, peerLoading=false;
+var myToken=null, roomCode=null, myName="", joined=false;
+var rcActive=false, rcAttempts=0, rcTimer=null, RC_MAX=8;
+var SESS_KEY="hiruyoru.session.v1";
+
+function loadPeer(cb){
+  if(window.Peer) return cb(null);
+  if(peerLoading){ var t=setInterval(function(){ if(window.Peer||!peerLoading){ clearInterval(t); cb(window.Peer?null:new Error("load")); } },200); return; }
+  peerLoading=true;
+  var done=false, fin=function(e){ if(done) return; done=true; peerLoading=false; cb(e); };
+  var s=document.createElement("script"); s.src=PEER_SRC;
+  s.onload=function(){ window.Peer?fin(null):fin(new Error("noglobal")); };
+  s.onerror=function(){ fin(new Error("network")); };
+  document.head.appendChild(s);
+  setTimeout(function(){ if(!window.Peer) fin(new Error("timeout")); },15000);
+}
+function setStatus(w,cls,txt){ var d=$(w+"-dot"),s=$(w+"-status"); if(d)d.className="dot "+cls; if(s)s.textContent=txt; }
+function safeSend(c,o){ try{ if(c&&c.open) c.send(o); }catch(e){} }
+function newToken(){ var s=""; for(var i=0;i<4;i++) s+=Math.floor(Math.random()*0x100000000).toString(36); return s; }
+function saveSession(){ try{ sessionStorage.setItem(SESS_KEY,JSON.stringify({c:roomCode,n:myName,t:myToken,at:Date.now()})); }catch(e){} }
+function loadSession(){
+  try{ var r=sessionStorage.getItem(SESS_KEY), o=r?JSON.parse(r):null;
+       return (o&&o.c&&o.t&&Date.now()-(o.at||0)<3*3600*1000)?o:null; }catch(e){ return null; }
+}
+function clearSession(){ try{ sessionStorage.removeItem(SESS_KEY); }catch(e){} }
+
+/* ---- 接続バー ---- */
+function showNetBar(text,kind,withButtons){
+  var b=$("netbar"); if(!b) return;
+  if(kind==="err" && b.className.indexOf("err")<0) SFX.alert();
+  b.className="on "+(kind||"");
+  b.querySelector(".msg").textContent=text;
+  b.querySelector(".acts").style.display=withButtons?"flex":"none";
+}
+var netbarTimer=null;
+function hideNetBar(delay){
+  clearTimeout(netbarTimer);
+  if(delay){ netbarTimer=setTimeout(function(){ hideNetBar(); },delay); return; }
+  var b=$("netbar"); if(b) b.className="";
+}
+function stopReconnect(){ rcActive=false; rcAttempts=0; if(rcTimer){ clearTimeout(rcTimer); rcTimer=null; } }
+/* 通信を片付けてタイトルにもどせる状態にする */
+function cleanupNet(){
+  stopReconnect(); hideNetBar(); closeSheets();
+  try{ if(peer&&!peer.destroyed) peer.destroy(); }catch(e){}
+  peer=null; gConn=null; joined=false; roomCode=null;
+  S=freshState(); V=null; myId=null;
+  boardKey=""; prevB=null; prevVer=-1; prevMine=false; sel=-1; sentVer=-1;
+  resultSeen=0; resultMin=false; lastEvSeq=-1; lastReactSeq=-1; askShownSeq=-1; howtoFrom=null;
+  var r=$("result"); if(r) r.hidden=true;
+}
+function goTitle(note){
+  cleanupNet(); clearSession(); clearHost();
+  show("title");
+  if(note) setTimeout(function(){ toast(note,null,"ng"); },250);
+}
+function netFail(m){
+  cleanupNet(); clearHost(); show("title");
+  msg("title-err","err-box",m||"通信の準備に失敗しました。電波の良い場所で、もう一度お試しください。");
+}
+
+/* ---- 代表者（部屋を作る） ---- */
+function startHost(){
+  cleanupNet(); clearHost(); clearSession(); msg("title-err",null,null);
+  S.mode="host";
+  var nm=cleanName(savedName(),"プレイヤー1");
+  S.players=[{id:"p0",name:nm,token:"host",conn:null,gone:false,host:true,color:COLORS[0]}];
+  myId="p0";
+  $("host-name").value=savedName();
+  renderCode(null); $("host-qr").innerHTML="";
+  setStatus("host","wait","部屋を準備しています…");
+  show("host");
+  applyView(pubState(),youFor(hostP()));
+  loadPeer(function(err){ if(err){ netFail(); return; } tryHostCode(0); });
+}
+function tryHostCode(a){
+  if(a>6){ netFail("空いている部屋番号が見つかりませんでした。少し待ってからもう一度お試しください。"); return; }
+  var code=String(Math.floor(1000+Math.random()*9000));
+  openHostPeer(code,function(){
+    roomCode=code; renderCode(code); renderQR(code);
+    setStatus("host","ok","参加を待っています");
+    commit();
+  },function(){ tryHostCode(a+1); });
+}
+function openHostPeer(code,onOpen,onTaken){
+  var p;
+  try{ p=new Peer(ROOM_PREFIX+code,{debug:0}); }catch(e){ netFail(); return; }
+  peer=p;
+  var opened=false;
+  p.on("open",function(){
+    if(peer!==p) return;
+    if(opened){ hideNetBar(); setStatus("host","ok",S.phase==="lobby"?"参加を待っています":"接続は復旧しました"); return; }
+    opened=true; onOpen();
+  });
+  p.on("connection",function(c){ if(peer===p) hookGuest(c); });
+  p.on("disconnected",function(){
+    if(!opened||peer!==p) return;
+    showNetBar("回線が不安定です。部屋を復旧しています…","warn",false);
+    try{ if(!p.destroyed) p.reconnect(); }catch(e){}
+  });
+  p.on("error",function(e){
+    if(peer!==p) return;
+    if(!opened && e && e.type==="unavailable-id"){ try{ p.destroy(); }catch(_){ } onTaken(); return; }
+    if(!opened){ netFail(); return; }
+    if(e && e.type==="peer-unavailable") return;
+    setStatus("host","err","通信エラーが起きました");
+  });
+}
+function hookGuest(conn){
+  // data の受け取りは open を待たずに登録する（hello を取りこぼさないため）
+  conn.on("data",function(m){
+    if(!m || typeof m!=="object" || !m.type) return;
+    if(m.type==="hello"){
+      var token=(typeof m.token==="string")?m.token.slice(0,64):"";
+      var back=null;
+      if(token) S.players.forEach(function(p){ if(!p.host && p.token===token) back=p; });
+      if(back){                                        // 同じ人がもどってきた
+        if(back.conn && back.conn!==conn){ try{ back.conn.close(); }catch(e){} }
+        back.conn=conn; back.gone=false; back.left=false;
+        back.name=cleanName(m.name,back.name);
+        safeSend(conn,{type:"welcome",id:back.id,resumed:true});
+        commit();
+        if(S.phase!=="lobby"){ showNetBar(back.name+" がもどってきました","ok",false); hideNetBar(1800); }
+        SFX.join();
+        return;
+      }
+      if(S.phase!=="lobby"){ safeSend(conn,{type:"started"}); setTimeout(function(){ try{ conn.close(); }catch(e){} },500); return; }
+      if(S.players.length>=MAX_PLAYERS){ safeSend(conn,{type:"full"}); setTimeout(function(){ try{ conn.close(); }catch(e){} },500); return; }
+      if(S.players.some(function(p){ return p.conn===conn; })) return;
+      var id="p"+(++S.nextId);
+      var nm=cleanName(m.name,"プレイヤー2");
+      S.players.push({id:id,name:nm,token:token||newToken(),conn:conn,gone:false,host:false,color:freeColor()});
+      safeSend(conn,{type:"welcome",id:id});
+      SFX.join(); commit();
+      toast(nm+" が入りました","対局をはじめられます","ok");
+      return;
+    }
+    var p=null; S.players.forEach(function(x){ if(x.conn===conn) p=x; });
+    if(p) handleAction(p,m);
+  });
+  conn.on("close",function(){
+    var p=null; S.players.forEach(function(x){ if(x.conn===conn) p=x; });
+    if(!p) return;
+    if(S.phase==="lobby"){ S.players=S.players.filter(function(x){ return x!==p; }); }
+    else {
+      p.gone=true; p.conn=null; SFX.leave();
+      if(!p.left) showNetBar(p.name+" の接続が切れました。もどってくるのを待っています","warn",false);
+      hideNetBar(4000);
+    }
+    commit();
+  });
+  conn.on("error",function(){});
+}
+function closeRoom(){
+  S.players.forEach(function(p){ if(p.conn) safeSend(p.conn,{type:"closed"}); });
+  var pr=peer; peer=null;
+  setTimeout(function(){ try{ if(pr&&!pr.destroyed) pr.destroy(); }catch(e){} },400);
+  goTitle();
+}
+/* 代表者がリロードしてしまったときの復旧 */
+function resumeHost(saved){
+  cleanupNet();
+  var st=saved.S; S=freshState();
+  for(var k in st) S[k]=st[k];
+  S.mode="host"; roomCode=saved.code; myId="p0";
+  S.players.forEach(function(p){ p.conn=null; if(!p.host) p.gone=true; });
+  if(S.g && S.g.deadline){ S.g.deadline=Date.now()+Math.max(5000,S.g.deadline-(saved.at||Date.now())); S.g.frozenRem=null; }
+  if(S.g && S.g.undo) S.g.undo.at=Date.now();
+  renderCode(saved.code); renderQR(saved.code);
+  showNetBar("部屋を復旧しています…","warn",false);
+  var tries=0;
+  (function attempt(){
+    loadPeer(function(err){
+      if(err){ netFail(); return; }
+      openHostPeer(saved.code,function(){
+        showNetBar("部屋を復旧しました。あいても自動でもどってきます","ok",false); hideNetBar(2600);
+        setStatus("host","ok",S.phase==="lobby"?"参加を待っています":"接続は復旧しました");
+        commit();
+      },function(){
+        if(++tries>12){ netFail("前の部屋を復旧できませんでした。新しく部屋を作ってください。"); return; }
+        setTimeout(attempt,2500);
+      });
+    });
+  })();
+  applyView(pubState(),youFor(hostP()));
+}
+
+/* ---- 参加者 ---- */
+function handleGuestData(m){
+  if(!m||!m.type) return;
+  if(m.type==="welcome"){ joined=true; myId=m.id; saveSession(); }
+  else if(m.type==="sync"){ joined=true; noteReconnected(); applyView(m.pub,m.you); saveSession(); }
+  else if(m.type==="full") giveUp("この部屋は満員です（2人用です）。");
+  else if(m.type==="started") giveUp("この部屋はもう対局が始まっています。終わってから参加してください。");
+  else if(m.type==="closed") goTitle("代表が部屋を閉じました");
+}
+function noteReconnected(){
+  if(!rcActive) return;
+  stopReconnect(); showNetBar("再接続しました","ok",false); hideNetBar(1600); SFX.join();
+}
+function giveUp(text){
+  cleanupNet(); clearSession();
+  show("join"); $("btn-join").disabled=false; $("join-row").hidden=true;
+  msg("join-err","err-box",text);
+}
+function handleGuestClose(){
+  if(S.mode!=="guest") return;
+  if(joined) startReconnect();
+  else giveUp("代表との接続が切れました。もう一度参加してください。");
+}
+function startReconnect(){
+  if(rcActive) return;
+  rcActive=true; rcAttempts=0; SFX.leave(); attemptReconnect();
+}
+function attemptReconnect(){
+  if(!rcActive) return;
+  if(rcAttempts>=RC_MAX){ rcActive=false; showNetBar("再接続できませんでした","err",true); return; }
+  rcAttempts++;
+  showNetBar("接続が切れました。再接続しています…（"+rcAttempts+"/"+RC_MAX+"）","warn",rcAttempts>2);
+  var wait=rcAttempts===1?400:Math.min(800*Math.pow(1.6,rcAttempts-1),7000);
+  rcTimer=setTimeout(function(){
+    connectToHost(roomCode,myName,myToken,function(){ if(rcActive) attemptReconnect(); });
+  },wait);
+}
+function connectToHost(code,name,token,onFail){
+  var failed=false, fail=function(r){ if(failed) return; failed=true; onFail(r); };
+  loadPeer(function(err){
+    if(err) return fail("net");
+    try{ if(peer&&!peer.destroyed) peer.destroy(); }catch(e){}
+    peer=null; gConn=null; S.mode="guest";
+    var self;
+    try{ self=new Peer(undefined,{debug:0}); }catch(e){ return fail("peer"); }
+    peer=self;
+    var opened=false, settled=false;
+    self.on("open",function(){
+      if(opened||peer!==self) return; opened=true;
+      var c=self.connect(ROOM_PREFIX+code,{reliable:true}); gConn=c;
+      c.on("open",function(){ settled=true; safeSend(c,{type:"hello",name:name,token:token}); });
+      c.on("data",function(m){ if(peer===self) handleGuestData(m); });
+      c.on("close",function(){ if(peer===self && gConn===c) handleGuestClose(); });
+      c.on("error",function(){ if(!settled) fail("noroom"); });
+    });
+    self.on("disconnected",function(){ try{ if(!self.destroyed) self.reconnect(); }catch(e){} });
+    self.on("error",function(e){ if(settled) return; fail(e&&e.type==="peer-unavailable"?"noroom":"other"); });
+    setTimeout(function(){ if(!settled) fail("timeout"); },15000);
+  });
+}
+function startJoin(){
+  var code=($("join-code").value||"").replace(/[^0-9]/g,"");
+  var name=cleanName($("join-name").value,"");
+  msg("join-err",null,null);
+  if(code.length!==4) return msg("join-err","err-box","あいことばを4桁で入力してください。");
+  if(!name) return msg("join-err","err-box","名前を入れてください（8文字まで）。");
+  cleanupNet();
+  roomCode=code; myName=name; myToken=newToken(); rememberName(name);
+  saveSession();
+  $("btn-join").disabled=true; $("join-row").hidden=false;
+  setStatus("join","wait","つないでいます…");
+  connectToHost(code,name,myToken,function(reason){
+    $("btn-join").disabled=false;
+    setStatus("join","err","接続できませんでした");
+    clearSession();
+    msg("join-err","err-box",
+      reason==="noroom" ? "その部屋が見つかりませんでした。あいことばを確かめてください。"
+      : reason==="net"  ? "通信の準備に失敗しました。電波を確認して、もう一度お試しください。"
+      : "接続できませんでした。Wi-Fiをオフにしてモバイル回線で試すと、つながることがあります。");
+  });
+}
+function resumeGuest(s){
+  cleanupNet();
+  roomCode=s.c; myName=s.n||""; myToken=s.t; joined=true; S.mode="guest";
+  $("wait-title").textContent="つないでいます…";
+  $("wait-members").innerHTML=""; $("wait-settings").innerHTML="";
+  show("wait");
+  showNetBar("前の部屋にもどっています…","warn",true);
+  rcActive=true; rcAttempts=0; attemptReconnect();
+}
+function leaveRoom(){
+  if(S.mode==="guest"){ safeSend(gConn,{type:"bye"}); var pr=peer; peer=null; setTimeout(function(){ try{ if(pr&&!pr.destroyed) pr.destroy(); }catch(e){} },300); }
+  goTitle();
+}
+
+/* 状態が変わったら：保存 → 全員に配る → 自分の画面も同じ情報で描く */
+function commit(){
+  if(S.mode==="local"){ applyView(pubState(),youFor(localActor())); return; }
+  if(S.mode!=="host") return;
+  var pub=pubState();
+  S.players.forEach(function(p){
+    if(p.host || !p.conn) return;
+    safeSend(p.conn,{type:"sync",pub:pub,you:youFor(p)});
+  });
+  saveHost();
+  var me=hostP(); if(me) applyView(pub,youFor(me));
+}
+
+/* ---- 代表者の状態を保存（リロードしても部屋を復旧できるように） ---- */
+var HOST_KEY="hiruyoru.host.v1", saveTimer=null;
+function saveHost(){
+  if(S.mode!=="host" || !roomCode) return;
+  try{
+    var data=JSON.stringify({code:roomCode,at:Date.now(),S:S},function(k,v){ return k==="conn"?undefined:v; });
+    sessionStorage.setItem(HOST_KEY,data);
+  }catch(e){}
+}
+function loadHost(){
+  try{ var r=sessionStorage.getItem(HOST_KEY), o=r?JSON.parse(r):null;
+       if(!o||!o.code||!o.S||Date.now()-o.at>3*3600*1000) return null; return o; }catch(e){ return null; }
+}
+function clearHost(){ try{ sessionStorage.removeItem(HOST_KEY); }catch(e){} }
+
+/* ---- 共通の入口：自分の操作を送る（代表者なら自分で処理） ---- */
+function act(m){
+  if(S.mode==="local"){ handleAction(localActor(),m); return true; }
+  if(S.mode==="host"){ handleAction(hostP(),m); return true; }
+  if(S.mode==="guest" && gConn && gConn.open){ safeSend(gConn,m); return true; }
+  toast("接続が切れています","つながり直すまで少し待ってね","ng");
+  return false;
+}
+
+/* ============ QRコード生成（バイトモード・誤り訂正L・型番1〜5） ============ */
+var QR=(function(){
+  var EXP=new Array(512), LOG=new Array(256);
+  (function(){
+    var x=1;
+    for(var i=0;i<255;i++){ EXP[i]=x; LOG[x]=i; x<<=1; if(x&0x100) x^=0x11d; }
+    for(i=255;i<512;i++) EXP[i]=EXP[i-255];
+  })();
+  function mul(a,b){ return (a===0||b===0)?0:EXP[LOG[a]+LOG[b]]; }
+  function genPoly(n){
+    var g=[1],i,j;
+    for(i=0;i<n;i++){
+      var ng=[]; for(j=0;j<=g.length;j++) ng[j]=0;
+      for(j=0;j<g.length;j++){ ng[j]^=g[j]; ng[j+1]^=mul(g[j],EXP[i]); }
+      g=ng;
+    }
+    return g;
+  }
+  function rsEc(data,ecLen){
+    var g=genPoly(ecLen), res=data.slice(), i, j;
+    for(i=0;i<ecLen;i++) res.push(0);
+    for(i=0;i<data.length;i++){
+      var c=res[i]; if(!c) continue;
+      for(j=0;j<g.length;j++) res[i+j]^=mul(g[j],c);
+    }
+    return res.slice(data.length);
+  }
+  // 型番: size / 総コードワード / 誤り訂正コードワード / 位置合わせパターン座標
+  var VER=[null,
+    {s:21,t:26, e:7,  a:0},
+    {s:25,t:44, e:10, a:18},
+    {s:29,t:70, e:15, a:22},
+    {s:33,t:100,e:20, a:26},
+    {s:37,t:134,e:26, a:30}];
+
+  function utf8(str){
+    var out=[], i, c;
+    for(i=0;i<str.length;i++){
+      c=str.charCodeAt(i);
+      if(c<0x80) out.push(c);
+      else if(c<0x800){ out.push(0xc0|(c>>6),0x80|(c&63)); }
+      else if(c>=0xd800&&c<0xdc00&&i+1<str.length){
+        var c2=str.charCodeAt(++i), cp=0x10000+((c-0xd800)<<10)+(c2-0xdc00);
+        out.push(0xf0|(cp>>18),0x80|((cp>>12)&63),0x80|((cp>>6)&63),0x80|(cp&63));
+      }
+      else { out.push(0xe0|(c>>12),0x80|((c>>6)&63),0x80|(c&63)); }
+    }
+    return out;
+  }
+
+  function build(text){
+    var bytes=utf8(text), v, info=null;
+    for(v=1;v<=5;v++){
+      var cap=VER[v].t-VER[v].e-2;      // モード4bit + 文字数8bit = 12bit ≒ 2バイト
+      if(bytes.length<=cap){ info=VER[v]; break; }
+    }
+    if(!info) return null;              // 長すぎる
+    var dataLen=info.t-info.e;
+
+    // ビット列を作る
+    var bits=[], i, j;
+    function push(val,len){ for(var k=len-1;k>=0;k--) bits.push((val>>k)&1); }
+    push(4,4); push(bytes.length,8);
+    for(i=0;i<bytes.length;i++) push(bytes[i],8);
+    var total=dataLen*8;
+    for(i=0;i<4&&bits.length<total;i++) bits.push(0);
+    while(bits.length%8) bits.push(0);
+    var words=[];
+    for(i=0;i<bits.length;i+=8){
+      var b=0; for(j=0;j<8;j++) b=(b<<1)|bits[i+j];
+      words.push(b);
+    }
+    var pad=[0xEC,0x11], p=0;
+    while(words.length<dataLen) words.push(pad[p++%2]);
+    var ec=rsEc(words,info.e);
+    var all=words.concat(ec);
+
+    // 行列を組む
+    var n=info.s, m=[], fn=[];
+    for(i=0;i<n;i++){ m[i]=[]; fn[i]=[]; for(j=0;j<n;j++){ m[i][j]=0; fn[i][j]=0; } }
+    function setF(r,c,v){ if(r<0||c<0||r>=n||c>=n) return; m[r][c]=v; fn[r][c]=1; }
+    function finder(r,c){
+      for(var dr=-1;dr<=7;dr++) for(var dc=-1;dc<=7;dc++){
+        var rr=r+dr, cc=c+dc; if(rr<0||cc<0||rr>=n||cc>=n) continue;
+        var on=(dr>=0&&dr<=6&&(dc===0||dc===6)) || (dc>=0&&dc<=6&&(dr===0||dr===6)) ||
+               (dr>=2&&dr<=4&&dc>=2&&dc<=4);
+        setF(rr,cc,on?1:0);
+      }
+    }
+    finder(0,0); finder(0,n-7); finder(n-7,0);
+    for(i=8;i<n-8;i++){ setF(6,i,(i%2===0)?1:0); setF(i,6,(i%2===0)?1:0); }
+    if(info.a){
+      var a=info.a;
+      for(var dr=-2;dr<=2;dr++) for(var dc=-2;dc<=2;dc++){
+        var on=(Math.abs(dr)===2||Math.abs(dc)===2||(dr===0&&dc===0));
+        setF(a+dr,a+dc,on?1:0);
+      }
+    }
+    setF(n-8,8,1);                                  // 常に黒のモジュール
+    // 形式情報の領域を予約する。(6,8) と (8,6) はタイミングパターンなので触らない。
+    for(i=0;i<9;i++){ if(i!==6){ setF(8,i,0); setF(i,8,0); } }
+    for(i=0;i<8;i++){ setF(8,n-1-i,0); setF(n-1-i,8,0); }
+
+    // データを配置
+    var bitIdx=0, dirUp=true, col;
+    var dataBits=[];
+    for(i=0;i<all.length;i++) for(j=7;j>=0;j--) dataBits.push((all[i]>>j)&1);
+    for(col=n-1;col>0;col-=2){
+      if(col===6) col--;
+      for(var k=0;k<n;k++){
+        var row = dirUp ? (n-1-k) : k;
+        for(var c2=0;c2<2;c2++){
+          var cc2=col-c2;
+          if(fn[row][cc2]) continue;
+          m[row][cc2] = bitIdx<dataBits.length ? dataBits[bitIdx++] : 0;
+        }
+      }
+      dirUp=!dirUp;
+    }
+
+    function maskFn(k,r,c){
+      switch(k){
+        case 0: return (r+c)%2===0;
+        case 1: return r%2===0;
+        case 2: return c%3===0;
+        case 3: return (r+c)%3===0;
+        case 4: return (Math.floor(r/2)+Math.floor(c/3))%2===0;
+        case 5: return ((r*c)%2)+((r*c)%3)===0;
+        case 6: return (((r*c)%2)+((r*c)%3))%2===0;
+        default:return (((r+c)%2)+((r*c)%3))%2===0;
+      }
+    }
+    function fmtBits(mask){
+      var f=(1<<3)|mask;                      // L = 01 → 上位2bit は 0b01
+      var d=f<<10, g=0x537;
+      for(var i2=4;i2>=0;i2--) if(d&(1<<(i2+10))) d^=g<<i2;
+      return ((f<<10)|d)^0x5412;
+    }
+    function putFmt(grid,mask){
+      var b=fmtBits(mask), i2;
+      for(i2=0;i2<15;i2++){
+        var bit=(b>>i2)&1;
+        if(i2<6) grid[i2][8]=bit;
+        else if(i2===6) grid[7][8]=bit;
+        else if(i2===7) grid[8][8]=bit;
+        else if(i2===8) grid[8][7]=bit;
+        else grid[8][14-i2]=bit;
+        if(i2<8) grid[8][n-1-i2]=bit;
+        else grid[n-15+i2][8]=bit;
+      }
+      grid[n-8][8]=1;
+    }
+    function penalty(g){
+      var p=0,i2,j2,run,cnt=0;
+      for(i2=0;i2<n;i2++){
+        run=1;
+        for(j2=1;j2<n;j2++){
+          if(g[i2][j2]===g[i2][j2-1]) run++;
+          else { if(run>=5) p+=3+(run-5); run=1; }
+        }
+        if(run>=5) p+=3+(run-5);
+        run=1;
+        for(j2=1;j2<n;j2++){
+          if(g[j2][i2]===g[j2-1][i2]) run++;
+          else { if(run>=5) p+=3+(run-5); run=1; }
+        }
+        if(run>=5) p+=3+(run-5);
+      }
+      for(i2=0;i2<n-1;i2++) for(j2=0;j2<n-1;j2++){
+        var s=g[i2][j2]+g[i2][j2+1]+g[i2+1][j2]+g[i2+1][j2+1];
+        if(s===0||s===4) p+=3;
+      }
+      var pat=[1,0,1,1,1,0,1,0,0,0,0];
+      var pat2=[0,0,0,0,1,0,1,1,1,0,1];
+      function match(arr,st,p2){ for(var q=0;q<11;q++) if(arr[st+q]!==p2[q]) return false; return true; }
+      for(i2=0;i2<n;i2++){
+        var rowA=g[i2], colA=[];
+        for(j2=0;j2<n;j2++) colA.push(g[j2][i2]);
+        for(j2=0;j2+11<=n;j2++){
+          if(match(rowA,j2,pat)||match(rowA,j2,pat2)) p+=40;
+          if(match(colA,j2,pat)||match(colA,j2,pat2)) p+=40;
+        }
+      }
+      for(i2=0;i2<n;i2++) for(j2=0;j2<n;j2++) if(g[i2][j2]) cnt++;
+      var ratio=cnt*100/(n*n);
+      p+=Math.floor(Math.abs(ratio-50)/5)*10;
+      return p;
+    }
+
+    var best=null, bestP=Infinity, mk;
+    for(mk=0;mk<8;mk++){
+      var g2=[];
+      for(i=0;i<n;i++){ g2[i]=[]; for(j=0;j<n;j++) g2[i][j]=m[i][j]^(fn[i][j]?0:(maskFn(mk,i,j)?1:0)); }
+      putFmt(g2,mk);
+      var p3=penalty(g2);
+      if(p3<bestP){ bestP=p3; best=g2; }
+    }
+    return best;
+  }
+
+  function svg(text,px,dark,light){
+    var g=build(text); if(!g) return null;
+    var n=g.length, q=4, size=(n+q*2)*px, d="", i, j;
+    for(i=0;i<n;i++) for(j=0;j<n;j++) if(g[i][j])
+      d+="M"+((j+q)*px)+" "+((i+q)*px)+"h"+px+"v"+px+"h-"+px+"z";
+    return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 '+size+' '+size+'" width="'+size+'" height="'+size+'" shape-rendering="crispEdges">'+
+           '<rect width="'+size+'" height="'+size+'" fill="'+(light||"#fff")+'"/>'+
+           '<path fill="'+(dark||"#000")+'" d="'+d+'"/></svg>';
+  }
+  return { build:build, svg:svg };
+})();
+
+/* ============ 音（Web Audio で合成。ファイル不要） ============ */
+var VOL_KEY="hiruyoru.vol.v1";
+var VOL_GAIN=[0,0.5,1,1.7], VOL_NAME=["オフ","小","中","大"], VOL_ICON=["🔇","🔈","🔉","🔊"];
+var AC=null, master=null, VOL=2;
+try{ var _v=localStorage.getItem(VOL_KEY); if(_v!==null) VOL=Math.max(0,Math.min(3,parseInt(_v,10)||0)); }catch(e){}
+function ac(){
+  if(VOL<=0) return null;
+  try{
+    if(!AC){
+      var C=window.AudioContext||window.webkitAudioContext; if(!C) return null;
+      AC=new C(); master=AC.createGain(); master.connect(AC.destination);
+    }
+    if(master) master.gain.value=VOL_GAIN[VOL];
+    if(AC.state==="suspended") AC.resume();
+  }catch(e){ AC=null; }
+  return AC;
+}
+function out(){ return master || (AC?AC.destination:null); }
+function tone(f,dur,type,vol,when,slideTo){
+  var c=ac(); if(!c) return;
+  try{
+    var t=c.currentTime+(when||0);
+    var o=c.createOscillator(), g=c.createGain();
+    o.type=type||"sine"; o.frequency.setValueAtTime(f,t);
+    if(slideTo) o.frequency.exponentialRampToValueAtTime(Math.max(30,slideTo),t+dur);
+    g.gain.setValueAtTime(0.0001,t);
+    g.gain.exponentialRampToValueAtTime(vol||0.13,t+0.014);
+    g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+    o.connect(g); g.connect(out());
+    o.start(t); o.stop(t+dur+0.03);
+  }catch(e){}
+}
+function noise(dur,vol,when,ftype,freq){
+  var c=ac(); if(!c) return;
+  try{
+    var t=c.currentTime+(when||0), n=Math.max(1,Math.floor(c.sampleRate*dur));
+    var buf=c.createBuffer(1,n,c.sampleRate), d=buf.getChannelData(0);
+    for(var i=0;i<n;i++) d[i]=(Math.random()*2-1)*(1-i/n);
+    var s=c.createBufferSource(); s.buffer=buf;
+    var g=c.createGain(); g.gain.setValueAtTime(vol||0.1,t);
+    g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+    var f=c.createBiquadFilter(); f.type=ftype||"lowpass"; f.frequency.setValueAtTime(freq||1100,t);
+    s.connect(f); f.connect(g); g.connect(out());
+    s.start(t); s.stop(t+dur+0.02);
+  }catch(e){}
+}
+function swoosh(up,dur,vol){
+  var c=ac(); if(!c) return;
+  try{
+    var t=c.currentTime, n=Math.floor(c.sampleRate*dur);
+    var buf=c.createBuffer(1,n,c.sampleRate), d=buf.getChannelData(0);
+    for(var i=0;i<n;i++) d[i]=(Math.random()*2-1)*(1-Math.abs(i/n-0.4));
+    var s=c.createBufferSource(); s.buffer=buf;
+    var f=c.createBiquadFilter(); f.type="bandpass"; f.Q.value=1.1;
+    f.frequency.setValueAtTime(up?380:2600,t);
+    f.frequency.exponentialRampToValueAtTime(up?2600:380,t+dur);
+    var g=c.createGain();
+    g.gain.setValueAtTime(0.0001,t);
+    g.gain.exponentialRampToValueAtTime(vol||0.06,t+dur*0.35);
+    g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+    s.connect(f); f.connect(g); g.connect(out());
+    s.start(t); s.stop(t+dur+0.03);
+  }catch(e){}
+}
+function buzz(pat){ try{ if(navigator.userActivation && !navigator.userActivation.hasBeenActive) return; if(VOL>0 && navigator.vibrate) navigator.vibrate(pat); }catch(e){} }
+var selStep=0;
+var SFX={
+  tap:     function(){ tone(880,0.032,"square",0.045); },
+  select:  function(){ selStep=(selStep+1)%5; tone(560+selStep*46,0.05,"triangle",0.085);
+                       tone(1120+selStep*70,0.035,"sine",0.035,0.018); buzz(8); },
+  confirm: function(){ tone(587,0.07,"triangle",0.11); tone(880,0.12,"triangle",0.085,0.048);
+                       tone(1319,0.09,"sine",0.04,0.048); buzz(12); },
+  back:    function(){ tone(620,0.06,"triangle",0.075); tone(415,0.1,"triangle",0.065,0.045); },
+  deny:    function(){ tone(190,0.13,"square",0.075,0,130); buzz(24); },
+  screen:  function(){ swoosh(true,0.2,0.04); },
+  place:   function(){ noise(0.06,0.24,0,"lowpass",1300); tone(210,0.11,"sine",0.2,0,120); tone(1400,0.02,"triangle",0.05); buzz(14); },
+  flips:   function(n){ n=Math.min(n,12); for(var i=0;i<n;i++){ tone(620+i*62,0.07,"triangle",0.07,0.12+i*0.075); tone(1240+i*124,0.04,"sine",0.025,0.13+i*0.075); } },
+  myturn:  function(){ tone(784,0.16,"sine",0.1,0.45); tone(1175,0.26,"sine",0.085,0.57); buzz([30,60,30]); },
+  start:   function(){ swoosh(true,0.35,0.06); tone(523,0.14,"triangle",0.1,0.1); tone(784,0.2,"triangle",0.09,0.22); },
+  pass:    function(){ tone(494,0.12,"triangle",0.1); tone(370,0.2,"triangle",0.09,0.11); buzz([30,40,30]); },
+  pop:     function(){ tone(700,0.06,"sine",0.1,0,1300); tone(1500,0.07,"sine",0.05,0.05); },
+  lose:    function(){ [[523,0],[466,.18],[415,.36],[330,.58]].forEach(function(p){ tone(p[0],0.34,"triangle",0.1,p[1]); }); buzz([60,80,120]); },
+  drum:    function(sec){ var n=Math.floor((sec||1.8)/0.05);
+                          for(var i=0;i<n;i++) noise(0.06,0.03+0.1*(i/n),i*0.05,"lowpass",520+300*(i/n));
+                          buzz(Math.round((sec||1.8)*1000)); },
+  fanfare: function(){ [[523,0],[659,.11],[784,.22],[1047,.33],[784,.48],[1047,.58],[1319,.68]]
+                         .forEach(function(p){ tone(p[0],0.32,"triangle",0.125,p[1]); });
+                       tone(1568,0.9,"sine",0.1,0.68); tone(2093,0.9,"sine",0.055,0.68); tone(261,1.0,"triangle",0.07,0.68);
+                       buzz([26,60,26,60,26,60,180]); },
+  tick:    function(){ tone(1250,0.045,"square",0.065); },
+  expire:  function(){ [0,0.18,0.36].forEach(function(d){ tone(880,0.15,"square",0.13,d); tone(660,0.15,"square",0.11,d+0.07); });
+                       buzz([70,50,70,50,70]); },
+  join:    function(){ tone(659,0.1,"sine",0.1); tone(988,0.15,"sine",0.085,0.065); buzz(16); },
+  leave:   function(){ tone(659,0.1,"sine",0.08); tone(440,0.16,"sine",0.07,0.065); },
+  alert:   function(){ tone(520,0.12,"square",0.09); tone(390,0.16,"square",0.08,0.1); buzz([40,50,40]); }
+};
+function setVol(v){
+  VOL=Math.max(0,Math.min(3,v));
+  try{ localStorage.setItem(VOL_KEY,String(VOL)); }catch(e){}
+  if(master && AC) master.gain.value=VOL_GAIN[VOL];
+  paintVol();
+  if(VOL>0){ SFX.confirm(); toast("音量 "+VOL_NAME[VOL],null,"ok"); }
+}
+function paintVol(){
+  var b=$("sndbtn"); if(!b) return;
+  b.className=VOL>0?"on":""; b.textContent=VOL_ICON[VOL];
+  b.setAttribute("aria-label","音量："+VOL_NAME[VOL]);
+}
+
+/* ============ 画面演出 ============ */
+function flash(kind){ var f=$("flash"); if(!f) return; f.className=""; void f.offsetWidth; f.className=kind; }
+var toastTimer=null;
+function toast(main,sub,kind){
+  var t=$("toast"); if(!t) return;
+  t.innerHTML="";
+  var box=el("div","tbox");
+  box.appendChild(el("div","tmain",main));
+  if(sub) box.appendChild(el("div","tsub",sub));
+  t.appendChild(box);
+  t.className=""; void t.offsetWidth; t.className="on "+(kind||"");
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(function(){ t.className=""; },1900);
+}
+function shake(node){
+  if(REDUCED) return;
+  node=node||$("app"); if(!node) return;
+  node.classList.remove("shake"); void node.offsetWidth; node.classList.add("shake");
+  setTimeout(function(){ node.classList.remove("shake"); },520);
+}
+/* 紙吹雪（canvas） */
+var confettiRun=0;
+function confetti(amount,origin){
+  if(REDUCED) return;
+  var cv=$("fx"); if(!cv) return;
+  var ctx=cv.getContext("2d"), dpr=Math.min(2,window.devicePixelRatio||1);
+  var W=cv.width=innerWidth*dpr, H=cv.height=innerHeight*dpr;
+  cv.style.width=innerWidth+"px"; cv.style.height=innerHeight+"px";
+  var cols=["#ffb530","#ffd666","#e4e9ff","#8e9be8","#ff7aa8","#ffffff"];
+  var ox=(origin&&origin.x!=null?origin.x:0.5)*W, oy=(origin&&origin.y!=null?origin.y:0.35)*H;
+  var ps=[], n=amount||140, i;
+  for(i=0;i<n;i++){
+    var a=-Math.PI/2+(Math.random()-0.5)*Math.PI*1.25, sp=(6+Math.random()*11)*dpr;
+    ps.push({x:ox,y:oy,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,w:(5+Math.random()*6)*dpr,h:(8+Math.random()*9)*dpr,
+             r:Math.random()*6,vr:(Math.random()-0.5)*0.35,c:pick(cols),life:0});
+  }
+  var run=++confettiRun, t0=performance.now();
+  (function frame(now){
+    if(run!==confettiRun) return;
+    var el2=now-t0; ctx.clearRect(0,0,W,H);
+    var alive=false;
+    ps.forEach(function(p){
+      p.vy+=0.32*dpr; p.vx*=0.985; p.vy*=0.985; p.x+=p.vx; p.y+=p.vy; p.r+=p.vr;
+      if(p.y<H+40) alive=true;
+      ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.r);
+      ctx.globalAlpha=Math.max(0,1-el2/3200);
+      ctx.fillStyle=p.c; ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h*Math.abs(Math.cos(p.r*1.7)));
+      ctx.restore();
+    });
+    if(alive && el2<3400) requestAnimationFrame(frame); else ctx.clearRect(0,0,W,H);
+  })(t0);
+}
+
+/* ============ 画面が消えないようにする（考え中のロック防止） ============ */
+var wakeLock=null, wantWake=false;
+function keepAwake(on){
+  wantWake=on;
+  try{
+    if(on){
+      if(!navigator.wakeLock || wakeLock) return;
+      navigator.wakeLock.request("screen").then(function(w){
+        wakeLock=w; w.addEventListener("release",function(){ wakeLock=null; });
+      })["catch"](function(){});
+    } else if(wakeLock){ var w=wakeLock; wakeLock=null; try{ w.release(); }catch(e){} }
+  }catch(e){}
+}
+var AWAKE_ON={host:1,wait:1,play:1,local:1};
+var curScreen="title";
+function show(id){
+  var list=document.querySelectorAll(".screen");
+  for(var i=0;i<list.length;i++) list[i].classList.remove("on");
+  var t=$("s-"+id); if(t) t.classList.add("on");
+  keepAwake(!!AWAKE_ON[id]);
+  if(id!==curScreen){ curScreen=id; window.scrollTo(0,0); SFX.screen(); }
+  document.body.setAttribute("data-screen",id);
+  if(id!=="play"){ $("result").hidden=true; closeSheets(); }
+  else if(V && V.pub && V.pub.phase==="result") $("result").hidden=false;
+}
+
+/* ============ 起動 ============ */
+function boot(){
+  paintVol();
+  // スタンプ
+  var sb=$("stamps");
+  STAMPS.forEach(function(s){
+    var b=el("button","stamp",s.e); b.type="button"; b.setAttribute("aria-label",s.t); b.title=s.t;
+    b.onclick=function(){ var now=Date.now(); if(now-reactAt<900) return; reactAt=now; act({type:"react",k:s.k}); };
+    sb.appendChild(b);
+  });
+  // ボタン
+  $("btn-make").onclick=startHost;
+  $("btn-enter").onclick=function(){ msg("join-err",null,null); $("join-row").hidden=true; $("btn-join").disabled=false; if(!$("join-name").value) $("join-name").value=savedName(); show("join"); };
+  $("btn-local").onclick=startLocal;
+  $("btn-howto").onclick=openHowto;
+  $("howto-back").onclick=closeHowto;
+  $("join-back").onclick=function(){ goTitle(); };
+  $("btn-join").onclick=startJoin;
+  $("join-code").addEventListener("input",function(){ var v=this.value.replace(/[^0-9]/g,"").slice(0,4); if(v!==this.value) this.value=v; });
+  $("join-name").addEventListener("keydown",function(e){ if(e.key==="Enter"){ e.preventDefault(); startJoin(); } });
+  $("join-code").addEventListener("keydown",function(e){ if(e.key==="Enter"){ e.preventDefault(); $("join-name").focus(); } });
+  var rnT=null;
+  $("host-name").addEventListener("input",function(){
+    var v=this.value; clearTimeout(rnT);
+    rnT=setTimeout(function(){ var nm=cleanName(v,"プレイヤー1"); rememberName(cleanName(v,"")); act({type:"rename",name:nm}); },350);
+  });
+  $("btn-start").onclick=function(){ act({type:"start"}); };
+  $("btn-host-close").onclick=closeRoom;
+  $("wait-leave").onclick=leaveRoom;
+  $("local-start").onclick=function(){
+    S.players[0].name=cleanName($("local-n1").value,"プレイヤー1");
+    S.players[1].name=cleanName($("local-n2").value,"プレイヤー2");
+    startGame();
+  };
+  $("local-back").onclick=function(){ goTitle(); };
+  $("btn-place").onclick=confirmPlace;
+  $("btn-undo").onclick=function(){ act({type:"undo"}); };
+  $("btn-resign").onclick=function(){ var b=this; armBtn(b,"本当に降参？",function(){ act({type:"resign"}); }); };
+  $("btn-menu").onclick=openMenu;
+  $("menu").addEventListener("click",function(e){ if(e.target===this) closeMenu(); });
+  $("ask-yes").onclick=function(){ if(!V||!V.pub.g||!V.pub.g.undo) return; this.disabled=true; $("ask-no").disabled=true; act({type:"undoAns",ok:true,seq:V.pub.g.undo.seq}); };
+  $("ask-no").onclick=function(){ if(!V||!V.pub.g||!V.pub.g.undo) return; this.disabled=true; $("ask-yes").disabled=true; act({type:"undoAns",ok:false,seq:V.pub.g.undo.seq}); };
+  $("r-toggle").onclick=function(){ resultMin=!resultMin; $("result").classList.toggle("min",resultMin); this.textContent=resultMin?"▲ 結果を見る":"▼ 盤面を見る"; };
+  $("r-again").onclick=function(){ act({type:"again"}); };
+  $("r-lobby").onclick=function(){ act({type:"lobby"}); };
+  $("r-close").onclick=function(){ if(S.mode==="host") closeRoom(); else if(S.mode==="guest") leaveRoom(); else goTitle(); };
+  $("sndbtn").onclick=function(){ setVol((VOL+1)%4); };
+  document.addEventListener("keydown",function(e){ if(e.key==="Escape") closeMenu(); });
+  // 押した瞬間に鳴らす
+  document.addEventListener("pointerdown",function(e){
+    ac();
+    var b=e.target && e.target.closest ? e.target.closest("button") : null;
+    if(!b || b.disabled || b.classList.contains("cell") || b.classList.contains("stamp") || b.id==="sndbtn") return;
+    if(b.classList.contains("sub") || b.classList.contains("segbtn") || b.classList.contains("rtoggle")) SFX.tap();
+    else SFX.select();
+  },{passive:true});
+
+  // URL の部屋番号 → 代表者の復旧 → 参加者の復旧 → タイトル の順
+  var mr=(location.search||"").match(/[?&]r=(\d{4})/);
+  var gs=loadSession(), hs=loadHost();
+  if(mr){
+    try{ history.replaceState(null,"",location.pathname); }catch(e){}
+    if(gs && gs.c===mr[1]){ resumeGuest(gs); }
+    else { $("join-code").value=mr[1]; $("join-name").value=savedName(); show("join"); }
+  } else if(hs){ resumeHost(hs); }
+  else if(gs){ resumeGuest(gs); }
+
+  // 画面にもどったら自動で再接続
+  document.addEventListener("visibilitychange",function(){
+    if(document.visibilityState!=="visible") return;
+    if(wantWake && !wakeLock) keepAwake(true);
+    if(S.mode==="guest" && joined && (!gConn || !gConn.open) && !rcActive) startReconnect();
+  });
+  // 接続バーのボタン
+  var nb=$("netbar");
+  nb.querySelector(".rt").onclick=function(){ if(!roomCode){ hideNetBar(); return; } stopReconnect(); rcActive=true; rcAttempts=0; attemptReconnect(); };
+  nb.querySelector(".lc").onclick=function(){ if(S.mode==="guest") leaveRoom(); else goTitle(); };
+  // 代表者の時間切れ判定（200msごと）
+  setInterval(function(){ hostTick(); updateTimers(); },200);
+}
+boot();
+</script>
+</body>
+</html>
