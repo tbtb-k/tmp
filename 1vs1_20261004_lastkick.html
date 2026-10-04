@@ -702,7 +702,7 @@ function buildStadium(){
     }
     const chunks=4;
     for(let ch=0;ch<chunks;ch++){
-      const m=person.clone('crowd'); m.isVisible=true; m.parent=node; m.isPickable=false;
+      const m=person.clone('crowd'); m.makeGeometryUnique(); m.isVisible=true; m.parent=node; m.isPickable=false; // 複製はジオメトリ共有なので、観客データが上書きされないよう分ける
       const mats=[],cols=[];
       const x0=-width/2+ch*width/chunks, x1=x0+width/chunks;
       for(let r=0;r<rows;r++)for(let x=x0+.35;x<x1-.2;x+=.62){
