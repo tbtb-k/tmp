@@ -589,11 +589,11 @@ const MAT={
   eye:pbr('eye','#0b0b12',{rough:.2,clear:1}),
   shoe:pbr('shoe','#14182a',{rough:.4,clear:.6}),
   concrete:pbr('concrete','#262c45',{rough:.9}),
-  track:pbr('track','#152018',{rough:.95}),
+  track:pbr('track','#1b4a2a',{rough:.95}),
 };
 
 /* ---------- ピッチ（芝と白線を描いたテクスチャ） ---------- */
-const PX0=-26, PX1=26, PZ0=-8, PZ1=44;   // テクスチャが覆う範囲
+const PX0=-26, PX1=26, PZ0=-13, PZ1=46;   // テクスチャが覆う範囲
 function buildPitch(){
   const S=isMobile?1536:2048, W=PX1-PX0, D=PZ1-PZ0, s=S/W;
   const t=new B.DynamicTexture('pitch',{width:S,height:S},scene,true), c=t.getContext();
@@ -695,7 +695,7 @@ function buildStadium(){
   const steps=[];
   // 1つのスタンド：中心(cx,cz)、向き(yaw)、幅、段数
   const stand=(cx,cz,yaw,width,rows,base)=>{
-    const node=new B.TransformNode('stand',scene); node.position.set(cx,0,cz); node.rotation.y=yaw;
+    const node=new B.TransformNode('stand',scene); node.position.set(cx,0,cz); node.rotation.y=yaw; node.computeWorldMatrix(true);
     const wall=B.MeshBuilder.CreateBox('wall',{width,height:base,depth:.6},scene); wall.position.set(0,base/2,0); wall.parent=node; steps.push(wall);
     for(let r=0;r<rows;r++){
       const st=B.MeshBuilder.CreateBox('st',{width,height:.45,depth:.9},scene); st.position.set(0,base+r*.45-.22,-(.75+r*.9)); st.parent=node; steps.push(st);
@@ -767,8 +767,8 @@ const LED=(()=>{
 })();
 buildStadium();
 // ゴール裏のピッチ脇LED
-{const b=B.MeshBuilder.CreatePlane('ledb',{width:30,height:.9},scene);b.position.set(0,.45,-6);b.rotation.y=Math.PI;b.material=LED.mat;b.isPickable=false;
- const bk=B.MeshBuilder.CreateBox('ledbk',{width:30.2,height:.95,depth:.12},scene);bk.position.set(0,.47,-6.08);bk.material=MAT.concrete;bk.isPickable=false;
+{const b=B.MeshBuilder.CreatePlane('ledb',{width:30,height:.9},scene);b.position.set(0,.45,-9.6);b.rotation.y=Math.PI;b.material=LED.mat;b.isPickable=false;
+ const bk=B.MeshBuilder.CreateBox('ledbk',{width:30.2,height:.95,depth:.12},scene);bk.position.set(0,.47,-9.68);bk.material=MAT.concrete;bk.isPickable=false;
  [-1,1].forEach(s=>{const p=B.MeshBuilder.CreatePlane('leds',{width:16,height:.9},scene);p.position.set(s*17,.45,2);p.rotation.y=s*Math.PI/2*.85;p.material=LED.mat;p.isPickable=false})}
 
 // 映り込み用の環境マップ
@@ -1067,11 +1067,11 @@ async function playReveal(R){
       else{poseSad(K,tt);ev.gend=1;if(tt>.4)poseKeeperReady(G,tt*.5)}
       if(!ev.ccam){ev.ccam=1;
         const sub=R.out==='goal'?K:(R.out==='save'?G:K);
-        ev.sub=sub; ev.a0=sub===K?Math.PI*.15:Math.PI*.85;
+        ev.sub=sub; ev.a0=sub===K?Math.PI*.85:Math.PI*.15;
       }
       const sp=ev.sub.n.position.add(ev.sub.pivot.position.multiplyByFloats(1,0,1)), a=ev.a0+tt*.35;
-      const dist=sp.z>5?4.2:5.2;
-      CG.pos.set(sp.x+Math.sin(a)*dist,1.7,sp.z+Math.cos(a)*dist); CG.tgt.set(sp.x,1.15,sp.z); CG.W=1.8;CG.H=1.5;CG.fd=dist;CG.l=1.6;
+      const dist=6.2;
+      CG.pos.set(sp.x+Math.sin(a)*dist,2.0,sp.z+Math.cos(a)*dist); CG.tgt.set(sp.x,1.1,sp.z); CG.W=2.5;CG.H=1.9;CG.fd=dist;CG.l=1.4;
     }
     placeBlob(K); placeBlob(G);
   });
