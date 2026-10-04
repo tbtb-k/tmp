@@ -228,7 +228,7 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--a);outline-offs
 .win-score em{font-style:normal;color:var(--ink3);font-size:36px;margin:0 10px}
 .stats{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:12px}
 .stats div{background:rgba(140,170,255,.07);padding:8px;text-align:center;font-size:11px;font-weight:700;color:var(--ink2);border-top:3px solid var(--tc)}
-.stats b{display:block;font-family:var(--num);font-size:22px;color:var(--ink);font-weight:400;letter-spacing:.06em}
+.stats b{display:block;font-family:var(--num);font-size:22px;line-height:1.15;color:var(--ink);font-weight:400;letter-spacing:.06em}
 .trophy{display:block;width:76px;height:76px;margin:0 auto 2px;filter:drop-shadow(0 0 20px rgba(255,209,102,.6))}
 @media (min-width:760px){
   .sb-name{font-size:15px}
@@ -712,6 +712,7 @@ function buildStadium(){
       }
       m.thinInstanceSetBuffer('matrix',new Float32Array(mats),16);
       m.thinInstanceSetBuffer('color',new Float32Array(cols),4);
+      m.thinInstanceRefreshBoundingInfo(false);
       CROWD.push({m,ph:rnd()*6,amp:0,base:m.position.y});
     }
     // 屋根のふちの光るライン
@@ -1420,7 +1421,7 @@ function showEnd(P){
   const nm=$('#endName'); nm.textContent=P.names[w]; nm.style.setProperty('--rc',TEAMS[w].css);
   $('#endS0').textContent=sc[0]; $('#endS1').textContent=sc[1];
   const st=t=>{const ks=P.kicks.filter(k=>k.t===t),kp=P.kicks.filter(k=>k.t!==t);return {g:ks.filter(k=>k.out==='goal').length,n:ks.length,s:kp.filter(k=>k.out==='save').length,p:ks.filter(k=>k.kq===2).length+kp.filter(k=>k.gq===2).length}};
-  $('#endStats').innerHTML=[0,1].map(t=>{const s=st(t);return `<div style="--tc:${TEAMS[t].css}">${esc(P.names[t])}<b>${s.g}/${s.n} GOAL ・ ${s.s} SAVE</b>PERFECT ${s.p}回</div>`}).join('');
+  $('#endStats').innerHTML=[0,1].map(t=>{const s=st(t);return `<div style="--tc:${TEAMS[t].css}">${esc(P.names[t])}<b>GOAL ${s.g}/${s.n}</b><b>SAVE ${s.s}</b>PERFECT ${s.p}回</div>`}).join('');
   const ag=$('#btnAgain'); ag.disabled=false; ag.textContent='もう1戦';
   setTimeout(()=>{if(V&&V.phase==='end') setModal('endModal')},1800);
 }
