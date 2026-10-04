@@ -173,7 +173,7 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--a);outline-offs
 @keyframes bIn{0%{opacity:0;transform:scale(2.2);filter:blur(10px)}12%{opacity:1;transform:scale(.94);filter:none}20%{transform:scale(1)}82%{opacity:1}100%{opacity:0;transform:scale(1.05)}}
 @keyframes sIn{0%,10%{opacity:0;transform:translateY(10px)}22%{opacity:1;transform:none}82%{opacity:1}100%{opacity:0}}
 #toast{position:fixed;left:50%;top:calc(212px + var(--st));transform:translate(-50%,-10px);opacity:0;pointer-events:none;z-index:30;background:var(--panel2);border:1px solid var(--line2);
-  font-weight:700;font-size:13px;padding:9px 16px;max-width:88vw;text-align:center;transition:opacity .3s,transform .3s}
+  font-weight:700;font-size:13px;padding:9px 16px;width:max-content;max-width:calc(100vw - 32px);text-align:center;transition:opacity .3s,transform .3s}
 #toast.show{opacity:1;transform:translate(-50%,0)}
 #netbar{position:fixed;left:50%;top:calc(6px + var(--st));transform:translate(-50%,-170%);z-index:70;display:flex;align-items:center;gap:8px;max-width:calc(100vw - 20px);
   padding:8px 12px;background:var(--panel2);border:1px solid var(--line2);font-size:12.5px;font-weight:700;line-height:1.4;transition:transform .35s cubic-bezier(.2,1.2,.4,1);box-shadow:var(--sh)}
@@ -239,6 +239,16 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--a);outline-offs
   .dotk{width:11px;height:11px}
   .sb-num{font-size:28px}
 }
+@media (orientation:landscape) and (min-height:501px){
+  #toast{top:calc(116px + var(--st))}
+}
+#rotHint{position:fixed;inset:0;z-index:90;display:none;flex-direction:column;align-items:center;justify-content:center;gap:14px;background:rgba(5,8,22,.94);color:var(--ink);text-align:center;font-weight:700;font-size:16px;padding:20px}
+#rotHint svg{width:64px;height:64px;animation:rotph 2.2s ease-in-out infinite}
+#rotHint small{display:block;color:var(--ink2);font-size:12px;font-weight:500;margin-top:6px}
+@keyframes rotph{0%,25%{transform:rotate(-90deg)}55%,100%{transform:rotate(0)}}
+@media (orientation:landscape) and (max-height:500px){
+  #rotHint{display:flex}
+}
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
 }
@@ -296,6 +306,7 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--a);outline-offs
 
 <div id="banner"><div class="b-main"></div><div class="b-sub"></div><div class="b-q"></div></div>
 <div id="toast" role="status" aria-live="polite"></div>
+<div id="rotHint" aria-live="polite"><svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3" stroke-linejoin="round"><rect x="20" y="6" width="24" height="52" rx="4"/><path d="M28 51h8"/></svg><div>スマホを縦向きにしてね<small>このゲームは縦画面で遊ぶように作ってあるよ</small></div></div>
 <div id="netbar" role="status"><i class="ndot"></i><span class="msg"></span><span class="acts"><button class="rt" type="button">再接続</button><button class="lc" type="button">タイトルへ</button></span></div>
 
 <div class="modal" id="howModal" hidden>
@@ -622,6 +633,7 @@ function buildPitch(){
   return {g,t};
 }
 const PITCH=buildPitch();
+{const d=B.MeshBuilder.CreateDisc('pkmark',{radius:.11,tessellation:28},scene);d.rotation.x=Math.PI/2;d.position.set(0,.004,11);d.material=pbr('pkM','#f5f8ff',{rough:.9});d.receiveShadows=true;d.isPickable=false}
 
 /* ---------- ゴールとネット ---------- */
 const NET={back:null,base:null,ripples:[]};
@@ -1260,6 +1272,12 @@ function renderScore(P){
 const G={modal:null,inTitle:true};
 /* ---------- 選ぶ画面 ---------- */
 const SEL={zone:-1,sp:false,stage:'pick',q:-1,needle:0,dir:1,deadlineLocal:0,locked:false};
+// 選択画面のカメラ。横長の画面では下の操作パネルに隠れないよう、ゴールを少し上・小さめに映す
+function selCam(role){
+  const land=innerWidth>innerHeight*1.15;
+  if(role==='kick') land?shot(new V3(0,2.4,20),new V3(0,-.3,0),4.9,4.67,20,{cut:true}):shot(new V3(0,1.85,16.2),new V3(0,1.15,0),4.9,2.9,16.2,{cut:true});
+  else land?shot(new V3(0,3.0,-10.8),new V3(0,-.25,9),4.1,2.12,10.8,{cut:true}):shot(new V3(0,3.0,-10.8),new V3(0,1.0,9),4.1,2.1,10.8,{cut:true});
+}
 function renderSelect(P){
   const role=myRole(P), key=P.matchNo+'-'+P.kickNo, kt=kickerTeam(P);
   if(key!==selKey){
@@ -1267,8 +1285,7 @@ function renderSelect(P){
     setupKickScene(kt);
     Object.assign(SEL,{zone:-1,sp:false,stage:'pick',q:-1,locked:false});
     // カメラ
-    if(role==='kick') shot(new V3(0,1.85,16.2),new V3(0,1.15,0),4.9,2.9,16.2,{cut:true});
-    else shot(new V3(0,3.0,-10.8),new V3(0,1.0,9),4.1,2.1,10.8,{cut:true});
+    selCam(role);
     const T=TEAMS[ME.team];
     $('#hud').style.setProperty('--tc',T.css); $('#hud').style.setProperty('--tc2',T.css2);
     $('#roleChip').innerHTML=role==='kick'?'<small>あなたは</small>キッカー':'<small>あなたは</small>キーパー';
@@ -1740,7 +1757,7 @@ engine.runRenderLoop(()=>{
   updateZonePositions();
   if(perfT>=0){perfT+=rdt;perfSum+=engine.getFps();perfN++;if(perfT>3){const fps=perfSum/perfN;perfT=perfSum=perfN=0;if(fps<38&&dprCap>1){dprCap=Math.max(1,dprCap-.35);engine.setHardwareScalingLevel(1/dprCap)}}}
 });
-window.addEventListener('resize',()=>engine.resize());
+window.addEventListener('resize',()=>{engine.resize();if(V&&V.phase==='select'&&SCN.mode==='idle'&&selKey)selCam(myRole(V))});
 
 /* ---------- 起動 ---------- */
 toTitleScene();
