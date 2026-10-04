@@ -1,0 +1,1771 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>ラストキック</title>
+<meta name="description" content="夜のスタジアムで蹴るコースと飛ぶ方向を読み合う、3DのPK戦">
+<meta property="og:title" content="ラストキック">
+<meta property="og:description" content="夜のスタジアムで蹴るコースと飛ぶ方向を読み合う、3DのPK戦">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#070b1d">
+<!-- ゲーム棚のラベル（index.html が読みます） -->
+<meta name="game:players" content="2">
+<meta name="game:tags" content="読み合い,対戦">
+<meta name="game:date" content="2026-10-04">
+<meta name="game:time" content="5-10">
+<meta name="game:color" content="#22d3ee">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23070b1d'/%3E%3Cpath d='M10 44V20h44v24' fill='none' stroke='%23eef2ff' stroke-width='4'/%3E%3Cpath d='M14 24h36v20H14z' fill='%2322d3ee' fill-opacity='.18'/%3E%3Ccircle cx='38' cy='34' r='8' fill='%23fff'/%3E%3Cpath d='M38 29l4 3-1.5 4.5h-5L34 32z' fill='%23070b1d'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Zen+Kaku+Gothic+New:wght@500;700;900&display=swap" rel="stylesheet">
+<style>
+/* 夜のスタジアムの中継画面：暗い紺、芝の緑、2チームの色（シアンとフレイム） */
+:root{
+  --bg:#070b1d; --bg2:#0e1430; --panel:rgba(8,13,34,.78); --panel2:rgba(14,22,54,.94);
+  --line:rgba(140,170,255,.22); --line2:rgba(140,170,255,.5);
+  --ink:#eef2ff; --ink2:#aab4dc; --ink3:#6f7aa8;
+  --a:#22d3ee; --a-d:#0e7490; --b:#ff6a3d; --b-d:#b8361a;
+  --gold:#ffd166; --good:#4ade80; --mid:#facc15; --bad:#fb4f6e;
+  --num:"Bebas Neue","Oswald","Impact","Arial Narrow",sans-serif;
+  --jp:"Zen Kaku Gothic New","Hiragino Sans","Noto Sans JP","Noto Sans CJK JP",sans-serif;
+  --st:env(safe-area-inset-top,0px); --sb:env(safe-area-inset-bottom,0px);
+  --sh:0 18px 40px -12px rgba(0,0,0,.75),0 2px 8px rgba(0,0,0,.4);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+[hidden]{display:none!important}
+html,body{margin:0;height:100%;overflow:hidden;overscroll-behavior:none}
+body{font-family:var(--jp);font-weight:500;color:var(--ink);background:radial-gradient(120% 80% at 50% 0%,#1a2456 0%,#070b1d 60%);line-height:1.6;
+  -webkit-text-size-adjust:100%;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+b{font-weight:700}
+button{font:inherit;color:inherit;border:0;background:none;padding:0;cursor:pointer;touch-action:manipulation}
+button:focus-visible,input:focus-visible{outline:3px solid var(--a);outline-offset:2px}
+#c{position:fixed;inset:0;width:100vw;height:100vh;height:100dvh;display:block;touch-action:none;outline:none}
+.layer{position:fixed;inset:0;pointer-events:none}
+.layer>*{pointer-events:auto}
+
+/* 読み込み */
+#loader{position:fixed;inset:0;display:grid;place-items:center;z-index:80;background:radial-gradient(120% 80% at 50% 0%,#1a2456 0%,#070b1d 60%);transition:opacity .6s}
+#loader.out{opacity:0;pointer-events:none}
+.ld{text-align:center;font-weight:700;letter-spacing:.1em;color:var(--ink2)}
+.ld-ball{width:54px;height:54px;margin:0 auto 14px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff,#cfd6ee 60%,#7b86b3);box-shadow:0 0 30px rgba(34,211,238,.5);animation:ldb 1s cubic-bezier(.5,0,.5,1) infinite alternate}
+@keyframes ldb{to{transform:translateY(-16px) rotate(200deg)}}
+
+/* タイトル */
+#title{display:flex;flex-direction:column;justify-content:space-between;align-items:center;text-align:center;padding:calc(34px + var(--st)) 20px calc(22px + var(--sb));transition:opacity .5s,transform .5s}
+#title.out{opacity:0;transform:scale(1.04);pointer-events:none}
+.eyebrow{font-family:var(--num);font-size:15px;letter-spacing:.32em;color:var(--a);padding-left:.32em;text-shadow:0 0 18px rgba(34,211,238,.6)}
+.logo{margin:6px 0 0;font-weight:900;line-height:.9;font-size:clamp(62px,19vw,128px);letter-spacing:-.02em;transform:skewX(-9deg)}
+.logo span{display:block;background:linear-gradient(180deg,#fff 30%,#9ff1ff);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 6px 0 rgba(14,116,144,.9)) drop-shadow(0 18px 30px rgba(34,211,238,.35))}
+.logo span+span{background-image:linear-gradient(180deg,#fff 30%,#ffc2ad);filter:drop-shadow(0 6px 0 rgba(184,54,26,.9)) drop-shadow(0 18px 30px rgba(255,106,61,.35));margin-left:.5em}
+.logo-en{font-family:var(--num);font-size:20px;letter-spacing:.5em;color:rgba(238,242,255,.55);margin-top:10px;padding-left:.5em}
+.tagline{margin:14px 0 0;font-weight:700;font-size:15px;line-height:1.8;color:var(--ink);text-shadow:0 2px 12px rgba(0,0,0,.8)}
+.tagline em{font-style:normal;color:var(--gold)}
+.t-bottom{width:min(360px,100%);display:flex;flex-direction:column;gap:10px}
+.field{display:flex;flex-direction:column;gap:6px;text-align:left}
+.field label{font-size:12px;font-weight:700;color:var(--ink2)}
+.field input{font:inherit;font-size:18px;font-weight:700;color:var(--ink);background:rgba(8,13,34,.7);border:1.5px solid var(--line2);border-radius:12px;padding:11px 14px;outline:none;width:100%;-webkit-user-select:text;user-select:text;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.field input:focus{border-color:var(--a);box-shadow:0 0 0 4px rgba(34,211,238,.18)}
+.field input.code{font-family:var(--num);font-size:40px;letter-spacing:.35em;text-align:center;padding:4px 0 2px .35em}
+.btn{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;padding:13px 18px;font-weight:900;font-size:18px;letter-spacing:.06em;
+  clip-path:polygon(4% 0,100% 0,96% 100%,0 100%);transition:transform .12s,filter .2s,opacity .2s}
+.btn small{font-weight:700;font-size:11px;letter-spacing:.04em;opacity:.85}
+.btn:active:not(:disabled){transform:translateY(2px) scale(.99);filter:brightness(1.1)}
+.btn:disabled{opacity:.4;cursor:default}
+.btn-hot{color:#fff;background:linear-gradient(100deg,#ff8a4c,#ff5a36 55%,#e8361f);box-shadow:inset 0 -3px 0 rgba(0,0,0,.25)}
+.btn-cool{color:#03141a;background:linear-gradient(100deg,#7ff0ff,#22d3ee 60%,#0ec0dc)}
+.btn-ghost{color:var(--ink);background:rgba(140,170,255,.12);font-size:15px;padding:11px}
+.note{font-size:11.5px;line-height:1.6;color:var(--ink2);margin:2px 0 0}
+
+/* 中継の得点表示 */
+#hud{transition:opacity .4s}
+#hud.off{opacity:0}
+#hud.off>*{pointer-events:none!important}
+.scorebar{position:absolute;left:0;right:0;top:calc(8px + var(--st));display:flex;justify-content:center;padding:0 8px;pointer-events:none}
+.sb{display:grid;grid-template-columns:1fr auto 1fr;align-items:stretch;width:min(560px,100%);background:var(--panel);border:1px solid var(--line);
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);box-shadow:var(--sh);clip-path:polygon(2.5% 0,97.5% 0,100% 100%,0 100%)}
+.sb-team{min-width:0;padding:7px 12px 8px;display:flex;flex-direction:column;gap:5px;position:relative}
+.sb-team::before{content:"";position:absolute;left:0;right:0;top:0;height:3px;background:var(--tc)}
+.sb-team.t1{align-items:flex-end;text-align:right}
+.sb-name{display:flex;align-items:center;gap:6px;font-weight:900;font-size:13px;min-width:0;max-width:100%}
+.sb-team.t1 .sb-name{flex-direction:row-reverse}
+.sb-name b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:900}
+.sb-name .you{flex:none;font-family:var(--num);font-size:12px;letter-spacing:.08em;padding:1px 5px 0;background:var(--tc);color:#04101a;line-height:1.2}
+.sb-dots{display:flex;gap:4px;flex-wrap:nowrap}
+.sb-team.t1 .sb-dots{flex-direction:row-reverse}
+.dotk{flex:none;width:13px;height:13px;border-radius:50%;border:2px solid rgba(170,180,220,.45);position:relative;transition:transform .35s}
+.dotk.goal{background:var(--tc);border-color:var(--tc);box-shadow:0 0 10px var(--tc)}
+.dotk.miss{border-color:var(--bad)}
+.dotk.miss::before,.dotk.miss::after{content:"";position:absolute;left:50%;top:50%;width:11px;height:2px;background:var(--bad);border-radius:2px;transform:translate(-50%,-50%) rotate(45deg)}
+.dotk.miss::after{transform:translate(-50%,-50%) rotate(-45deg)}
+.dotk.next{border-color:var(--ink);animation:pulse 1s infinite}
+@keyframes pulse{50%{transform:scale(1.25)}}
+.sb-mid{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:4px 14px 5px;background:rgba(255,255,255,.06)}
+.sb-num{font-family:var(--num);font-size:34px;line-height:1;letter-spacing:.04em;display:flex;gap:8px;align-items:center}
+.sb-num em{font-style:normal;color:var(--ink3);font-size:22px}
+.sb-round{font-family:var(--num);font-size:12px;letter-spacing:.14em;color:var(--gold);line-height:1.1;white-space:nowrap}
+.infobar{position:absolute;left:0;right:0;top:calc(74px + var(--st));display:flex;justify-content:center;align-items:center;gap:8px;padding:0 10px;pointer-events:none;transition:opacity .3s}
+.infobar.hide{opacity:0}
+.role{font-weight:900;font-size:13px;padding:6px 14px 6px 12px;background:var(--tc,#22d3ee);color:#05101c;clip-path:polygon(6% 0,100% 0,94% 100%,0 100%);white-space:nowrap}
+.role small{font-weight:700;font-size:10px;margin-right:4px}
+.opp{font-size:12px;font-weight:700;color:var(--ink2);padding:5px 10px;background:var(--panel);border:1px solid var(--line);white-space:nowrap}
+.opp.ok{color:#04130b;background:var(--good);border-color:transparent}
+.timer{position:relative;width:40px;height:40px;flex:none}
+.timer svg{position:absolute;inset:0;transform:rotate(-90deg)}
+.timer circle{fill:rgba(8,13,34,.8);stroke:var(--gold);stroke-width:3.5;stroke-linecap:round;transition:stroke .3s}
+.timer.hurry circle{stroke:var(--bad)}
+.timer b{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--num);font-size:20px;line-height:1;padding-top:2px}
+.tend{position:absolute;right:10px;top:calc(124px + var(--st));background:var(--panel);border:1px solid var(--line);padding:6px 8px 7px;pointer-events:none;transition:opacity .3s;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.tend.hide{opacity:0}
+.tend-h{font-size:10px;font-weight:700;color:var(--ink2);margin-bottom:4px;white-space:nowrap}
+.tend-g{display:grid;grid-template-columns:repeat(3,22px);grid-template-rows:repeat(2,16px);gap:2px;border:2px solid rgba(238,242,255,.7);border-bottom:0;padding:2px}
+.tend-g i{display:grid;place-items:center;font-style:normal;font-family:var(--num);font-size:12px;line-height:1;background:rgba(140,170,255,.08);color:var(--ink3)}
+.tend-g i.h1{background:rgba(250,204,21,.35);color:#fff}
+.tend-g i.h2{background:rgba(251,79,110,.6);color:#fff}
+
+/* ゴールのマス */
+#zones{position:absolute;inset:0;pointer-events:none}
+.zone{position:absolute;border:2px dashed rgba(238,242,255,.45);background:rgba(34,211,238,.04);pointer-events:auto;transition:background .2s,border-color .2s,opacity .2s;display:grid;place-items:center}
+.zone::after{content:"";width:22px;height:22px;border-radius:50%;border:2px solid rgba(238,242,255,.6);opacity:.7;transition:all .2s}
+.zone.sel{border-style:solid;border-color:var(--tc,#22d3ee);background:color-mix(in srgb,var(--tc,#22d3ee) 26%,transparent);box-shadow:inset 0 0 24px color-mix(in srgb,var(--tc,#22d3ee) 60%,transparent)}
+.zone.sel::after{width:34px;height:34px;border:3px solid #fff;background:radial-gradient(circle,#fff 18%,transparent 22%);opacity:1;animation:aim 1s ease-in-out infinite}
+@keyframes aim{50%{transform:scale(.85)}}
+.zone.off{opacity:.15;pointer-events:none}
+#zones.locked .zone{pointer-events:none}
+#zones.locked .zone:not(.sel){opacity:.12}
+
+/* 操作パネル */
+.sheet{position:absolute;left:0;right:0;bottom:0;padding:12px 14px calc(14px + var(--sb));background:linear-gradient(180deg,transparent,rgba(5,8,22,.92) 26%);display:flex;flex-direction:column;align-items:center;gap:8px;transition:transform .35s cubic-bezier(.2,1,.3,1),opacity .3s}
+.sheet.hide{transform:translateY(110%);opacity:0;pointer-events:none}
+.sh-title{font-weight:900;font-size:20px;letter-spacing:.04em;text-shadow:0 2px 10px rgba(0,0,0,.8)}
+.sh-hint{font-size:12.5px;font-weight:700;color:var(--ink2);margin-top:-6px;text-align:center}
+.sh-row{display:flex;gap:8px;width:min(420px,100%)}
+.special{flex:0 0 42%;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:0;padding:8px 10px;background:rgba(140,170,255,.1);border:1.5px solid var(--line2);text-align:left;transition:all .2s;line-height:1.3}
+.special .sp-t{font-weight:900;font-size:13.5px}
+.special .sp-n{font-size:10.5px;color:var(--ink2);font-weight:700}
+.special.on{background:var(--gold);color:#1a1300;border-color:var(--gold);box-shadow:0 0 22px rgba(255,209,102,.5)}
+.special.on .sp-n{color:#5a4300}
+.special:disabled{opacity:.35}
+.go{flex:1;font-weight:900;font-size:21px;letter-spacing:.08em;color:#fff;background:linear-gradient(100deg,var(--tc2,#ff8a4c),var(--tc,#ff5a36));clip-path:polygon(5% 0,100% 0,95% 100%,0 100%);padding:12px 8px;transition:opacity .2s,transform .1s}
+.go:disabled{opacity:.35}
+.go:active:not(:disabled){transform:scale(.97)}
+.gauge{width:min(420px,100%);display:flex;flex-direction:column;align-items:center;gap:6px}
+.g-bar{position:relative;width:100%;height:34px;border:2px solid rgba(238,242,255,.8);background:linear-gradient(90deg,var(--bad) 0 33%,var(--mid) 33% 45.5%,var(--good) 45.5% 54.5%,var(--mid) 54.5% 67%,var(--bad) 67% 100%);box-shadow:0 0 0 4px rgba(0,0,0,.35)}
+.g-needle{position:absolute;top:-8px;bottom:-8px;width:5px;margin-left:-2.5px;background:#fff;box-shadow:0 0 12px #fff,0 0 2px #000;left:0}
+.g-label{font-weight:900;font-size:16px;letter-spacing:.04em;animation:pulse 1s infinite}
+.locked{display:flex;flex-direction:column;align-items:center;gap:0;padding:4px 0 2px}
+.locked b{font-family:var(--num);font-size:34px;letter-spacing:.08em;line-height:1}
+.locked b.q2{color:var(--good);text-shadow:0 0 18px rgba(74,222,128,.6)}
+.locked b.q1{color:var(--mid)}
+.locked b.q0{color:var(--bad)}
+.locked span{font-size:13px;font-weight:700;color:var(--ink2)}
+.iconbtn{position:absolute;right:10px;bottom:calc(14px + var(--sb));width:42px;height:42px;display:grid;place-items:center;background:var(--panel);border:1px solid var(--line);z-index:2}
+.iconbtn svg{width:20px;height:20px;stroke:var(--ink);fill:none;stroke-width:2.2;stroke-linecap:round}
+#hud.selecting .iconbtn{bottom:auto;top:calc(124px + var(--st));left:10px;right:auto}
+
+/* 演出 */
+#banner{position:fixed;left:0;right:0;top:36%;transform:translateY(-50%);text-align:center;pointer-events:none;z-index:20}
+#banner .b-main{font-family:var(--num);font-size:clamp(70px,24vw,170px);line-height:.9;letter-spacing:.04em;color:#fff;opacity:0;
+  text-shadow:0 0 30px var(--bc,#22d3ee),0 0 80px var(--bc,#22d3ee),0 6px 0 rgba(0,0,0,.4)}
+#banner .b-sub{font-weight:900;font-size:clamp(15px,4.4vw,22px);color:#fff;opacity:0;text-shadow:0 2px 10px rgba(0,0,0,.9);margin-top:6px}
+#banner .b-q{font-family:var(--num);font-size:14px;letter-spacing:.16em;color:var(--ink2);opacity:0;margin-top:4px}
+#banner.show .b-main{animation:bIn 2.2s cubic-bezier(.2,1.4,.3,1) forwards}
+#banner.show .b-sub,#banner.show .b-q{animation:sIn 2.2s ease forwards}
+@keyframes bIn{0%{opacity:0;transform:scale(2.2);filter:blur(10px)}12%{opacity:1;transform:scale(.94);filter:none}20%{transform:scale(1)}82%{opacity:1}100%{opacity:0;transform:scale(1.05)}}
+@keyframes sIn{0%,10%{opacity:0;transform:translateY(10px)}22%{opacity:1;transform:none}82%{opacity:1}100%{opacity:0}}
+#toast{position:fixed;left:50%;top:calc(128px + var(--st));transform:translate(-50%,-10px);opacity:0;pointer-events:none;z-index:30;background:var(--panel2);border:1px solid var(--line2);
+  font-weight:700;font-size:13px;padding:9px 16px;max-width:88vw;text-align:center;transition:opacity .3s,transform .3s}
+#toast.show{opacity:1;transform:translate(-50%,0)}
+#netbar{position:fixed;left:50%;top:calc(6px + var(--st));transform:translate(-50%,-170%);z-index:70;display:flex;align-items:center;gap:8px;max-width:calc(100vw - 20px);
+  padding:8px 12px;background:var(--panel2);border:1px solid var(--line2);font-size:12.5px;font-weight:700;line-height:1.4;transition:transform .35s cubic-bezier(.2,1.2,.4,1);box-shadow:var(--sh)}
+#netbar.on{transform:translate(-50%,0)}
+#netbar .ndot{flex:none;width:8px;height:8px;border-radius:50%;background:var(--mid);animation:pulse 1s infinite}
+#netbar.ok .ndot{background:var(--good);animation:none}
+#netbar.err .ndot{background:var(--bad);animation:none}
+#netbar .acts{display:none;gap:6px;flex:none}
+#netbar .acts button{background:rgba(140,170,255,.16);padding:4px 10px;font-size:11.5px;font-weight:700}
+
+/* モーダル */
+.modal{position:fixed;inset:0;z-index:50;display:grid;place-items:center;padding:16px;background:rgba(3,6,18,.62);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);animation:fade .25s}
+@keyframes fade{from{opacity:0}}
+.card{position:relative;width:min(440px,100%);max-height:calc(100dvh - 32px);overflow:auto;background:linear-gradient(180deg,#141d46,#0b1130);border:1px solid var(--line2);
+  box-shadow:0 30px 70px -20px rgba(0,0,0,.9),inset 0 1px 0 rgba(255,255,255,.08);padding:22px 18px 18px;animation:pop .4s cubic-bezier(.2,1.4,.4,1)}
+@keyframes pop{from{opacity:0;transform:translateY(18px) scale(.95)}}
+.card::before{content:"";position:absolute;left:0;right:0;top:0;height:3px;background:linear-gradient(90deg,var(--a),var(--gold),var(--b))}
+.card h2{margin:0 0 4px;text-align:center;font-weight:900;font-size:21px;letter-spacing:.04em;text-wrap:balance}
+.card .lead{text-align:center;font-size:12.5px;font-weight:700;color:var(--ink2);margin:0 0 12px}
+.card .acts{display:flex;flex-direction:column;gap:10px;margin-top:16px}
+.xbtn{position:absolute;top:10px;right:10px;width:34px;height:34px;display:grid;place-items:center;background:rgba(140,170,255,.12)}
+.xbtn svg{width:14px;height:14px;stroke:var(--ink);stroke-width:2.5;stroke-linecap:round}
+.steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.steps li{display:flex;gap:10px;align-items:flex-start;background:rgba(140,170,255,.07);border-left:3px solid var(--a);padding:9px 11px;font-size:13px;line-height:1.65}
+.steps .n{flex:none;font-family:var(--num);font-size:24px;line-height:1;color:var(--a);width:16px;text-align:center}
+.sec{font-family:var(--num);font-size:16px;letter-spacing:.14em;color:var(--gold);margin:16px 0 6px}
+.rules{display:grid;grid-template-columns:1fr;gap:6px;font-size:12.5px;line-height:1.55}
+.rules div{display:flex;gap:8px;align-items:center;background:rgba(140,170,255,.06);padding:7px 9px}
+.rules i{flex:none;font-style:normal;font-weight:900;font-size:11px;padding:2px 7px;color:#04101a}
+.rules i.g{background:var(--good)}.rules i.y{background:var(--mid)}.rules i.r{background:var(--bad);color:#fff}
+.codebig{display:flex;justify-content:center;gap:8px;margin:6px 0 2px}
+.codebig span{width:56px;height:70px;display:grid;place-items:center;font-family:var(--num);font-size:48px;line-height:1;padding-top:4px;color:var(--a);background:rgba(34,211,238,.08);border:1.5px solid rgba(34,211,238,.5);animation:pop .45s both;animation-delay:calc(var(--i)*70ms)}
+.qrcard{display:flex;gap:12px;align-items:center;margin-top:12px;padding:10px;background:rgba(140,170,255,.07)}
+.qrwrap svg{width:108px;height:108px;display:block}
+.qrside{flex:1;min-width:0;font-size:12px;font-weight:700;line-height:1.5}
+.qrlink{font-size:10.5px;word-break:break-all;color:var(--ink3);margin:4px 0 6px;font-weight:500}
+.btn-sm{display:inline-flex;padding:6px 12px;background:rgba(140,170,255,.16);font-weight:700;font-size:12px}
+.status{display:flex;align-items:center;justify-content:center;gap:8px;font-size:12.5px;font-weight:700;color:var(--ink2);margin:12px 0 0}
+.sdot{width:9px;height:9px;border-radius:50%;background:var(--ink3);flex:none}
+.sdot.wait{background:var(--mid);animation:pulse 1s infinite}
+.sdot.ok{background:var(--good)}
+.sdot.err{background:var(--bad)}
+.vs{display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:center;margin-top:12px}
+.vs .p{min-width:0;padding:10px 8px;text-align:center;border:1.5px dashed var(--line2);font-size:11px;font-weight:700;color:var(--ink2)}
+.vs .p.on{border-style:solid;border-color:var(--tc)}
+.vs .p b{display:block;font-size:16px;font-weight:900;color:var(--tc);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.vs .x{font-family:var(--num);font-size:26px;color:var(--ink3)}
+.err-box{background:rgba(251,79,110,.12);border:1.5px solid var(--bad);padding:8px 10px;font-size:12.5px;font-weight:700;margin-top:10px;color:#ffc2cd}
+.win-name{font-weight:900;font-size:clamp(30px,9vw,44px);text-align:center;line-height:1.2;color:var(--rc);text-shadow:0 0 30px var(--rc);word-break:break-all}
+.win-score{font-family:var(--num);font-size:58px;text-align:center;line-height:1;margin:6px 0 0;letter-spacing:.06em}
+.win-score span:first-child{color:var(--a)}.win-score span:last-child{color:var(--b)}
+.win-score em{font-style:normal;color:var(--ink3);font-size:36px;margin:0 10px}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:12px}
+.stats div{background:rgba(140,170,255,.07);padding:8px;text-align:center;font-size:11px;font-weight:700;color:var(--ink2);border-top:3px solid var(--tc)}
+.stats b{display:block;font-family:var(--num);font-size:22px;color:var(--ink);font-weight:400;letter-spacing:.06em}
+.trophy{display:block;width:76px;height:76px;margin:0 auto 2px;filter:drop-shadow(0 0 20px rgba(255,209,102,.6))}
+@media (min-width:760px){
+  .sb-name{font-size:15px}
+  .dotk{width:15px;height:15px}
+}
+@media (max-width:360px){
+  .sb-team{padding:6px 8px 7px}
+  .dotk{width:11px;height:11px}
+  .sb-num{font-size:28px}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+}
+</style>
+</head>
+<body>
+<canvas id="c" tabindex="-1"></canvas>
+
+<div id="loader"><div class="ld"><div class="ld-ball"></div><div class="ld-text">スタジアムの照明をつけています…</div></div></div>
+
+<section id="title" class="layer" hidden>
+  <div>
+    <div class="eyebrow">PENALTY SHOOTOUT DUEL</div>
+    <h1 class="logo" aria-label="ラストキック"><span>ラスト</span><span>キック</span></h1>
+    <div class="logo-en">LAST KICK</div>
+    <p class="tagline">11メートルの読み合い。<br>蹴るか、<em>止めるか</em>。</p>
+  </div>
+  <div class="t-bottom">
+    <div class="field"><label for="myName">あなたの名前（8文字まで）</label><input id="myName" maxlength="8" autocomplete="nickname" placeholder="なまえ"></div>
+    <button class="btn btn-hot" id="btnHost">部屋を作る<small>あいことばを相手に伝える</small></button>
+    <button class="btn btn-cool" id="btnJoinOpen">部屋に入る<small>あいことば・QRコードで参加</small></button>
+    <button class="btn btn-ghost" id="btnHow">あそびかた</button>
+    <p class="note">スマホ2台で遊ぶゲームだよ。会社や学校のWi-Fiだとつながらないことがあるので、そのときはモバイル回線で。</p>
+    <div id="titleErr"></div>
+  </div>
+</section>
+
+<div id="hud" class="layer off">
+  <div class="scorebar">
+    <div class="sb">
+      <div class="sb-team t0" style="--tc:var(--a)"><div class="sb-name"><b id="nm0"></b><span class="you" hidden>YOU</span></div><div class="sb-dots" id="dots0"></div></div>
+      <div class="sb-mid"><div class="sb-num"><span id="sc0">0</span><em>-</em><span id="sc1">0</span></div><div class="sb-round" id="roundLbl">KICK 1 / 5</div></div>
+      <div class="sb-team t1" style="--tc:var(--b)"><div class="sb-name"><b id="nm1"></b><span class="you" hidden>YOU</span></div><div class="sb-dots" id="dots1"></div></div>
+    </div>
+  </div>
+  <div class="infobar hide" id="infobar">
+    <div class="role" id="roleChip"></div>
+    <div class="opp" id="oppChip">相手：考え中…</div>
+    <div class="timer" id="timer"><svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="17" id="timerRing"></circle></svg><b id="timerNum">15</b></div>
+  </div>
+  <div class="tend hide" id="tend"><div class="tend-h" id="tendH">相手のこれまで</div><div class="tend-g" id="tendG"></div></div>
+  <div id="zones"></div>
+  <div class="sheet hide" id="sheet">
+    <div class="sh-title" id="shTitle">どこに蹴る？</div>
+    <div class="sh-hint" id="shHint">ゴールのマスをタップしてね</div>
+    <div class="sh-row" id="shRow">
+      <button class="special" id="btnSpecial" type="button"><span class="sp-t" id="spT">チップキック</span><span class="sp-n" id="spN">1試合1回</span></button>
+      <button class="go" id="btnGo" type="button" disabled>キック！</button>
+    </div>
+    <div class="gauge" id="gauge" hidden><div class="g-bar" id="gBar"><i class="g-needle" id="gNeedle"></i></div><div class="g-label" id="gLabel">いまだ！でタップ</div></div>
+    <div class="locked" id="locked" hidden><b id="lockQ">PERFECT</b><span id="lockMsg">決定！ 相手を待っています…</span></div>
+  </div>
+  <button class="iconbtn" id="btnMenu" aria-label="メニュー"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+</div>
+
+<div id="banner"><div class="b-main"></div><div class="b-sub"></div><div class="b-q"></div></div>
+<div id="toast" role="status" aria-live="polite"></div>
+<div id="netbar" role="status"><i class="ndot"></i><span class="msg"></span><span class="acts"><button class="rt" type="button">再接続</button><button class="lc" type="button">タイトルへ</button></span></div>
+
+<div class="modal" id="howModal" hidden>
+  <div class="card">
+    <button class="xbtn" data-close aria-label="閉じる"><svg viewBox="0 0 16 16"><path d="M3 3l10 10M13 3L3 13"/></svg></button>
+    <h2>あそびかた</h2>
+    <p class="lead">スマホ2台で遊ぶ、1対1のPK戦</p>
+    <ol class="steps">
+      <li><span class="n">1</span><div><b>キッカーとキーパーを交代しながら5本ずつ蹴る。</b><br>多く決めたほうの勝ち。同点ならサドンデス。</div></li>
+      <li><span class="n">2</span><div><b>キッカーは蹴るマス、キーパーは飛ぶマスを、こっそり同時に選ぶ。</b><br>ゴールは6マス（左・中・右 × 上・下）。</div></li>
+      <li><span class="n">3</span><div><b>最後にタイミングゲージ。</b>まん中の緑で止めると「PERFECT」。キッカーはシュートの強さ、キーパーは反応の速さになる。</div></li>
+      <li><span class="n">4</span><div><b>右上に「相手のこれまで」</b>が出るよ。クセを読んで裏をかこう。</div></li>
+    </ol>
+    <div class="sec">判定のルール</div>
+    <div class="rules">
+      <div><i class="g">セーブ</i>キーパーが同じマスを選んだら、必ず止める</div>
+      <div><i class="y">勝負</i>となりのマスなら、タイミングがキッカーより良ければ止める</div>
+      <div><i class="r">ミス</i>キッカーが赤で止めると、端のマスはゴールを外れる（まん中は弱いシュートになる）</div>
+    </div>
+    <div class="sec">1試合に1回だけの切り札</div>
+    <div class="rules">
+      <div><i class="g">キッカー</i><span><b>チップキック</b>：まん中上にふわっと蹴る。キーパーが左右に飛べば必ず決まるけど、まん中にいると止められる</span></div>
+      <div><i class="g">キーパー</i><span><b>ビッグセーブ</b>：守れる範囲が広がる。となりのマスは必ず止め、ななめも止めやすくなる</span></div>
+    </div>
+    <div class="acts"><button class="btn btn-cool" data-close>わかった！</button></div>
+  </div>
+</div>
+
+<div class="modal" id="hostModal" hidden>
+  <div class="card">
+    <h2>部屋を作ったよ</h2>
+    <p class="lead">相手にこの「あいことば」を伝えてね</p>
+    <div class="codebig" id="hostCode" aria-label="あいことば"></div>
+    <div id="hostQr"></div>
+    <div class="status"><i class="sdot" id="hostDot"></i><span id="hostStatus">部屋を準備しています…</span></div>
+    <div class="vs">
+      <div class="p on" style="--tc:var(--a)"><b id="slot0">あなた</b>シアン</div>
+      <div class="x">VS</div>
+      <div class="p" id="slot1box" style="--tc:var(--b)"><b id="slot1">まだ来ていません</b>フレイム</div>
+    </div>
+    <div class="acts">
+      <button class="btn btn-hot" id="btnStart" disabled>キックオフ</button>
+      <button class="btn btn-ghost" id="btnClose">部屋を閉じる</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="joinModal" hidden>
+  <div class="card">
+    <button class="xbtn" id="joinBack" aria-label="もどる"><svg viewBox="0 0 16 16"><path d="M3 3l10 10M13 3L3 13"/></svg></button>
+    <h2>部屋に入る</h2>
+    <p class="lead">相手から聞いた4桁のあいことばを入れてね</p>
+    <div class="field"><label for="joinCode">あいことば</label><input id="joinCode" class="code" inputmode="numeric" pattern="[0-9]*" maxlength="4" autocomplete="off" placeholder="0000"></div>
+    <div class="field" style="margin-top:10px"><label for="joinName">あなたの名前（8文字まで）</label><input id="joinName" maxlength="8" autocomplete="nickname" placeholder="なまえ"></div>
+    <div class="status" id="joinRow" hidden><i class="sdot wait" id="joinDot"></i><span id="joinStatus">つないでいます…</span></div>
+    <div id="joinErr"></div>
+    <div class="acts"><button class="btn btn-cool" id="btnJoin">参加する</button></div>
+  </div>
+</div>
+
+<div class="modal" id="waitModal" hidden>
+  <div class="card">
+    <h2>つながったよ！</h2>
+    <p class="lead" id="waitLead">相手がキックオフするのを待っています</p>
+    <div class="vs">
+      <div class="p on" style="--tc:var(--a)"><b id="wslot0">ホスト</b>シアン</div>
+      <div class="x">VS</div>
+      <div class="p on" style="--tc:var(--b)"><b id="wslot1">あなた</b>フレイム</div>
+    </div>
+    <div class="acts"><button class="btn btn-ghost" id="btnWaitLeave">退出する</button></div>
+  </div>
+</div>
+
+<div class="modal" id="menuModal" hidden>
+  <div class="card">
+    <button class="xbtn" data-close aria-label="閉じる"><svg viewBox="0 0 16 16"><path d="M3 3l10 10M13 3L3 13"/></svg></button>
+    <h2>メニュー</h2>
+    <p class="lead">通信対戦中は、試合は止まらないよ</p>
+    <div class="acts" style="margin-top:4px">
+      <button class="btn btn-ghost" id="mSound">音：ON</button>
+      <button class="btn btn-ghost" id="mHow">あそびかた</button>
+      <button class="btn btn-ghost" id="mLeave">退出してタイトルへ</button>
+      <button class="btn btn-cool" data-close>試合にもどる</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="endModal" hidden>
+  <div class="card">
+    <svg class="trophy" viewBox="0 0 64 64"><path d="M18 8h28v10c0 9-6 16-14 16S18 27 18 18z" fill="#ffd166"/><path d="M18 12H9c0 8 4 13 11 14M46 12h9c0 8-4 13-11 14" fill="none" stroke="#ffd166" stroke-width="4"/><path d="M28 34h8v10h-8z" fill="#e9a800"/><path d="M20 46h24l3 10H17z" fill="#22d3ee"/></svg>
+    <h2 id="endTitle">WINNER</h2>
+    <div class="win-name" id="endName"></div>
+    <div class="win-score"><span id="endS0">0</span><em>-</em><span id="endS1">0</span></div>
+    <div class="stats" id="endStats"></div>
+    <div class="acts">
+      <button class="btn btn-hot" id="btnAgain">もう1戦</button>
+      <button class="btn btn-ghost" id="btnEndLeave">退出してタイトルへ</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/babylonjs@9.29.0/babylon.js"></script>
+<script>
+(()=>{
+'use strict';
+const $=s=>document.querySelector(s);
+if(!window.BABYLON){$('.ld-text').textContent='3Dエンジンを読み込めませんでした。通信を確認して、もう一度ひらいてね';return}
+const B=BABYLON, V3=B.Vector3, C3=B.Color3, C4=B.Color4;
+
+/* =========================================================
+   設定
+   ========================================================= */
+const TEAMS=[
+  {name:'シアン',  css:'#22d3ee', css2:'#7ff0ff', dark:'#0e7490', kit:{shirt:'#19c6e4',shorts:'#0b1a3a',sock:'#19c6e4',gk:'#c6f432',gkShorts:'#1c2b0e',glove:'#ffffff'}},
+  {name:'フレイム',css:'#ff6a3d', css2:'#ffa37a', dark:'#b8361a', kit:{shirt:'#ff5a33',shorts:'#f2f2f2',sock:'#ff5a33',gk:'#d946ef',gkShorts:'#2a0c31',glove:'#ffe14d'}},
+];
+const GW=3.66, GH=2.44;                 // ゴールの半分の幅と高さ（m）
+const ZX=[-2.45,0,2.45], ZY=[.6,1.76];  // 6マスの中心
+const SPOT=new V3(0,.11,11);
+const SELECT_MS=15000, GRACE_MS=1800, REG=5;
+const Q_NAME=['MISS TIMING','GOOD','PERFECT'];
+
+/* =========================================================
+   小道具
+   ========================================================= */
+const clamp=(v,a,b)=>v<a?a:v>b?b:v;
+const lerp=(a,b,t)=>a+(b-a)*t;
+const ease=t=>1-Math.pow(1-clamp(t,0,1),3);
+const easeIO=t=>{t=clamp(t,0,1);return t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2};
+const hexC=h=>C3.FromHexString(h);
+const lin=h=>C3.FromHexString(h).toLinearSpace();
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function cleanName(s,def){s=String(s||'').replace(/[\u0000-\u001f\u007f<>]/g,'').trim();return [...s].slice(0,8).join('')||def}
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+const waits=[];
+const wait=ms=>new Promise(r=>waits.push({t:ms/1000,r}));
+function updateWaits(dt){for(let i=waits.length-1;i>=0;i--){waits[i].t-=dt;if(waits[i].t<=0){const w=waits.splice(i,1)[0];w.r()}}}
+const tweens=[];
+function tween(dur,fn,{delay=0,ease:e=t=>t,done=null}={}){const tw={t:-delay,dur,fn,e,done};tweens.push(tw);return tw}
+function updateTweens(dt){for(let i=tweens.length-1;i>=0;i--){const tw=tweens[i];tw.t+=dt;if(tw.t<0)continue;const k=Math.min(1,tw.t/tw.dur);tw.fn(tw.e(k),k);if(k>=1){tweens.splice(i,1);tw.done&&tw.done()}}}
+const zoneCol=z=>z%3, zoneRow=z=>(z/3)|0;
+
+/* =========================================================
+   サウンド（その場で合成）
+   ========================================================= */
+const SFX=(()=>{
+  let ctx=null,master=null,noiseBuf=null,muted=false,crowd=null,crowdGain=null;
+  try{muted=localStorage.getItem('lastkick.mute')==='1'}catch(e){}
+  function ensure(){
+    if(ctx){if(ctx.state==='suspended')ctx.resume();return}
+    const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;
+    ctx=new AC();master=ctx.createGain();master.gain.value=muted?0:.8;
+    const comp=ctx.createDynamicsCompressor();master.connect(comp);comp.connect(ctx.destination);
+    noiseBuf=ctx.createBuffer(1,ctx.sampleRate*2,ctx.sampleRate);
+    const d=noiseBuf.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;
+    // 観客のざわめき（ずっと鳴らしておく）
+    crowd=ctx.createBufferSource();crowd.buffer=noiseBuf;crowd.loop=true;
+    const bp=ctx.createBiquadFilter();bp.type='bandpass';bp.frequency.value=700;bp.Q.value=.6;
+    crowdGain=ctx.createGain();crowdGain.gain.value=0;
+    crowd.connect(bp);bp.connect(crowdGain);crowdGain.connect(master);crowd.start();
+  }
+  function tone({f=440,f2=0,type='sine',t=0,dur=.2,vol=.3,att=.005}){
+    if(!ctx||muted)return;
+    const o=ctx.createOscillator(),g=ctx.createGain(),t0=ctx.currentTime+t;
+    o.type=type;o.frequency.setValueAtTime(f,t0);if(f2)o.frequency.exponentialRampToValueAtTime(f2,t0+dur);
+    g.gain.setValueAtTime(0,t0);g.gain.linearRampToValueAtTime(vol,t0+att);g.gain.exponentialRampToValueAtTime(.0001,t0+dur);
+    o.connect(g);g.connect(master);o.start(t0);o.stop(t0+dur+.05);
+  }
+  function noise({t=0,dur=.2,vol=.3,type='bandpass',f=1000,f2=0,q=1,att=.005}){
+    if(!ctx||muted)return;
+    const s=ctx.createBufferSource(),fl=ctx.createBiquadFilter(),g=ctx.createGain(),t0=ctx.currentTime+t;
+    s.buffer=noiseBuf;fl.type=type;fl.Q.value=q;fl.frequency.setValueAtTime(f,t0);if(f2)fl.frequency.exponentialRampToValueAtTime(f2,t0+dur);
+    g.gain.setValueAtTime(0,t0);g.gain.linearRampToValueAtTime(vol,t0+att);g.gain.exponentialRampToValueAtTime(.0001,t0+dur);
+    s.connect(fl);fl.connect(g);g.connect(master);s.start(t0,Math.random()*1.5);s.stop(t0+dur+.05);
+  }
+  function crowdLevel(v,sec=.6){if(!ctx)return;const g=crowdGain.gain;g.cancelScheduledValues(ctx.currentTime);g.setTargetAtTime(muted?0:v,ctx.currentTime,sec/3)}
+  return {
+    ensure,get muted(){return muted},crowdLevel,
+    setMuted(m){muted=m;try{localStorage.setItem('lastkick.mute',m?'1':'0')}catch(e){}if(master)master.gain.value=m?0:.8},
+    click(){tone({f:900,f2:700,type:'triangle',dur:.06,vol:.12})},
+    pick(){tone({f:640,dur:.08,vol:.14});tone({f:960,t:.04,dur:.1,vol:.1})},
+    whistle(long){const d=long?.9:.45;for(let i=0;i<2;i++){const t=i*(d+.08);tone({f:2900,type:'sine',t,dur:d,vol:.16,att:.02});tone({f:3150,type:'sine',t,dur:d,vol:.08,att:.02})}},
+    kick(p){noise({type:'lowpass',f:900,f2:200,dur:.12,vol:.5+.3*p});tone({f:150,f2:60,dur:.12,vol:.4})},
+    net(){noise({type:'bandpass',f:2400,f2:900,q:.7,dur:.5,vol:.35})},
+    post(){[1400,2150,3020].forEach((f,i)=>tone({f,type:'triangle',t:i*.005,dur:1.1-i*.2,vol:.18/(i+1)}))},
+    glove(){noise({type:'lowpass',f:700,f2:150,dur:.14,vol:.55});tone({f:110,f2:60,dur:.15,vol:.3})},
+    roar(){noise({type:'bandpass',f:500,f2:1200,q:.5,dur:2.8,vol:.55,att:.25});noise({type:'bandpass',f:1600,f2:2200,q:.8,dur:2.2,vol:.2,att:.3})},
+    oh(){noise({type:'bandpass',f:900,f2:300,q:.8,dur:1.4,vol:.4,att:.15})},
+    tick(){tone({f:1500,type:'square',dur:.03,vol:.04})},
+    beep(hi){tone({f:hi?1320:880,type:'square',dur:.09,vol:.06})},
+    lock(q){[523,659,784].slice(0,q+1).forEach((f,i)=>tone({f:f*(q===2?1.5:1),type:'triangle',t:i*.06,dur:.2,vol:.13}))},
+    win(){[523,659,784,1047,784,1047].forEach((f,i)=>tone({f,type:'triangle',t:i*.11,dur:i===5?1:.24,vol:.13}))},
+    join(){tone({f:659,dur:.1,vol:.1});tone({f:988,t:.065,dur:.15,vol:.085})},
+    leave(){tone({f:659,dur:.1,vol:.08});tone({f:440,t:.065,dur:.16,vol:.07})},
+    alert(){tone({f:520,type:'square',dur:.12,vol:.07});tone({f:390,type:'square',t:.1,dur:.16,vol:.06})},
+  };
+})();
+const buzz=ms=>{try{if(navigator.userActivation&&!navigator.userActivation.hasBeenActive)return;if(!SFX.muted&&navigator.vibrate)navigator.vibrate(ms)}catch(e){}};
+
+/* =========================================================
+   3Dの基本
+   ========================================================= */
+const canvas=$('#c');
+const isMobile=/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)||(navigator.maxTouchPoints>1&&Math.min(innerWidth,innerHeight)<820);
+const engine=new B.Engine(canvas,true,{stencil:true,antialias:true,powerPreference:'high-performance'},false);
+let dprCap=Math.min(window.devicePixelRatio||1,2);
+engine.setHardwareScalingLevel(1/dprCap);
+const scene=new B.Scene(engine);
+scene.skipPointerMovePicking=true;
+scene.clearColor=new C4(.01,.015,.05,1);
+
+const cam=new B.UniversalCamera('cam',new V3(0,2,16),scene);
+cam.minZ=.1; cam.maxZ=900; cam.inputs.clear(); cam.fovMode=B.Camera.FOVMODE_VERTICAL_FIXED;
+// カメラは「位置・注視点・写したい範囲」で決める（縦長でも横長でも収まるように）
+const CS={pos:new V3(0,8,30),tgt:new V3(0,1,4),W:10,H:6,fd:20};
+const CG={pos:CS.pos.clone(),tgt:CS.tgt.clone(),W:10,H:6,fd:20,l:2.5};
+let shakeAmp=0;
+function shot(pos,tgt,W,H,fd,{cut=false,l=2.5}={}){
+  CG.pos.copyFrom(pos);CG.tgt.copyFrom(tgt);CG.W=W;CG.H=H;CG.fd=fd||V3.Distance(pos,tgt);CG.l=l;
+  if(cut){CS.pos.copyFrom(pos);CS.tgt.copyFrom(tgt);CS.W=W;CS.H=H;CS.fd=CG.fd}
+}
+function updateCamera(dt){
+  const k=1-Math.exp(-CG.l*dt);
+  V3.LerpToRef(CS.pos,CG.pos,k,CS.pos);V3.LerpToRef(CS.tgt,CG.tgt,k,CS.tgt);
+  CS.W=lerp(CS.W,CG.W,k);CS.H=lerp(CS.H,CG.H,k);CS.fd=lerp(CS.fd,CG.fd,k);
+  const aspect=engine.getRenderWidth()/engine.getRenderHeight();
+  cam.fov=2*Math.atan(Math.max(CS.H,CS.W/aspect)/CS.fd);
+  shakeAmp=Math.max(0,shakeAmp-dt*2.2);const s=shakeAmp*shakeAmp*.25;
+  cam.position.set(CS.pos.x+(Math.random()-.5)*s,CS.pos.y+(Math.random()-.5)*s,CS.pos.z+(Math.random()-.5)*s);
+  cam.setTarget(CS.tgt);
+}
+
+// 夜空
+B.Effect.ShadersStore.nskyVertexShader=`precision highp float;attribute vec3 position;uniform mat4 worldViewProjection;varying vec3 vP;void main(){vP=position;gl_Position=worldViewProjection*vec4(position,1.);}`;
+B.Effect.ShadersStore.nskyFragmentShader=`precision highp float;varying vec3 vP;
+float h(vec3 p){p=fract(p*.3183099+.1);p*=17.;return fract(p.x*p.y*p.z*(p.x+p.y+p.z));}
+void main(){vec3 d=normalize(vP);float y=d.y;
+vec3 top=vec3(.006,.01,.035),hor=vec3(.05,.07,.2),glow=vec3(.16,.12,.32);
+vec3 c=mix(hor,top,smoothstep(0.,.55,y));c+=glow*pow(1.-abs(y),6.)*.6;
+vec3 g=floor(d*260.);float s=h(g);c+=vec3(1.)*step(.9975,s)*smoothstep(.05,.3,y)*(.6+.4*h(g+3.));
+if(y<0.)c=mix(hor,vec3(.01,.012,.03),smoothstep(0.,-.3,y));
+gl_FragColor=vec4(c,1.);}`;
+const skyMat=new B.ShaderMaterial('nsky',scene,{vertex:'nsky',fragment:'nsky'},{attributes:['position'],uniforms:['worldViewProjection']});
+skyMat.backFaceCulling=false;
+const sky=B.MeshBuilder.CreateSphere('sky',{diameter:800,segments:24,sideOrientation:B.Mesh.BACKSIDE},scene);
+sky.material=skyMat; sky.infiniteDistance=true; sky.isPickable=false;
+
+// 光（照明塔の白い光＋空のあおい反射）
+const hemi=new B.HemisphericLight('hemi',new V3(0,1,0),scene);
+hemi.intensity=.5; hemi.diffuse=hexC('#b9c8ff'); hemi.groundColor=hexC('#24365a'); hemi.specular=C3.Black();
+const keyDir=new V3(.3,-1,-.5).normalize();
+const key=new B.DirectionalLight('key',keyDir,scene);
+key.position=keyDir.scale(-40); key.intensity=2.6; key.diffuse=hexC('#f4f7ff');
+key.autoUpdateExtends=false; key.orthoLeft=-16; key.orthoRight=16; key.orthoTop=18; key.orthoBottom=-18; key.shadowMinZ=1; key.shadowMaxZ=90;
+const sg=new B.ShadowGenerator(isMobile?1024:2048,key);
+sg.usePercentageCloserFiltering=true; sg.filteringQuality=B.ShadowGenerator.QUALITY_MEDIUM; sg.bias=.002; sg.normalBias=.015; sg.setDarkness(.35);
+const rim=new B.DirectionalLight('rim',new V3(-.4,-.5,.7).normalize(),scene); rim.intensity=.9; rim.diffuse=hexC('#9fb8ff'); rim.specular=hexC('#6b7fc2');
+
+const pipe=new B.DefaultRenderingPipeline('pipe',true,scene,[cam]);
+if(engine.webGLVersion>=2){pipe.samples=isMobile?2:4}else{pipe.fxaaEnabled=true}
+pipe.bloomEnabled=true; pipe.bloomThreshold=.72; pipe.bloomWeight=.55; pipe.bloomKernel=isMobile?40:72; pipe.bloomScale=.5;
+pipe.imageProcessingEnabled=true;
+const ip=pipe.imageProcessing;
+ip.toneMappingEnabled=true; ip.toneMappingType=B.ImageProcessingConfiguration.TONEMAPPING_ACES; ip.exposure=1.25; ip.contrast=1.12;
+ip.vignetteEnabled=true; ip.vignetteWeight=2.2; ip.vignetteStretch=.3; ip.vignetteColor=new C4(.0,.02,.08,0); ip.vignetteCameraFov=.7;
+
+/* ---------- 材質 ---------- */
+function pbr(name,hex,{rough=.5,metal=0,clear=0,emis=null,emisI=1}={}){
+  const m=new B.PBRMaterial(name,scene); m.albedoColor=lin(hex); m.roughness=rough; m.metallic=metal;
+  if(clear){m.clearCoat.isEnabled=true;m.clearCoat.intensity=clear;m.clearCoat.roughness=.08}
+  if(emis){m.emissiveColor=lin(emis);m.emissiveIntensity=emisI}
+  return m;
+}
+function glowMat(name,hex,alpha=1,add=false){
+  const m=new B.StandardMaterial(name,scene); m.disableLighting=true; m.emissiveColor=lin(hex); m.alpha=alpha; m.backFaceCulling=false;
+  if(add) m.alphaMode=B.Constants.ALPHA_ADD; return m;
+}
+function radialTex(name,stops,size=128){
+  const t=new B.DynamicTexture(name,{width:size,height:size},scene,false), c=t.getContext();
+  const g=c.createRadialGradient(size/2,size/2,0,size/2,size/2,size/2); stops.forEach(([o,col])=>g.addColorStop(o,col));
+  c.fillStyle=g; c.fillRect(0,0,size,size); t.update(); t.hasAlpha=true; return t;
+}
+const dotTex=radialTex('dot',[[0,'rgba(255,255,255,1)'],[.3,'rgba(255,255,255,.8)'],[1,'rgba(255,255,255,0)']],64);
+const MAT={
+  white:pbr('white','#f4f6ff',{rough:.35,clear:.5,emis:'#ffffff',emisI:.06}),
+  frame:pbr('frame','#9aa3bf',{rough:.4,metal:.8}),
+  skin:pbr('skin','#e8b48c',{rough:.6}),
+  skin2:pbr('skin2','#b9805a',{rough:.6}),
+  hair:pbr('hair','#1d1a26',{rough:.8}),
+  hair2:pbr('hair2','#6a3b22',{rough:.8}),
+  eye:pbr('eye','#0b0b12',{rough:.2,clear:1}),
+  shoe:pbr('shoe','#14182a',{rough:.4,clear:.6}),
+  concrete:pbr('concrete','#262c45',{rough:.9}),
+  track:pbr('track','#152018',{rough:.95}),
+};
+
+/* ---------- ピッチ（芝と白線を描いたテクスチャ） ---------- */
+const PX0=-26, PX1=26, PZ0=-8, PZ1=44;   // テクスチャが覆う範囲
+function buildPitch(){
+  const S=isMobile?1536:2048, W=PX1-PX0, D=PZ1-PZ0, s=S/W;
+  const t=new B.DynamicTexture('pitch',{width:S,height:S},scene,true), c=t.getContext();
+  const P=(x,z)=>[(x-PX0)*s,(z-PZ0)*s];
+  // 刈りこみのしま模様
+  for(let i=0;i*5.5<D+6;i++){
+    const z=PZ0+i*5.5; const [,y]=P(0,z);
+    c.fillStyle=i%2?'#2f8f43':'#287d3a'; c.fillRect(0,y,S,5.5*s+1);
+  }
+  // 芝のこまかいムラ
+  const rnd=mulberry32(11);
+  for(let i=0;i<9000;i++){c.fillStyle=`rgba(${rnd()<.5?'0,0,0':'255,255,255'},${rnd()*.05})`;c.fillRect(rnd()*S,rnd()*S,2+rnd()*4,2+rnd()*4)}
+  c.strokeStyle='rgba(245,248,255,.92)'; c.lineWidth=.12*s; c.lineCap='round';
+  const line=(x1,z1,x2,z2)=>{c.beginPath();c.moveTo(...P(x1,z1));c.lineTo(...P(x2,z2));c.stroke()};
+  line(PX0,0,PX1,0);                                      // ゴールライン
+  line(-20.16,0,-20.16,16.5);line(20.16,0,20.16,16.5);line(-20.16,16.5,20.16,16.5); // ペナルティエリア
+  line(-9.16,0,-9.16,5.5);line(9.16,0,9.16,5.5);line(-9.16,5.5,9.16,5.5);         // ゴールエリア
+  c.beginPath();c.arc(...P(0,11),9.15*s,Math.asin(5.5/9.15)+.0,Math.PI-Math.asin(5.5/9.15));c.stroke();   // ペナルティアーク
+  c.fillStyle='rgba(245,248,255,.95)';c.beginPath();c.arc(...P(0,11),.16*s,0,Math.PI*2);c.fill();          // PKマーク
+  t.update(); t.anisotropicFilteringLevel=8;
+  const g=B.MeshBuilder.CreateGround('pitch',{width:W,height:D},scene);
+  g.position.set((PX0+PX1)/2,0,(PZ0+PZ1)/2);
+  const m=pbr('pitchM','#ffffff',{rough:.92}); m.albedoTexture=t; g.material=m; g.receiveShadows=true; g.isPickable=false;
+  t.vScale=-1; t.vOffset=1; // 上下を合わせる
+  const out=B.MeshBuilder.CreateGround('out',{width:220,height:220},scene); out.position.set(0,-.02,18); out.material=MAT.track; out.isPickable=false;
+  return {g,t};
+}
+const PITCH=buildPitch();
+
+/* ---------- ゴールとネット ---------- */
+const NET={back:null,base:null,ripples:[]};
+function netTex(){
+  const t=new B.DynamicTexture('netT',{width:128,height:128},scene,true), c=t.getContext();
+  c.clearRect(0,0,128,128); c.strokeStyle='rgba(240,244,255,.95)'; c.lineWidth=5;
+  for(let i=0;i<=128;i+=64){c.beginPath();c.moveTo(i,0);c.lineTo(i,128);c.stroke();c.beginPath();c.moveTo(0,i);c.lineTo(128,i);c.stroke()}
+  t.update(); t.hasAlpha=true; t.wrapU=t.wrapV=B.Texture.WRAP_ADDRESSMODE; return t;
+}
+function quadMesh(name,pts,uvs,mat,sub=null){
+  // pts: [p00,p10,p11,p01] (V3)。subがあれば格子に分ける
+  const nx=sub?sub[0]:1, ny=sub?sub[1]:1, pos=[],uv=[],ind=[];
+  for(let j=0;j<=ny;j++)for(let i=0;i<=nx;i++){
+    const u=i/nx,v=j/ny;
+    const a=V3.Lerp(pts[0],pts[1],u), b=V3.Lerp(pts[3],pts[2],u), p=V3.Lerp(a,b,v);
+    pos.push(p.x,p.y,p.z); uv.push(lerp(uvs[0],uvs[2],u),lerp(uvs[1],uvs[3],v));
+  }
+  for(let j=0;j<ny;j++)for(let i=0;i<nx;i++){const a=j*(nx+1)+i,b=a+1,c=a+nx+1,d=c+1;ind.push(a,c,b,b,c,d)}
+  const vd=new B.VertexData(); vd.positions=pos; vd.indices=ind; vd.uvs=uv; const n=[]; B.VertexData.ComputeNormals(pos,ind,n); vd.normals=n;
+  const m=new B.Mesh(name,scene); vd.applyToMesh(m,!!sub); m.material=mat; m.isPickable=false; return m;
+}
+function buildGoal(){
+  const g=new B.TransformNode('goal',scene);
+  const bar=(a,b,r,mat)=>{const d=b.subtract(a),L=d.length();const m=B.MeshBuilder.CreateCylinder('bar',{diameter:r*2,height:L,tessellation:14},scene);
+    m.position=a.add(d.scale(.5));const up=new V3(0,1,0),ax=V3.Cross(up,d.normalize());const ang=Math.acos(clamp(V3.Dot(up,d.normalize()),-1,1));
+    if(ax.length()>1e-6) m.rotationQuaternion=B.Quaternion.RotationAxis(ax.normalize(),ang);m.material=mat;m.parent=g;m.isPickable=false;return m};
+  const posts=[bar(new V3(-GW,0,0),new V3(-GW,GH,0),.06,MAT.white),bar(new V3(GW,0,0),new V3(GW,GH,0),.06,MAT.white),bar(new V3(-GW-.06,GH,0),new V3(GW+.06,GH,0),.06,MAT.white)];
+  posts.forEach(m=>{sg.addShadowCaster(m)});
+  const BT=new V3(0,2.15,-1.0), BB=new V3(0,0,-2.1);
+  [-1,1].forEach(s=>{bar(new V3(s*GW,GH,0),new V3(s*GW,BT.y,BT.z),.03,MAT.frame);bar(new V3(s*GW,BT.y,BT.z),new V3(s*GW,0,BB.z),.03,MAT.frame)});
+  bar(new V3(-GW,0,BB.z),new V3(GW,0,BB.z),.03,MAT.frame); bar(new V3(-GW,BT.y,BT.z),new V3(GW,BT.y,BT.z),.03,MAT.frame);
+  const nm=new B.StandardMaterial('netM',scene); nm.diffuseTexture=netTex(); nm.useAlphaFromDiffuseTexture=true; nm.backFaceCulling=false;
+  nm.emissiveColor=hexC('#7d8bb8'); nm.diffuseColor=hexC('#ffffff'); nm.specularColor=C3.Black(); nm.alpha=.9;
+  const T=1/.22; // 1マス22cmの網
+  NET.back=quadMesh('netBack',[new V3(-GW,0,BB.z),new V3(GW,0,BB.z),new V3(GW,BT.y,BT.z),new V3(-GW,BT.y,BT.z)],[0,0,GW*2*T,2.36*T],nm,[30,12]);
+  NET.base=NET.back.getVerticesData(B.VertexBuffer.PositionKind).slice();
+  quadMesh('netTop',[new V3(-GW,GH,0),new V3(GW,GH,0),new V3(GW,BT.y,BT.z),new V3(-GW,BT.y,BT.z)],[0,0,GW*2*T,1.05*T],nm);
+  [-1,1].forEach(s=>{
+    quadMesh('netSideA',[new V3(s*GW,0,0),new V3(s*GW,0,BB.z),new V3(s*GW,BT.y,BT.z),new V3(s*GW,GH,0)],[0,0,2.1*T,2.4*T],nm);
+  });
+  [NET.back].forEach(m=>m.parent=g);
+  return g;
+}
+buildGoal();
+function netHit(x,y,power){NET.ripples.push({x,y,t:0,a:.55+.35*power})}
+function updateNet(dt){
+  if(!NET.ripples.length) return;
+  const pos=NET.base.slice();
+  for(const r of NET.ripples){
+    r.t+=dt;
+    const amp=r.a*Math.exp(-r.t*3.2)*Math.cos(r.t*14)*(r.t<.12?r.t/.12:1);
+    for(let i=0;i<pos.length;i+=3){
+      const dx=pos[i]-r.x, dy=pos[i+1]-r.y, d2=dx*dx+dy*dy;
+      const f=Math.exp(-d2/1.1)*amp;
+      pos[i+2]-=f; pos[i+1]-=f*.15;
+    }
+  }
+  NET.ripples=NET.ripples.filter(r=>r.t<2);
+  NET.back.updateVerticesData(B.VertexBuffer.PositionKind,pos);
+}
+
+/* ---------- スタジアム（スタンド・観客・照明塔・LEDボード） ---------- */
+const CROWD=[];
+function buildStadium(){
+  const rnd=mulberry32(3);
+  const person=(()=>{const b=B.MeshBuilder.CreateBox('pb',{width:.38,height:.5,depth:.3},scene);b.position.y=.25;
+    const h=B.MeshBuilder.CreateBox('ph',{size:.22},scene);h.position.y=.64;const m=B.Mesh.MergeMeshes([b,h],true);m.isVisible=false;return m})();
+  const crowdMat=new B.StandardMaterial('crowdM',scene); crowdMat.diffuseColor=new C3(1,1,1); crowdMat.emissiveColor=new C3(.34,.35,.42); crowdMat.specularColor=C3.Black();
+  person.material=crowdMat;
+  const pal=['#19c6e4','#22d3ee','#0e7490','#ff5a33','#ff8a5c','#b8361a','#f2f2f2','#d9dce8','#2a3150','#ffd166','#1a1f36','#ffffff'];
+  const steps=[];
+  // 1つのスタンド：中心(cx,cz)、向き(yaw)、幅、段数
+  const stand=(cx,cz,yaw,width,rows,base)=>{
+    const node=new B.TransformNode('stand',scene); node.position.set(cx,0,cz); node.rotation.y=yaw;
+    const wall=B.MeshBuilder.CreateBox('wall',{width,height:base,depth:.6},scene); wall.position.set(0,base/2,0); wall.parent=node; steps.push(wall);
+    for(let r=0;r<rows;r++){
+      const st=B.MeshBuilder.CreateBox('st',{width,height:.45,depth:.9},scene); st.position.set(0,base+r*.45-.22,-(.75+r*.9)); st.parent=node; steps.push(st);
+    }
+    const chunks=4;
+    for(let ch=0;ch<chunks;ch++){
+      const m=person.clone('crowd'); m.isVisible=true; m.parent=node; m.isPickable=false;
+      const mats=[],cols=[];
+      const x0=-width/2+ch*width/chunks, x1=x0+width/chunks;
+      for(let r=0;r<rows;r++)for(let x=x0+.35;x<x1-.2;x+=.62){
+        if(rnd()<.1) continue;
+        const mtx=B.Matrix.Compose(new V3(1,.85+rnd()*.3,1),B.Quaternion.RotationYawPitchRoll((rnd()-.5)*.4,0,0),new V3(x+(rnd()-.5)*.15,base+r*.45,-(.75+r*.9)));
+        mats.push(...mtx.toArray()); const c=hexC(pal[(rnd()*pal.length)|0]); cols.push(c.r,c.g,c.b,1);
+      }
+      m.thinInstanceSetBuffer('matrix',new Float32Array(mats),16);
+      m.thinInstanceSetBuffer('color',new Float32Array(cols),4);
+      CROWD.push({m,ph:rnd()*6,amp:0,base:m.position.y});
+    }
+    // 屋根のふちの光るライン
+    const strip=B.MeshBuilder.CreateBox('strip',{width,height:.12,depth:.12},scene); strip.position.set(0,base+rows*.45+.6,-(.75+rows*.9)); strip.parent=node;
+    strip.material=glowMat('stripM',ch2col(yaw),1); strip.isPickable=false;
+    // スタンド下のLEDボード
+    const led=B.MeshBuilder.CreatePlane('led',{width:width*.98,height:base*.7},scene); led.position.set(0,base*.5,.31); led.rotation.y=Math.PI; led.parent=node; led.isPickable=false;
+    led.material=LED.mat;
+    return node;
+  };
+  stand(0,-13,0,58,12,1.4);            // ゴール裏
+  stand(0,47,Math.PI,58,12,1.4);       // キッカー側の奥
+  stand(-27,17,Math.PI/2,56,12,1.4);   // 横
+  stand(27,17,-Math.PI/2,56,12,1.4);
+  const sm=B.Mesh.MergeMeshes(steps,true,true); sm.material=MAT.concrete; sm.isPickable=false;
+  // 照明塔
+  const towerM=pbr('tower','#3a4160',{rough:.6,metal:.6});
+  const lampM=glowMat('lamp','#f2f6ff',1); lampM.emissiveColor=new C3(3.2,3.4,3.8);
+  const halo=new B.StandardMaterial('halo',scene); halo.diffuseTexture=radialTex('haloT',[[0,'rgba(255,255,255,.9)'],[.18,'rgba(200,220,255,.45)'],[1,'rgba(120,150,255,0)']]);
+  halo.diffuseTexture.hasAlpha=true; halo.useAlphaFromDiffuseTexture=true; halo.disableLighting=true; halo.emissiveColor=new C3(1,1,1); halo.alphaMode=B.Constants.ALPHA_ADD; halo.backFaceCulling=false;
+  const beamT=new B.DynamicTexture('beamT',{width:8,height:128},scene,false);{const c=beamT.getContext();const g=c.createLinearGradient(0,0,0,128);g.addColorStop(0,'rgba(200,215,255,.0)');g.addColorStop(.15,'rgba(200,215,255,.5)');g.addColorStop(1,'rgba(200,215,255,0)');c.fillStyle=g;c.fillRect(0,0,8,128);beamT.update();beamT.hasAlpha=true}
+  const beamM=new B.StandardMaterial('beamM',scene); beamM.diffuseTexture=beamT; beamM.useAlphaFromDiffuseTexture=true; beamM.disableLighting=true; beamM.emissiveColor=new C3(.5,.55,.7); beamM.alphaMode=B.Constants.ALPHA_ADD; beamM.backFaceCulling=false; beamM.alpha=.35;
+  [[-30,-16],[30,-16],[-30,50],[30,50]].forEach(([x,z])=>{
+    const p=B.MeshBuilder.CreateCylinder('pole',{diameterTop:.5,diameterBottom:1.1,height:30,tessellation:8},scene); p.position.set(x,15,z); p.material=towerM; p.isPickable=false;
+    const head=new B.TransformNode('lh',scene); head.position.set(x*.92,30.5,z+(z<0?1:-1)); head.lookAt(new V3(0,0,10));
+    const panel=B.MeshBuilder.CreateBox('panel',{width:5,height:2.6,depth:.5},scene); panel.parent=head; panel.material=towerM; panel.isPickable=false;
+    for(let i=0;i<4;i++)for(let j=0;j<2;j++){const l=B.MeshBuilder.CreatePlane('lamp',{size:1},scene);l.parent=head;l.position.set(-1.8+i*1.2,-.6+j*1.2,.26);l.scaling.set(1,.9,1);l.material=lampM;l.isPickable=false}
+    const h=B.MeshBuilder.CreatePlane('halo',{size:16},scene); h.parent=head; h.position.z=.6; h.material=halo; h.billboardMode=B.Mesh.BILLBOARDMODE_ALL; h.isPickable=false;
+    const beam=B.MeshBuilder.CreateCylinder('beam',{diameterTop:3,diameterBottom:22,height:46,tessellation:24,cap:B.Mesh.NO_CAP},scene);
+    beam.material=beamM; beam.isPickable=false;
+    const from=new V3(x*.92,30.5,z), to=new V3(0,0,8), dir=to.subtract(from).normalize();
+    beam.position=from.add(dir.scale(23)); const ax=V3.Cross(new V3(0,-1,0),dir);
+    beam.rotationQuaternion=B.Quaternion.RotationAxis(ax.normalize(),Math.acos(clamp(V3.Dot(new V3(0,-1,0),dir),-1,1)));
+  });
+}
+function ch2col(yaw){return Math.abs(Math.sin(yaw))>.5?'#7d6cf0':Math.cos(yaw)>0?'#22d3ee':'#ff6a3d'}
+// LEDボード（流れる文字）
+const LED=(()=>{
+  const t=new B.DynamicTexture('ledT',{width:2048,height:96},scene,true), c=t.getContext();
+  const draw=(mode)=>{
+    const g=c.createLinearGradient(0,0,2048,0);
+    if(mode==='a'){g.addColorStop(0,'#0e7490');g.addColorStop(1,'#22d3ee')}else if(mode==='b'){g.addColorStop(0,'#b8361a');g.addColorStop(1,'#ff6a3d')}else{g.addColorStop(0,'#0b1236');g.addColorStop(1,'#1a2366')}
+    c.fillStyle=g;c.fillRect(0,0,2048,96);
+    c.font='bold 64px "Bebas Neue", Impact, sans-serif';c.textBaseline='middle';
+    const words=mode==='a'||mode==='b'?['GOAL!!','GOAL!!','GOAL!!','GOAL!!']:mode==='s'?['SAVE!!','SAVE!!','SAVE!!','SAVE!!']:['LAST KICK','★','PENALTY SHOOTOUT','★','11m DUEL','★'];
+    let x=20;for(let k=0;k<3;k++)for(const w of words){c.fillStyle=w==='★'?'#ffd166':'#ffffff';c.fillText(w,x,52);x+=c.measureText(w).width+60}
+    t.update();
+  };
+  draw('n');
+  const mat=new B.StandardMaterial('ledM',scene); mat.diffuseTexture=t; mat.emissiveTexture=t; mat.disableLighting=true; mat.backFaceCulling=true; t.uScale=3;
+  return {t,mat,draw};
+})();
+buildStadium();
+// ゴール裏のピッチ脇LED
+{const b=B.MeshBuilder.CreatePlane('ledb',{width:30,height:.9},scene);b.position.set(0,.45,-6);b.rotation.y=Math.PI;b.material=LED.mat;b.isPickable=false;
+ const bk=B.MeshBuilder.CreateBox('ledbk',{width:30.2,height:.95,depth:.12},scene);bk.position.set(0,.47,-6.08);bk.material=MAT.concrete;bk.isPickable=false;
+ [-1,1].forEach(s=>{const p=B.MeshBuilder.CreatePlane('leds',{width:16,height:.9},scene);p.position.set(s*17,.45,2);p.rotation.y=s*Math.PI/2*.85;p.material=LED.mat;p.isPickable=false})}
+
+// 映り込み用の環境マップ
+const probe=new B.ReflectionProbe('probe',128,scene,true);
+probe.renderList.push(sky); scene.meshes.filter(m=>/lamp|halo|strip|led/.test(m.name)).forEach(m=>probe.renderList.push(m));
+probe.position=new V3(0,3,6); probe.refreshRate=B.RenderTargetTexture.REFRESHRATE_RENDER_ONCE;
+scene.environmentTexture=probe.cubeTexture; scene.environmentIntensity=.9;
+scene.fogMode=B.Scene.FOGMODE_EXP2; scene.fogDensity=.006; scene.fogColor=new C3(.02,.03,.08);
+
+/* ---------- ボール ---------- */
+const BALL=(()=>{
+  const g=B.MeshBuilder.CreateGoldberg('ball',{m:1,n:1,size:1},scene);
+  const bb=g.getBoundingInfo().boundingBox; const d=bb.maximum.x-bb.minimum.x; g.scaling.setAll(.22/d);
+  g.setGoldbergFaceColors([[0,11,new C4(.04,.05,.09,1)],[12,31,new C4(1,1,1,1)]]);
+  g.material=pbr('ballM','#ffffff',{rough:.35,clear:.8}); g.isPickable=false; sg.addShadowCaster(g);
+  const root=new B.TransformNode('ballRoot',scene); g.parent=root;
+  const blob=B.MeshBuilder.CreateGround('bblob',{width:.5,height:.5},scene);
+  const bm=new B.StandardMaterial('bbm',scene); bm.diffuseTexture=radialTex('bbt',[[0,'rgba(0,0,10,.55)'],[1,'rgba(0,0,10,0)']]); bm.diffuseTexture.hasAlpha=true; bm.useAlphaFromDiffuseTexture=true; bm.disableLighting=true; bm.zOffset=-2;
+  blob.material=bm; blob.isPickable=false;
+  const trailAnchor=new B.TransformNode('ta',scene); trailAnchor.parent=root;
+  let trail=null;
+  const trailMat=glowMat('btrail','#dff6ff',.45,true);
+  return {
+    root,g,blob,
+    set(x,y,z){root.position.set(x,y,z);blob.position.set(x,.012,z);const s=clamp(1-(y-.11)*.25,.3,1);blob.scaling.set(s,1,s)},
+    spin(ax,ay,az){g.rotation.x+=ax;g.rotation.y+=ay;g.rotation.z+=az},
+    trailOn(){if(trail) trail.dispose();trail=new B.TrailMesh('bt',trailAnchor,scene,.16,26,true);trail.material=trailMat;trail.isPickable=false},
+    trailOff(){if(trail){const t=trail;trail=null;setTimeout(()=>t.dispose(),400)}},
+  };
+})();
+BALL.set(SPOT.x,SPOT.y,SPOT.z);
+
+/* ---------- 選手 ---------- */
+function makePlayer(team,gk){
+  const K=TEAMS[team].kit, n=new B.TransformNode('pl',scene);
+  const pivot=new B.TransformNode('pv',scene); pivot.parent=n; pivot.position.y=1.0;
+  const shirt=pbr('sh',gk?K.gk:K.shirt,{rough:.7,clear:.15}), shorts=pbr('so',gk?K.gkShorts:K.shorts,{rough:.75}), sock=pbr('sk',gk?K.gk:K.sock,{rough:.75});
+  const parts=[];
+  const at=(m,parent,x,y,z,mat)=>{m.parent=parent;m.position.set(x,y,z);m.material=mat;m.isPickable=false;parts.push(m);return m};
+  at(B.MeshBuilder.CreateCapsule('torso',{height:.8,radius:.27,tessellation:14,subdivisions:2},scene),pivot,0,.08,0,shirt);
+  at(B.MeshBuilder.CreateCylinder('shorts',{diameter:.58,height:.26,tessellation:14},scene),pivot,0,-.28,0,shorts);
+  const head=at(B.MeshBuilder.CreateSphere('head',{diameter:.42,segments:16},scene),pivot,0,.72,0,team?MAT.skin2:MAT.skin);
+  const hair=at(B.MeshBuilder.CreateSphere('hair',{diameter:.45,segments:12,slice:.55},scene),pivot,0,.75,-.015,team?MAT.hair2:MAT.hair);
+  hair.rotation.x=-.25;
+  [-1,1].forEach(s=>{const e=at(B.MeshBuilder.CreateSphere('eye',{diameter:.06,segments:8},scene),pivot,s*.085,.74,.185,MAT.eye)});
+  // 背番号
+  const num=B.MeshBuilder.CreatePlane('num',{size:.32},scene);
+  const nt=new B.DynamicTexture('numT',{width:128,height:128},scene,false),c=nt.getContext();c.clearRect(0,0,128,128);c.fillStyle='#ffffff';c.font='bold 92px "Bebas Neue", Impact, sans-serif';c.textAlign='center';c.textBaseline='middle';c.fillText(gk?'1':(team?'7':'10'),64,70);nt.update();nt.hasAlpha=true;
+  const nm=new B.StandardMaterial('numM',scene);nm.diffuseTexture=nt;nm.useAlphaFromDiffuseTexture=true;nm.emissiveColor=new C3(.6,.6,.6);nm.backFaceCulling=false;
+  num.material=nm;num.parent=pivot;num.position.set(0,.12,-.28);num.rotation.y=Math.PI;num.isPickable=false;
+  const limb=(name,x,y,len,r,mat,end,endD,endMat)=>{
+    const p=new B.TransformNode(name,scene); p.parent=pivot; p.position.set(x,y,0);
+    at(B.MeshBuilder.CreateCapsule(name+'c',{height:len,radius:r,tessellation:10},scene),p,0,-len/2+r*.5,0,mat);
+    const e=at(B.MeshBuilder.CreateSphere(name+'e',{diameter:endD,segments:10},scene),p,0,-len+r*.4,end?.06:0,endMat);
+    if(end) e.scaling.set(.9,.7,1.5);
+    return {p,e};
+  };
+  const legL=limb('legL',-.13,-.36,.64,.095,sock,true,.17,MAT.shoe), legR=limb('legR',.13,-.36,.64,.095,sock,true,.17,MAT.shoe);
+  const gm=gk?pbr('gl',K.glove,{rough:.5,clear:.4}):(team?MAT.skin2:MAT.skin);
+  const armL=limb('armL',-.33,.36,.5,.075,shirt,false,gk?.21:.13,gm), armR=limb('armR',.33,.36,.5,.075,shirt,false,gk?.21:.13,gm);
+  parts.forEach(m=>{sg.addShadowCaster(m,false);m.receiveShadows=true});
+  const blob=B.MeshBuilder.CreateGround('pblob',{width:1.1,height:1.1},scene); blob.material=BALL.blob.material; blob.isPickable=false;
+  const P={n,pivot,legL:legL.p,legR:legR.p,armL:armL.p,armR:armR.p,handL:armL.e,handR:armR.e,head,blob,team,gk};
+  return P;
+}
+function neutral(P){
+  P.pivot.position.set(0,1,0); P.pivot.rotation.set(0,0,0);
+  for(const k of ['legL','legR','armL','armR']) P[k].rotation.set(0,0,0);
+}
+function placeBlob(P){P.blob.position.set(P.n.position.x+P.pivot.position.x*Math.cos(P.n.rotation.y),.011,P.n.position.z-P.pivot.position.x*Math.sin(P.n.rotation.y));}
+function poseRun(P,ph,k){
+  P.legL.rotation.x=Math.sin(ph)*.9*k; P.legR.rotation.x=-Math.sin(ph)*.9*k;
+  P.armL.rotation.x=-Math.sin(ph)*.7*k; P.armR.rotation.x=Math.sin(ph)*.7*k;
+  P.armL.rotation.z=-.15; P.armR.rotation.z=.15;
+  P.pivot.position.y=1+Math.abs(Math.cos(ph))*.06*k-.04*k; P.pivot.rotation.x=.12*k;
+}
+function poseKeeperReady(P,t){
+  const b=Math.abs(Math.sin(t*5));
+  P.pivot.position.set(Math.sin(t*1.7)*.12,.9+b*.06,0); P.pivot.rotation.set(.12,0,0);
+  P.legL.rotation.set(-.25,0,-.12); P.legR.rotation.set(-.25,0,.12);
+  P.armL.rotation.set(-.3,0,-1.05+Math.sin(t*3)*.08); P.armR.rotation.set(-.3,0,1.05-Math.sin(t*3)*.08);
+}
+function poseIdle(P,t){
+  neutral(P); P.pivot.position.y=1+Math.sin(t*2.2)*.012; P.armL.rotation.z=-.12; P.armR.rotation.z=.12;
+}
+// キーパーのダイブ（zone へ、u=0〜1）
+function poseDive(P,zone,u){
+  const col=zoneCol(zone),row=zoneRow(zone),e=ease(u),side=Math.sign(ZX[col]);
+  if(col===1){
+    if(row===0){ // しゃがんで正面
+      P.pivot.position.set(0,lerp(.9,.55,e),lerp(0,.15,e)); P.pivot.rotation.set(lerp(.12,.55,e),0,0);
+      P.armL.rotation.set(lerp(-.3,-1.25,e),0,lerp(-1,-.25,e)); P.armR.rotation.set(lerp(-.3,-1.25,e),0,lerp(1,.25,e));
+      P.legL.rotation.set(lerp(-.25,-1.2,e),0,-.3); P.legR.rotation.set(lerp(-.25,-1.2,e),0,.3);
+    }else{ // まっすぐジャンプ
+      const j=Math.sin(Math.PI*clamp(u*1.05,0,1));
+      P.pivot.position.set(0,.9+j*.75,0); P.pivot.rotation.set(-.08,0,0);
+      P.armL.rotation.set(lerp(-.3,-2.9,e),0,lerp(-1,-.25,e)); P.armR.rotation.set(lerp(-.3,-2.9,e),0,lerp(1,.25,e));
+      P.legL.rotation.set(.25*e,0,-.1); P.legR.rotation.set(-.35*e,0,.1);
+    }
+    return;
+  }
+  const tx=ZX[col]*.72, low=row===0;
+  const arc=Math.sin(Math.PI*clamp(u,0,1));
+  const y=low?lerp(.9,.36,e)+arc*.25:lerp(.9,1.12,e)+arc*.35;
+  P.pivot.position.set(tx*e,y,0);
+  P.pivot.rotation.set(0,0,-side*(low?1.38:1.0)*e);
+  P.armL.rotation.set(0,0,lerp(-1,-2.75,e)); P.armR.rotation.set(0,0,lerp(1,2.75,e));
+  P.legL.rotation.set(0,0,-.25*e); P.legR.rotation.set(-.3*e,0,.35*e);
+}
+function poseCheer(P,t){ // ばんざいジャンプ
+  const j=Math.max(0,Math.sin(t*7));
+  P.pivot.position.set(P.pivot.position.x*.9,1+j*.45,0); P.pivot.rotation.set(-.1,0,P.pivot.rotation.z*.85);
+  P.armL.rotation.set(0,0,-2.75+Math.sin(t*14)*.15); P.armR.rotation.set(0,0,2.75-Math.sin(t*14)*.15);
+  P.legL.rotation.set(j*.5,0,0); P.legR.rotation.set(-j*.3,0,0);
+}
+function poseSad(P,t){ // 頭をかかえる
+  P.pivot.position.set(P.pivot.position.x*.92,.97,0); P.pivot.rotation.set(.35,0,P.pivot.rotation.z*.85);
+  P.armL.rotation.set(-2.5,0,-.9); P.armR.rotation.set(-2.5,0,.9); P.legL.rotation.set(0,0,0); P.legR.rotation.set(0,0,0);
+}
+function poseKneel(P,t){
+  P.pivot.position.set(P.pivot.position.x*.94,lerp(P.pivot.position.y,.62,.08),0); P.pivot.rotation.set(.5,0,P.pivot.rotation.z*.9);
+  P.legL.rotation.set(-1.3,0,0); P.legR.rotation.set(.3,0,0); P.armL.rotation.set(.2,0,-.2); P.armR.rotation.set(.2,0,.2);
+}
+const PL=[[makePlayer(0,false),makePlayer(0,true)],[makePlayer(1,false),makePlayer(1,true)]];
+function showRoles(kt){
+  for(let t=0;t<2;t++)for(let g=0;g<2;g++){const P=PL[t][g];const on=(g===0&&t===kt)||(g===1&&t!==kt);P.n.setEnabled(on);P.blob.setEnabled(on)}
+}
+function kickerOf(kt){return PL[kt][0]} function keeperOf(kt){return PL[1-kt][1]}
+const KICK_START=new V3(1.45,0,14.3), KICK_PLANT=new V3(.34,0,11.42), KICK_WAIT=new V3(1.75,0,13.6);
+function setupKickScene(kt){
+  showRoles(kt);
+  const K=kickerOf(kt), G=keeperOf(kt);
+  neutral(K); K.n.position.copyFrom(KICK_WAIT); K.n.rotation.y=Math.atan2(-KICK_WAIT.x,-KICK_WAIT.z);
+  neutral(G); G.n.position.set(0,0,.25); G.n.rotation.y=0;
+  BALL.set(SPOT.x,SPOT.y,SPOT.z); BALL.g.rotation.set(0,0,0);
+  SCN.kt=kt; SCN.mode='idle';
+}
+const SCN={kt:0,mode:'idle'};
+
+/* ---------- 演出の部品 ---------- */
+function burst(pos,{color='#ffffff',color2=null,n=30,size=[.06,.2],life=[.4,1],power=[2,6],gravity=-6,radius=.2,box=null}={}){
+  const ps=new B.ParticleSystem('fx',n,scene); ps.particleTexture=dotTex; ps.emitter=pos.clone();
+  if(box){ps.minEmitBox=box[0];ps.maxEmitBox=box[1]}else ps.createSphereEmitter(radius,1);
+  const c1=C4.FromHexString(color+'ff'),c2=C4.FromHexString((color2||color)+'ff');
+  ps.color1=c1;ps.color2=c2;ps.colorDead=new C4(c2.r,c2.g,c2.b,0);ps.minSize=size[0];ps.maxSize=size[1];ps.minLifeTime=life[0];ps.maxLifeTime=life[1];
+  ps.minEmitPower=power[0];ps.maxEmitPower=power[1];ps.gravity=new V3(0,gravity,0);ps.blendMode=B.ParticleSystem.BLENDMODE_ADD;
+  ps.manualEmitCount=n;ps.updateSpeed=1/60;ps.targetStopDuration=life[1]+.2;ps.disposeOnStop=true;ps.start();return ps;
+}
+// 観客席のカメラのフラッシュ
+const flashes=(()=>{
+  const mk=(name,z)=>{
+    const ps=new B.ParticleSystem(name,300,scene); ps.particleTexture=dotTex; ps.emitter=new V3(0,6,z);
+    ps.minEmitBox=new V3(-28,-4,-3);ps.maxEmitBox=new V3(28,4,3); ps.color1=new C4(1,1,1,1);ps.color2=new C4(.85,.9,1,1);ps.colorDead=new C4(1,1,1,0);
+    ps.minSize=.3;ps.maxSize=.7;ps.minLifeTime=.06;ps.maxLifeTime=.14;ps.emitRate=8;ps.minEmitPower=0;ps.maxEmitPower=0;ps.blendMode=B.ParticleSystem.BLENDMODE_ADD;ps.start();
+    return ps;
+  };
+  const ps=mk('flash',-18), ps2=mk('flash2',52);
+  return {set(r){ps.emitRate=r;ps2.emitRate=r*.6}};
+})();
+function fireworks(color){
+  for(let i=0;i<5;i++) setTimeout(()=>burst(new V3((Math.random()-.5)*40,18+Math.random()*8,-18+Math.random()*4),{color:'#ffffff',color2:color,n:90,size:[.3,.7],life:[.8,1.6],power:[6,11],gravity:-4,radius:.4}),i*260);
+}
+function crowdExcite(level,sec){CROWD.forEach(c=>{c.amp=Math.max(c.amp,level)});setTimeout(()=>CROWD.forEach(c=>{c.amp=Math.min(c.amp,.05)}),sec*1000)}
+function shake(a){shakeAmp=Math.max(shakeAmp,a)}
+
+/* =========================================================
+   判定（部屋を作った側だけが計算する）
+   ========================================================= */
+function judge(k,g){
+  const kc=zoneCol(k.z),kr=zoneRow(k.z),gc=zoneCol(g.z),gr=zoneRow(g.z);
+  if(k.c){ // チップキック
+    if(k.q===0) return {out:'miss',why:'bar'};
+    if(gc===1) return {out:'save',why:'chipcatch'};
+    return {out:'goal',why:'chip'};
+  }
+  if(k.q===0&&kc!==1) return {out:'miss',why:kr===1?'over':(Math.random()<.5?'post':'wide')};
+  const dc=Math.abs(kc-gc),dr=Math.abs(kr-gr);
+  if(dc===0&&dr===0) return {out:'save',why:'catch'};
+  if(dc+dr===1) return (g.b||g.q>k.q)?{out:'save',why:'parry'}:{out:'goal',why:'close'};
+  if(dc===1&&dr===1) return ((g.b&&k.q<2)||(g.q===2&&k.q===0))?{out:'save',why:'parry'}:{out:'goal',why:'close'};
+  return {out:'goal',why:'far'};
+}
+function decide(kicks){
+  const taken=[0,0],goals=[0,0];
+  for(const k of kicks){taken[k.t]++;if(k.out==='goal')goals[k.t]++}
+  const n=kicks.length;
+  if(n<=REG*2){
+    const rem=[REG-taken[0],REG-taken[1]];
+    if(goals[0]+rem[0]<goals[1]) return 1;
+    if(goals[1]+rem[1]<goals[0]) return 0;
+    if(n===REG*2&&goals[0]!==goals[1]) return goals[0]>goals[1]?0:1;
+    return -1;
+  }
+  if(taken[0]===taken[1]&&goals[0]!==goals[1]) return goals[0]>goals[1]?0:1;
+  return -1;
+}
+const WHY={
+  far:'逆をついた！',close:'指先をかすめてゴール！',chip:'チップキックが決まった！',
+  catch:'コースを完全に読んだ！',parry:'反応で弾き出した！',chipcatch:'チップを見切った！',
+  over:'ふかしてしまった…',wide:'わずかに外れた…',post:'ポストに嫌われた…',bar:'チップがバーの上…'
+};
+
+/* =========================================================
+   キックの再現（両方の端末で同じ動きを見せる）
+   ========================================================= */
+let ANIM=null, timeScale=1;
+function runAnim(dur,update){return new Promise(res=>{ANIM={t:0,dur,update,res}})}
+function gloveAt(G,zone,u){
+  poseDive(G,zone,u);
+  G.n.computeWorldMatrix(true);G.pivot.computeWorldMatrix(true);
+  for(const a of [G.armL,G.armR]){a.computeWorldMatrix(true)}
+  G.handL.computeWorldMatrix(true);G.handR.computeWorldMatrix(true);
+  const L=G.handL.getAbsolutePosition().clone(),R=G.handR.getAbsolutePosition().clone();
+  return {L,R,mid:V3.Lerp(L,R,.5)};
+}
+async function playReveal(R){
+  const kt=R.t, K=kickerOf(kt), G=keeperOf(kt);
+  setupKickScene(kt); SCN.mode='reveal';
+  hideSelectUI(); $('#infobar').classList.add('hide'); $('#tend').classList.add('hide');
+  K.n.position.copyFrom(KICK_START);
+  const T_RUN0=.5,T_RUN1=1.5,T_KICK=1.64;
+  const F=R.c?1.3:[.62,.5,.4][R.kq];
+  const DIVE=.5, T_DIVE=T_KICK+.03, TC=T_KICK+F;
+  // ボールの行き先
+  const col=zoneCol(R.kz),row=zoneRow(R.kz), side=col===1?(R.jx>=0?1:-1):Math.sign(ZX[col]);
+  let target=new V3(ZX[col]+R.jx,ZY[row]+R.jy,0), hold=null;
+  if(R.c) target=new V3(R.jx*.3,1.95,0);
+  if(R.out==='miss'){
+    if(R.why==='over'||R.why==='bar') target=new V3(R.c?R.jx*.3:ZX[col]+R.jx*.5,GH+.75+Math.abs(R.jy),0);
+    else if(R.why==='wide') target=new V3(side*(GW+.55+Math.abs(R.jx)*.3),ZY[row]+R.jy*.5,0);
+    else target=new V3(side*(GW-.02),ZY[row]+R.jy*.3,0);
+  }
+  const uAtC=clamp((TC-T_DIVE)/DIVE,0,1);
+  if(R.out==='save'){
+    const gl=gloveAt(G,R.gz,uAtC);
+    hold=(R.why==='catch'||R.why==='chipcatch')?'catch':'parry';
+    const pick=hold==='catch'?gl.mid:(Math.abs(gl.L.x-target.x)<Math.abs(gl.R.x-target.x)?gl.L:gl.R);
+    target=pick.clone();
+  }
+  neutral(G);
+  const S=SPOT.clone(), bend=R.c?0:R.bend, arc=R.c?2.4:[.55,.35,.22][R.kq];
+  const ballAt=u=>{
+    const x=lerp(S.x,target.x,u)+bend*Math.sin(Math.PI*u), z=lerp(S.z,target.z,u), y=lerp(S.y,target.y,u)+arc*4*u*(1-u);
+    return new V3(x,y,z);
+  };
+  const vEnd=ballAt(1).subtract(ballAt(.97)).scale(1/(.03*F));
+  let after=null; // ゴール後などのボールの動き
+  const ev={};
+  const cams={
+    run:()=>shot(new V3(3.8,2.1,19.8),new V3(.3,1.0,6),3.6,2.4,14,{cut:true}),
+    goal:()=>shot(new V3(-1.3,1.45,-8.4),new V3(.25,1.0,8),3.6,2.4,8.6,{cut:true,l:1.2}),
+  };
+  cams.run(); SFX.crowdLevel(.12);
+  flashes.set(25);
+  await runAnim(TC+3.0,(t,dt)=>{
+    // 笛
+    if(t>.12&&!ev.wh){ev.wh=1;SFX.whistle(false)}
+    // 助走
+    if(t<T_RUN0){poseIdle(K,t);K.n.rotation.y=Math.atan2(KICK_PLANT.x-KICK_START.x,KICK_PLANT.z-KICK_START.z)}
+    else if(t<T_RUN1){
+      const u=(t-T_RUN0)/(T_RUN1-T_RUN0);
+      V3.LerpToRef(KICK_START,KICK_PLANT,easeIO(u)*.9+u*.1,K.n.position);
+      K.n.rotation.y=Math.atan2(KICK_PLANT.x-KICK_START.x,KICK_PLANT.z-KICK_START.z);
+      poseRun(K,u*Math.PI*5,1);
+      CG.pos.set(3.8-u*.9,2.1-u*.3,19.8-u*2.4);CG.tgt.set(.3,1.0,6);
+    }else if(t<T_KICK+.35){
+      const u=clamp((t-T_RUN1)/(T_KICK-T_RUN1),0,1);
+      K.n.position.copyFrom(KICK_PLANT);
+      K.n.rotation.y=lerp(Math.atan2(KICK_PLANT.x-KICK_START.x,KICK_PLANT.z-KICK_START.z),Math.PI,ease(u));
+      neutral(K); K.pivot.rotation.x=-.15; K.armL.rotation.z=-.9; K.armR.rotation.z=.5;
+      K.legL.rotation.x=-.1;
+      K.legR.rotation.x=t<T_KICK?lerp(0,1.15,ease(u)):lerp(1.15,-1.45,clamp((t-T_KICK)/.12,0,1));
+    }else{
+      K.legR.rotation.x=lerp(K.legR.rotation.x,0,.1);
+    }
+    // スローモーション
+    if(t>T_KICK-.06&&!ev.slow){ev.slow=1;timeScale=.32;cams.goal()}
+    if(t>TC+.35&&!ev.fast){ev.fast=1;tween(.5,k=>{timeScale=lerp(.32,1,k)},{done:()=>{timeScale=1}})}
+    // キーパー
+    if(t<T_DIVE) poseKeeperReady(G,t);
+    else if(!ev.gend) poseDive(G,R.gz,(t-T_DIVE)/DIVE);
+    // ボール
+    if(t<T_KICK){BALL.set(S.x,S.y,S.z)}
+    else if(t<TC){
+      if(!ev.kick){ev.kick=1;SFX.kick(R.c?.3:R.kq/2);BALL.trailOn();burst(S.add(new V3(0,.05,0)),{color:'#d9ffe0',n:14,power:[1,3],size:[.05,.12],gravity:-5})}
+      const u=(t-T_KICK)/F, p=ballAt(u); BALL.set(p.x,p.y,p.z); BALL.spin(.5,.12,.08);
+    }else{
+      if(!ev.contact){ev.contact=1;contact()}
+      if(after) after(t-TC,dt);
+    }
+    // 喜び・悲しみ
+    if(t>TC+.55){
+      const tt=t-TC-.55;
+      if(R.out==='goal'){poseCheer(K,tt);if(!ev.gend){ev.gend=1}poseKneel(G,tt)}
+      else if(R.out==='save'){ev.gend=1;if(tt>.5)poseCheer(G,tt);poseSad(K,tt)}
+      else{poseSad(K,tt);ev.gend=1;if(tt>.4)poseKeeperReady(G,tt*.5)}
+      if(!ev.ccam){ev.ccam=1;
+        const sub=R.out==='goal'?K:(R.out==='save'?G:K);
+        ev.sub=sub; ev.a0=sub===K?Math.PI*.15:Math.PI*.85;
+      }
+      const sp=ev.sub.n.position.add(ev.sub.pivot.position.multiplyByFloats(1,0,1)), a=ev.a0+tt*.35;
+      const dist=sp.z>5?4.2:5.2;
+      CG.pos.set(sp.x+Math.sin(a)*dist,1.7,sp.z+Math.cos(a)*dist); CG.tgt.set(sp.x,1.15,sp.z); CG.W=1.8;CG.H=1.5;CG.fd=dist;CG.l=1.6;
+    }
+    placeBlob(K); placeBlob(G);
+  });
+  timeScale=1; BALL.trailOff(); SCN.mode='idle';
+  function contact(){
+    const out=R.out;
+    if(out==='goal'){
+      SFX.net(); SFX.roar(); SFX.crowdLevel(.5,.3); setTimeout(()=>SFX.crowdLevel(.12,2),2600);
+      crowdExcite(1,3); flashes.set(220); setTimeout(()=>flashes.set(25),2500);
+      LED.draw(R.t?'b':'a'); setTimeout(()=>LED.draw('n'),3500);
+      fireworks(TEAMS[R.t].css); shake(.6); buzz([30,40,60]);
+      banner('GOAL!!',WHY[R.why],TEAMS[R.t].css,qLine(R));
+      let p=target.clone(), v=vEnd.clone(), hit=false;
+      after=(tt,dt)=>{
+        if(!hit){p.addInPlace(v.scale(dt));const backZ=-2.1+(p.y/2.15)*1.1;if(p.z<=backZ+.1){hit=true;netHit(p.x,p.y,R.c?.3:R.kq/2);v=new V3(v.x*.05,0,0)}}
+        else{v.y-=9.8*dt;p.addInPlace(v.scale(dt));if(p.y<.11){p.y=.11;v.y=-v.y*.3}}
+        BALL.set(p.x,p.y,p.z);BALL.spin(.1,0,0);
+      };
+    }else if(out==='save'){
+      SFX.glove(); SFX.oh(); setTimeout(()=>SFX.roar(),150); crowdExcite(.6,2.4); flashes.set(120); setTimeout(()=>flashes.set(25),2000);
+      LED.draw('s'); setTimeout(()=>LED.draw('n'),3000);
+      shake(.35); buzz([40,30,40]);
+      banner('SAVE!!',WHY[R.why],TEAMS[1-R.t].css,qLine(R));
+      burst(target,{color:'#ffffff',color2:TEAMS[1-R.t].css,n:40,power:[2,5],size:[.06,.18]});
+      if(hold==='catch'){
+        after=()=>{const gl=G.handL.getAbsolutePosition().add(G.handR.getAbsolutePosition()).scale(.5);BALL.set(gl.x,gl.y,gl.z)};
+      }else{
+        let p=target.clone(), v=new V3(side*(2+Math.random()*2),4.2,4.5+Math.random()*2);
+        after=(tt,dt)=>{v.y-=9.8*dt;p.addInPlace(v.scale(dt));if(p.y<.11){p.y=.11;v.y=-v.y*.45;v.x*=.7;v.z*=.7}BALL.set(p.x,p.y,p.z);BALL.spin(.3,.1,0)};
+      }
+    }else{
+      SFX.oh(); SFX.crowdLevel(.2,.3); setTimeout(()=>SFX.crowdLevel(.1,2),2000); flashes.set(60);
+      banner('MISS…',WHY[R.why],'#8a93b8',qLine(R));
+      let p=target.clone(), v=vEnd.clone();
+      if(R.why==='post'){SFX.post();shake(.3);burst(target,{color:'#ffffff',n:24,power:[1,4],size:[.04,.12]});v=new V3(-side*2.5,1.4,Math.abs(v.z)*.45)}
+      after=(tt,dt)=>{v.y-=(R.why==='post'?9.8:3)*dt;p.addInPlace(v.scale(dt));if(p.y<.11&&R.why==='post'){p.y=.11;v.y=-v.y*.4}BALL.set(p.x,p.y,p.z);BALL.spin(.2,.1,0)};
+    }
+  }
+}
+function qLine(R){return `KICK ${Q_NAME[R.kq]}${R.c?' / CHIP':''}  ・  KEEPER ${Q_NAME[R.gq]}${R.gb?' / BIG SAVE':''}`}
+function banner(main,sub,color,q){
+  const el=$('#banner');el.querySelector('.b-main').textContent=main;el.querySelector('.b-sub').textContent=sub||'';el.querySelector('.b-q').textContent=q||'';
+  el.style.setProperty('--bc',color);el.classList.remove('show');void el.offsetWidth;el.classList.add('show');
+}
+
+/* =========================================================
+   状態（部屋を作った側が S を持ち、表示用の P を配る）
+   ========================================================= */
+const ME={team:0,mode:'none'}; // mode: host / guest / none
+function freshState(){return {phase:'lobby',names:[TEAMS[0].name,TEAMS[1].name],kickNo:0,first:0,kicks:[],specials:{chip:[1,1],big:[1,1]},choices:{kick:null,keep:null},deadline:0,paused:false,pauseRemain:0,reveal:null,revealId:0,winner:-1,matchNo:0,introId:0}}
+let S=freshState();
+const kickerTeam=(s)=>(s.first+s.kickNo)%2;
+function scores(kicks){const g=[0,0];for(const k of kicks) if(k.out==='goal') g[k.t]++;return g}
+function pub(){
+  return {phase:S.phase,names:S.names,kickNo:S.kickNo,first:S.first,kicks:S.kicks,specials:S.specials,remain:S.paused?S.pauseRemain:Math.max(0,S.deadline-Date.now()),paused:S.paused,
+    locks:{kick:!!S.choices.kick,keep:!!S.choices.keep},reveal:S.reveal,revealId:S.revealId,winner:S.winner,matchNo:S.matchNo,introId:S.introId,guestOn:!!(NETW.guest&&!NETW.guest.gone)};
+}
+function commit(){
+  if(ME.mode!=='host') return;
+  const P=pub();
+  if(NETW.guest&&NETW.guest.conn) safeSend(NETW.guest.conn,{type:'sync',P});
+  saveHost(); applyView(P);
+}
+// 部屋を作った側の進行
+async function startMatch(){
+  S.matchNo++; S.kicks=[]; S.kickNo=0; S.first=(S.matchNo-1)%2; S.specials={chip:[1,1],big:[1,1]}; S.winner=-1; S.choices={kick:null,keep:null};
+  S.phase='intro'; S.introId++; commit();
+  await wait(3400); if(S.phase!=='intro') return;
+  startSelect();
+}
+function startSelect(){
+  S.phase='select'; S.choices={kick:null,keep:null}; S.deadline=Date.now()+SELECT_MS;
+  S.paused=!!(NETW.guest&&NETW.guest.gone); if(S.paused) S.pauseRemain=SELECT_MS;
+  commit();
+}
+function handleAction(team,m){
+  if(!m||typeof m!=='object') return;
+  if(m.type==='choose'){
+    if(S.phase!=='select'||m.kickNo!==S.kickNo) return;
+    const role=team===kickerTeam(S)?'kick':'keep';
+    if(S.choices[role]) return;
+    let z=m.z|0; if(z<0||z>5) return;
+    const q=clamp(m.q|0,0,2);
+    let sp=!!m.sp;
+    if(role==='kick'){if(sp&&!S.specials.chip[team]) sp=false;if(sp) z=4;S.choices.kick={z,c:sp,q}}
+    else{if(sp&&!S.specials.big[team]) sp=false;S.choices.keep={z,b:sp,q}}
+    commit();
+    if(S.choices.kick&&S.choices.keep) resolveKick();
+  }else if(m.type==='rematch'){
+    if(S.phase==='end') startMatch();
+  }
+}
+const randChoice=role=>role==='kick'?{z:(Math.random()*6)|0,c:false,q:1}:{z:(Math.random()*6)|0,b:false,q:1};
+let resolving=false;
+async function resolveKick(){
+  if(resolving) return; resolving=true;
+  const kt=kickerTeam(S), k=S.choices.kick||randChoice('kick'), g=S.choices.keep||randChoice('keep');
+  const res=judge(k,g);
+  if(k.c) S.specials.chip[kt]=0;
+  if(g.b) S.specials.big[1-kt]=0;
+  const rec={t:kt,kz:k.z,kc:k.c,kq:k.q,gz:g.z,gb:g.b,gq:g.q,out:res.out,why:res.why};
+  S.kicks.push(rec);
+  S.revealId++;
+  S.reveal={id:S.revealId,t:kt,kz:k.z,c:k.c,kq:k.q,gz:g.z,gb:g.b,gq:g.q,out:res.out,why:res.why,jx:(Math.random()-.5)*.7,jy:(Math.random()-.5)*.36,bend:(Math.random()-.5)*.9};
+  S.phase='reveal';
+  const done=new Promise(r=>revealWaiters.push(r));
+  commit();
+  await done; await wait(500);
+  resolving=false;
+  if(S.phase!=='reveal') return;
+  const w=decide(S.kicks);
+  if(w>=0){S.phase='end';S.winner=w;commit();return}
+  S.kickNo++; startSelect();
+}
+const revealWaiters=[];
+// 制限時間（部屋を作った側だけが見る）
+setInterval(()=>{
+  if(ME.mode!=='host'||S.phase!=='select'||S.paused||resolving) return;
+  const now=Date.now(), guestRole=kickerTeam(S)===1?'kick':'keep', hostRole=guestRole==='kick'?'keep':'kick';
+  if(now>=S.deadline&&!S.choices[hostRole]){S.choices[hostRole]=randChoice(hostRole);toast('時間切れ！ おまかせで決めたよ');commit()}
+  if(now>=S.deadline+GRACE_MS&&!S.choices[guestRole]){S.choices[guestRole]=randChoice(guestRole);commit()}
+  if(S.choices.kick&&S.choices.keep) resolveKick();
+},200);
+
+/* =========================================================
+   表示（P を受け取って画面を作る。両方の端末で同じ処理）
+   ========================================================= */
+let V=null, lastReveal=0, lastIntro=0, selKey='', viewBusy=false;
+const viewQ=[];
+function applyView(P){viewQ.push(P);pumpView()}
+async function pumpView(){
+  if(viewBusy) return; viewBusy=true;
+  while(viewQ.length){
+    const P=viewQ.shift();
+    try{
+      if(P.revealId>lastReveal){
+        lastReveal=P.revealId;
+        if(P.phase==='reveal'&&P.reveal){V=P;await playReveal(P.reveal);revealWaiters.splice(0).forEach(r=>r())}
+      }
+      // もっと新しい状態がすでに届いていれば、そちらで描く（再現中にたまった分を飛ばす）
+      if(viewQ.length&&viewQ[0].revealId<=lastReveal) continue;
+      render(P);
+    }catch(e){console.error(e)}
+  }
+  viewBusy=false;
+}
+function myRole(P){return ((P.first+P.kickNo)%2)===ME.team?'kick':'keep'}
+function render(P){
+  V=P;
+  renderScore(P);
+  if(P.phase==='lobby'){
+    hideSelectUI();
+    if(ME.mode==='guest'){
+      $('#wslot0').textContent=P.names[0];$('#wslot1').textContent=P.names[1];$('#waitLead').textContent=`${P.names[0]}がキックオフするのを待っています`;
+      if(!G.inTitle) toTitleScene(); setModal('waitModal');
+    }else if(ME.mode==='host'){renderHostLobby();if(G.modal!=='menuModal')setModal('hostModal')}
+    return;
+  }
+  if(P.phase==='intro'){
+    if(P.introId!==lastIntro){lastIntro=P.introId;playIntro(P)}
+    return;
+  }
+  if(P.phase==='select'){ensureGameUI();renderSelect(P);return}
+  if(P.phase==='end'){ensureGameUI();hideSelectUI();showEnd(P);return}
+}
+function renderScore(P){
+  const sc=scores(P.kicks);
+  for(let t=0;t<2;t++){
+    $('#nm'+t).textContent=P.names[t];
+    document.querySelectorAll('.sb-team.t'+t+' .you').forEach(e=>e.hidden=ME.team!==t||ME.mode==='none');
+    $('#sc'+t).textContent=sc[t];
+    const mine=P.kicks.filter(k=>k.t===t);
+    const n=Math.max(REG,mine.length+(P.phase==='select'&&kickerTeam(P)===t?1:0));
+    const start=Math.max(0,n-7);
+    let h='';
+    for(let i=start;i<n;i++){
+      const k=mine[i];
+      const cls=k?(k.out==='goal'?'goal':'miss'):(P.phase==='select'&&kickerTeam(P)===t&&i===mine.length?'next':'');
+      h+=`<i class="dotk ${cls}"></i>`;
+    }
+    $('#dots'+t).innerHTML=h;
+  }
+  const r=Math.floor(P.kickNo/2)+1;
+  $('#roundLbl').textContent=P.phase==='end'?'FULL TIME':r>REG?`SUDDEN DEATH ${r-REG}`:`KICK ${Math.min(r,REG)} / ${REG}`;
+}
+const G={modal:null,inTitle:true};
+/* ---------- 選ぶ画面 ---------- */
+const SEL={zone:-1,sp:false,stage:'pick',q:-1,needle:0,dir:1,deadlineLocal:0,locked:false};
+function renderSelect(P){
+  const role=myRole(P), key=P.matchNo+'-'+P.kickNo, kt=kickerTeam(P);
+  if(key!==selKey){
+    selKey=key;
+    setupKickScene(kt);
+    Object.assign(SEL,{zone:-1,sp:false,stage:'pick',q:-1,locked:false});
+    // カメラ
+    if(role==='kick') shot(new V3(0,1.85,16.2),new V3(0,1.15,0),4.9,2.9,16.2,{cut:true});
+    else shot(new V3(0,3.0,-10.8),new V3(0,1.0,9),4.1,2.1,10.8,{cut:true});
+    const T=TEAMS[ME.team];
+    $('#hud').style.setProperty('--tc',T.css); $('#hud').style.setProperty('--tc2',T.css2);
+    $('#roleChip').innerHTML=role==='kick'?'<small>あなたは</small>キッカー':'<small>あなたは</small>キーパー';
+    $('#shTitle').textContent=role==='kick'?'どこに蹴る？':'どこに飛ぶ？';
+    $('#spT').textContent=role==='kick'?'チップキック':'ビッグセーブ';
+    $('#btnGo').textContent=role==='kick'?'キック！':'構える！';
+    $('#gLabel').textContent=role==='kick'?'緑で止めて、強いシュート！':'緑で止めて、すばやく反応！';
+    renderTend(P,role);
+    $('#lockMsg').textContent='決定！ 相手を待っています…';
+    SEL.deadlineLocal=performance.now()+P.remain;
+    SFX.whistle(false);
+    if(role==='kick') toast(`<b>KICK ${Math.floor(P.kickNo/2)+1}</b>　あなたが蹴る番！`); else toast(`<b>KICK ${Math.floor(P.kickNo/2)+1}</b>　${esc(P.names[1-ME.team])}が蹴るよ。止めよう！`);
+  }else{
+    SEL.deadlineLocal=performance.now()+P.remain;
+  }
+  const spLeft=role==='kick'?P.specials.chip[ME.team]:P.specials.big[ME.team];
+  const btnSp=$('#btnSpecial'); btnSp.disabled=!spLeft&&!SEL.sp; btnSp.classList.toggle('on',SEL.sp);
+  $('#spN').textContent=spLeft?'1試合1回 ・ 残り1':'使用済み';
+  const iLocked=role==='kick'?P.locks.kick:P.locks.keep, oLocked=role==='kick'?P.locks.keep:P.locks.kick;
+  if(iLocked&&!SEL.locked){SEL.locked=true;SEL.stage='done'}
+  const oc=$('#oppChip'); oc.textContent=P.paused?'相手の接続待ち…':oLocked?'相手：決定！':'相手：考え中…'; oc.classList.toggle('ok',oLocked&&!P.paused);
+  $('#infobar').classList.remove('hide'); $('#tend').classList.remove('hide');
+  $('#hud').classList.add('selecting');
+  showStage();
+}
+function renderTend(P,role){
+  // 相手のこれまで：キッカーなら相手が飛んだマス、キーパーなら相手が蹴ったマス
+  const opp=1-ME.team, cnt=[0,0,0,0,0,0];
+  for(const k of P.kicks){
+    if(role==='kick'&&k.t===ME.team) cnt[k.gz]++;
+    if(role==='keep'&&k.t===opp) cnt[k.kz]++;
+  }
+  $('#tendH').textContent=role==='kick'?'相手キーパーが飛んだマス':'相手が蹴ったマス';
+  const order=screenOrder(role);
+  const max=Math.max(1,...cnt);
+  let h='';
+  for(const row of [1,0])for(const col of order){const n=cnt[row*3+col];h+=`<i class="${n&&n===max?'h2':n?'h1':''}">${n||''}</i>`}
+  $('#tendG').innerHTML=h;
+}
+// 画面の左から右へのマスの並び（キッカーはゴールを正面から、キーパーは背中側から見る）
+const screenOrder=role=>role==='kick'?[2,1,0]:[0,1,2];
+function showStage(){
+  const role=V?myRole(V):'kick';
+  $('#sheet').classList.remove('hide');
+  $('#shRow').hidden=SEL.stage!=='pick'; $('#gauge').hidden=SEL.stage!=='gauge'; $('#locked').hidden=SEL.stage!=='done';
+  $('#shTitle').hidden=SEL.stage==='done'; $('#shHint').hidden=SEL.stage!=='pick';
+  $('#shHint').textContent=SEL.sp?(role==='kick'?'チップはまん中上に決まり！ ふわっと浮かせる':'守る範囲が広がる！ 飛ぶマスを選んでね'):(role==='kick'?'ゴールのマスをタップしてね':'ボールが来そうなマスをタップしてね');
+  $('#btnGo').disabled=SEL.zone<0;
+  $('#zones').classList.toggle('locked',SEL.stage!=='pick');
+  if(SEL.stage==='done'){
+    const q=SEL.q>=0?SEL.q:1; const b=$('#lockQ'); b.textContent=SEL.q>=0?Q_NAME[q]:'OK'; b.className='q'+q;
+  }
+  buildZones(role);
+}
+function hideSelectUI(){
+  $('#sheet').classList.add('hide'); $('#zones').innerHTML=''; zoneEls=[]; $('#hud').classList.remove('selecting');
+  $('#infobar').classList.add('hide'); $('#tend').classList.add('hide');
+}
+let zoneEls=[];
+function buildZones(role){
+  const box=$('#zones');
+  if(!zoneEls.length){
+    box.innerHTML='';
+    zoneEls=[0,1,2,3,4,5].map(z=>{const b=document.createElement('button');b.className='zone';b.type='button';b.dataset.z=z;b.setAttribute('aria-label',zoneName(z,role));
+      b.addEventListener('click',()=>pickZone(z));box.appendChild(b);return b});
+  }
+  zoneEls.forEach(b=>{const z=+b.dataset.z;b.classList.toggle('sel',SEL.zone===z);b.classList.toggle('off',role==='kick'&&SEL.sp&&z!==4);b.setAttribute('aria-label',zoneName(z,role))});
+}
+function zoneName(z,role){const o=screenOrder(role),i=o.indexOf(zoneCol(z));return ['左','まん中','右'][i]+(zoneRow(z)?'上':'下')}
+function updateZonePositions(){
+  if(!zoneEls.length||!V||V.phase!=='select'||SCN.mode!=='idle') return;
+  if(!zoneEls[0].isConnected) return;
+  const w=engine.getRenderWidth(),h=engine.getRenderHeight(),hs=engine.getHardwareScalingLevel();
+  const vp=cam.viewport.toGlobal(w,h),mtx=scene.getTransformMatrix();
+  const P=(x,y)=>{const p=V3.Project(new V3(x,y,0),B.Matrix.IdentityReadOnly,mtx,vp);return [p.x*hs,p.y*hs]};
+  const xs=[-GW,-GW/3,GW/3,GW], ys=[0,GH*.5,GH];
+  zoneEls.forEach(b=>{
+    const z=+b.dataset.z,col=zoneCol(z),row=zoneRow(z);
+    const a=P(xs[col],ys[row]),c=P(xs[col+1],ys[row+1]);
+    const l=Math.min(a[0],c[0]),r=Math.max(a[0],c[0]),t=Math.min(a[1],c[1]),bt=Math.max(a[1],c[1]);
+    b.style.left=(l+2)+'px';b.style.top=(t+2)+'px';b.style.width=Math.max(10,r-l-4)+'px';b.style.height=Math.max(10,bt-t-4)+'px';
+  });
+}
+function pickZone(z){
+  if(SEL.stage!=='pick') return;
+  const role=myRole(V); if(role==='kick'&&SEL.sp&&z!==4) return;
+  SEL.zone=z; SFX.pick(); buzz(8); showStage();
+}
+$('#btnSpecial').addEventListener('click',()=>{
+  if(SEL.stage!=='pick'||!V) return;
+  const role=myRole(V), left=role==='kick'?V.specials.chip[ME.team]:V.specials.big[ME.team];
+  if(!left&&!SEL.sp) return;
+  SEL.sp=!SEL.sp; SFX.click();
+  if(SEL.sp&&role==='kick') SEL.zone=4;
+  $('#btnSpecial').classList.toggle('on',SEL.sp); showStage();
+});
+$('#btnGo').addEventListener('click',()=>{
+  if(SEL.stage!=='pick'||SEL.zone<0) return;
+  SFX.click(); SEL.stage='gauge'; SEL.needle=0; SEL.dir=1; gaugeT0=performance.now(); showStage();
+});
+let gaugeT0=0;
+function gaugePos(){const p=((performance.now()-gaugeT0)/1350)%2;return p<1?p:2-p}
+function stopGauge(){
+  if(SEL.stage!=='gauge') return;
+  const p=gaugePos(), d=Math.abs(p-.5), q=d<=.045?2:d<=.17?1:0;
+  SEL.q=q; SEL.stage='done'; SEL.locked=true; showStage(); SFX.lock(q); buzz(q===2?[20,30,20]:15);
+  act({type:'choose',kickNo:V.kickNo,z:SEL.zone,sp:SEL.sp,q});
+}
+$('#gauge').addEventListener('pointerdown',e=>{e.preventDefault();stopGauge()});
+canvas.addEventListener('pointerdown',()=>{SFX.ensure();if(SEL.stage==='gauge') stopGauge()});
+function updateSelectFrame(){
+  if(!V||V.phase!=='select') return;
+  if(SEL.stage==='gauge'){const p=gaugePos();$('#gNeedle').style.left=(p*100)+'%'}
+  const remain=Math.max(0,SEL.deadlineLocal-performance.now()), s=Math.ceil(remain/1000);
+  const tn=$('#timerNum'); if(tn.textContent!==String(s)){tn.textContent=s;if(s<=5&&s>0&&SEL.stage!=='done') SFX.beep(s<=3)}
+  const ring=$('#timerRing'), L=2*Math.PI*17; ring.style.strokeDasharray=L; ring.style.strokeDashoffset=L*(1-remain/SELECT_MS);
+  $('#timer').classList.toggle('hurry',s<=5);
+  if(V.paused){tn.textContent='‖'}
+  if(remain<=0&&SEL.stage!=='done'&&!V.paused){SEL.stage='done';SEL.q=-1;$('#lockMsg').textContent='時間切れ… おまかせで決まるよ';showStage()}
+}
+
+/* ---------- キックオフの演出・タイトル ---------- */
+async function playIntro(P){
+  setModal(null); ensureGameUI(); hideSelectUI(); selKey='';
+  setupKickScene(P.first);
+  SFX.crowdLevel(.16,1); SFX.whistle(true); flashes.set(60);
+  shot(new V3(-16,9,30),new V3(0,1,4),14,8,30,{cut:true});
+  shot(new V3(9,4.5,22),new V3(0,1.2,3),9,5,20,{l:.7});
+  banner('KICK OFF',`${P.names[0]} VS ${P.names[1]}`,'#ffd166',`${REG}本勝負 ・ 先に蹴るのは ${P.names[P.first]}`);
+  $('#lockMsg').textContent='決定！ 相手を待っています…';
+}
+function ensureGameUI(){
+  if(G.inTitle){G.inTitle=false;const t=$('#title');t.classList.add('out');setTimeout(()=>{if(!G.inTitle)t.hidden=true},500)}
+  if(['hostModal','joinModal','waitModal'].includes(G.modal)) setModal(null);
+  $('#hud').classList.remove('off'); keepAwake(true);
+}
+function toTitleScene(){
+  G.inTitle=true; const t=$('#title'); t.hidden=false; requestAnimationFrame(()=>t.classList.remove('out'));
+  $('#hud').classList.add('off'); hideSelectUI(); setupKickScene(0); SCN.mode='title'; keepAwake(false);
+  selKey=''; lastIntro=0;
+}
+function showEnd(P){
+  const w=P.winner; if(w<0) return;
+  if(G.modal==='endModal') return;
+  const sc=scores(P.kicks);
+  setupKickScene(w); SCN.mode='celebrate'; SCN.cel=w;
+  fireworks(TEAMS[w].css); setTimeout(()=>fireworks('#ffd166'),1300); SFX.win(); SFX.roar(); crowdExcite(1,4);
+  shot(new V3(4,2.2,8),new V3(0,1.2,4),3.5,2.4,6,{l:1});
+  $('#endTitle').textContent=w===ME.team?'YOU WIN!':'WINNER';
+  const nm=$('#endName'); nm.textContent=P.names[w]; nm.style.setProperty('--rc',TEAMS[w].css);
+  $('#endS0').textContent=sc[0]; $('#endS1').textContent=sc[1];
+  const st=t=>{const ks=P.kicks.filter(k=>k.t===t),kp=P.kicks.filter(k=>k.t!==t);return {g:ks.filter(k=>k.out==='goal').length,n:ks.length,s:kp.filter(k=>k.out==='save').length,p:ks.filter(k=>k.kq===2).length+kp.filter(k=>k.gq===2).length}};
+  $('#endStats').innerHTML=[0,1].map(t=>{const s=st(t);return `<div style="--tc:${TEAMS[t].css}">${esc(P.names[t])}<b>${s.g}/${s.n} GOAL ・ ${s.s} SAVE</b>PERFECT ${s.p}回</div>`}).join('');
+  const ag=$('#btnAgain'); ag.disabled=false; ag.textContent='もう1戦';
+  setTimeout(()=>{if(V&&V.phase==='end') setModal('endModal')},1800);
+}
+$('#btnAgain').addEventListener('click',()=>{SFX.click();const b=$('#btnAgain');b.disabled=true;b.textContent='相手を待っています…';act({type:'rematch'})});
+
+/* ---------- 画面の部品 ---------- */
+const MODALS=['howModal','hostModal','joinModal','waitModal','menuModal','endModal'];
+function setModal(id){MODALS.forEach(m=>{$('#'+m).hidden=m!==id});G.modal=id||null}
+let modalReturn=null;
+document.querySelectorAll('[data-close]').forEach(b=>b.addEventListener('click',()=>{SFX.click();setModal(modalReturn);modalReturn=null}));
+let toastTimer=0;
+function toast(html,ms=2400){const t=$('#toast');t.innerHTML=html;t.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),ms)}
+let wakeLock=null,wantWake=false;
+function keepAwake(on){wantWake=on;try{if(on){if(!navigator.wakeLock||wakeLock)return;navigator.wakeLock.request('screen').then(w=>{wakeLock=w;w.addEventListener('release',()=>{wakeLock=null})}).catch(()=>{})}else if(wakeLock){const w=wakeLock;wakeLock=null;try{w.release()}catch(e){}}}catch(e){}}
+
+/* =========================================================
+   通信（PeerJS：スマホ同士を直接つなぐ）
+   ========================================================= */
+const ROOM_PREFIX='lastkick-v1-';
+const PEER_SRC='https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.4/peerjs.min.js';
+const SESS_KEY='lastkick.session.v1',HOST_KEY='lastkick.host.v1',NAME_KEY='lastkick.name';
+const RC_MAX=8;
+const NETW={peer:null,conn:null,code:null,token:null,name:'',joined:false,guest:null,loading:false,rc:{active:false,n:0,timer:0}};
+function savedName(){try{return localStorage.getItem(NAME_KEY)||''}catch(e){return ''}}
+function rememberName(n){try{localStorage.setItem(NAME_KEY,n)}catch(e){}}
+function newToken(){let s='';for(let i=0;i<4;i++)s+=Math.floor(Math.random()*0x100000000).toString(36);return s}
+function safeSend(c,o){try{if(c&&c.open)c.send(o)}catch(e){}}
+function act(m){
+  if(ME.mode==='host'){handleAction(ME.team,m);return true}
+  if(ME.mode==='guest'&&NETW.conn&&NETW.conn.open){safeSend(NETW.conn,m);return true}
+  toast('接続が切れています。つながり直すまで少し待ってね');return false;
+}
+function loadPeer(cb){
+  if(window.Peer)return cb(null);
+  if(NETW.loading){const t=setInterval(()=>{if(window.Peer||!NETW.loading){clearInterval(t);cb(window.Peer?null:new Error('load'))}},200);return}
+  NETW.loading=true;let done=false;const fin=e=>{if(done)return;done=true;NETW.loading=false;cb(e)};
+  const s=document.createElement('script');s.src=PEER_SRC;s.onload=()=>window.Peer?fin(null):fin(new Error('noglobal'));s.onerror=()=>fin(new Error('network'));
+  document.head.appendChild(s);setTimeout(()=>{if(!window.Peer)fin(new Error('timeout'))},15000);
+}
+function saveSession(){try{sessionStorage.setItem(SESS_KEY,JSON.stringify({c:NETW.code,n:NETW.name,t:NETW.token,at:Date.now()}))}catch(e){}}
+function loadSession(){try{const r=sessionStorage.getItem(SESS_KEY),o=r?JSON.parse(r):null;return(o&&o.c&&o.t&&Date.now()-(o.at||0)<3*3600*1000)?o:null}catch(e){return null}}
+function clearSession(){try{sessionStorage.removeItem(SESS_KEY)}catch(e){}}
+function saveHost(){if(ME.mode!=='host'||!NETW.code)return;try{sessionStorage.setItem(HOST_KEY,JSON.stringify({code:NETW.code,at:Date.now(),S,guest:NETW.guest?{token:NETW.guest.token,name:NETW.guest.name}:null}))}catch(e){}}
+function loadHost(){try{const r=sessionStorage.getItem(HOST_KEY),o=r?JSON.parse(r):null;if(!o||!o.code||!o.S||Date.now()-o.at>3*3600*1000)return null;return o}catch(e){return null}}
+function clearHost(){try{sessionStorage.removeItem(HOST_KEY)}catch(e){}}
+let netbarTimer=0;
+function showNetBar(text,kind,withButtons){const b=$('#netbar');if(kind==='err'&&!b.classList.contains('err'))SFX.alert();clearTimeout(netbarTimer);b.className='on '+(kind||'');b.querySelector('.msg').textContent=text;b.querySelector('.acts').style.display=withButtons?'flex':'none'}
+function hideNetBar(delay){clearTimeout(netbarTimer);if(delay){netbarTimer=setTimeout(()=>hideNetBar(),delay);return}$('#netbar').className=''}
+function stopReconnect(){NETW.rc.active=false;NETW.rc.n=0;clearTimeout(NETW.rc.timer)}
+function cleanupNet(){
+  stopReconnect();hideNetBar();
+  try{if(NETW.peer&&!NETW.peer.destroyed)NETW.peer.destroy()}catch(e){}
+  NETW.peer=null;NETW.conn=null;NETW.joined=false;NETW.code=null;NETW.guest=null;
+  viewQ.length=0;
+}
+function leaveOnline(note){
+  if(ME.mode==='guest')safeSend(NETW.conn,{type:'bye'});
+  if(ME.mode==='host'&&NETW.guest&&NETW.guest.conn)safeSend(NETW.guest.conn,{type:'closed'});
+  const pr=NETW.peer;NETW.peer=null;setTimeout(()=>{try{if(pr&&!pr.destroyed)pr.destroy()}catch(e){}},400);
+  cleanupNet();clearSession();clearHost();
+  ME.mode='none';ME.team=0;S=freshState();V=null;lastReveal=0;
+  setModal(null);toTitleScene();
+  if(note)setTimeout(()=>toast(note,3000),300);
+}
+function netFail(m){cleanupNet();clearHost();ME.mode='none';setModal(null);toTitleScene();$('#titleErr').innerHTML=`<div class="err-box">${esc(m||'通信の準備に失敗しました。電波の良い場所で、もう一度試してね。')}</div>`}
+function roomUrl(code){if(location.protocol==='file:')return '';return location.origin+location.pathname+'?r='+code}
+function copyText(text,btn){
+  const done=()=>{if(!btn)return;const old=btn.textContent;btn.textContent='コピーしました';setTimeout(()=>{btn.textContent=old},1600)};
+  const fallback=()=>{try{const ta=document.createElement('textarea');ta.value=text;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);done()}catch(e){}};
+  try{if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(text).then(done).catch(fallback);return}}catch(e){}fallback();
+}
+function renderCode(code){const box=$('#hostCode');box.innerHTML='';String(code||'····').split('').forEach((c,i)=>{const s=document.createElement('span');s.textContent=c;s.style.setProperty('--i',i);box.appendChild(s)})}
+function renderQR(code){
+  const box=$('#hostQr');box.innerHTML='';const url=roomUrl(code);
+  if(!url){box.innerHTML='<p class="note" style="text-align:center">このファイルを直接開いているので、QRコードは出せません。ゲーム棚から開くと使えるよ。</p>';return}
+  let svg=null;try{svg=QR.svg(url,4,'#070b1d','#ffffff')}catch(e){}
+  const card=document.createElement('div');card.className='qrcard';
+  if(svg){const w=document.createElement('div');w.className='qrwrap';w.innerHTML=svg;card.appendChild(w)}
+  const side=document.createElement('div');side.className='qrside';side.innerHTML='相手のカメラで読むと、参加画面が開くよ<div class="qrlink"></div>';side.querySelector('.qrlink').textContent=url;
+  const cp=document.createElement('button');cp.className='btn-sm';cp.type='button';cp.textContent='リンクをコピー';cp.onclick=()=>copyText(url,cp);side.appendChild(cp);card.appendChild(side);box.appendChild(card);
+}
+function setStatus(w,cls,txt){$('#'+w+'Dot').className='sdot '+cls;$('#'+w+'Status').textContent=txt}
+
+/* ---- 部屋を作る ---- */
+function startHost(){
+  const nm=cleanName($('#myName').value,TEAMS[0].name);rememberName(nm);
+  cleanupNet();clearHost();clearSession();$('#titleErr').innerHTML='';
+  ME.mode='host';ME.team=0;S=freshState();S.names=[nm,TEAMS[1].name];lastReveal=0;
+  renderCode(null);$('#hostQr').innerHTML='';setStatus('host','wait','部屋を準備しています…');
+  renderHostLobby();setModal('hostModal');keepAwake(true);
+  loadPeer(err=>{if(err){netFail();return}tryHostCode(0)});
+}
+function tryHostCode(a){
+  if(a>6){netFail('空いている部屋番号が見つかりませんでした。少し待ってから、もう一度試してね。');return}
+  const code=String(Math.floor(1000+Math.random()*9000));
+  openHostPeer(code,()=>{NETW.code=code;renderCode(code);renderQR(code);setStatus('host','ok','相手の参加を待っています');commit()},()=>tryHostCode(a+1));
+}
+function openHostPeer(code,onOpen,onTaken){
+  let p;try{p=new Peer(ROOM_PREFIX+code,{debug:0})}catch(e){netFail();return}
+  NETW.peer=p;let opened=false;
+  p.on('open',()=>{if(NETW.peer!==p)return;if(opened){hideNetBar();return}opened=true;onOpen()});
+  p.on('connection',c=>{if(NETW.peer===p)hookGuest(c)});
+  p.on('disconnected',()=>{if(!opened||NETW.peer!==p)return;showNetBar('回線が不安定です。部屋を復旧しています…','warn',false);try{if(!p.destroyed)p.reconnect()}catch(e){}});
+  p.on('error',e=>{if(NETW.peer!==p)return;if(!opened&&e&&e.type==='unavailable-id'){try{p.destroy()}catch(_){}onTaken();return}if(!opened){netFail();return}if(e&&e.type==='peer-unavailable')return;showNetBar('通信エラーが起きました','err',false);hideNetBar(3000)});
+}
+function renderHostLobby(){
+  $('#slot0').textContent=S.names[0];
+  const g=NETW.guest,ok=g&&!g.gone;
+  $('#slot1').textContent=ok?g.name:'まだ来ていません';$('#slot1box').classList.toggle('on',!!ok);
+  $('#btnStart').disabled=!ok;
+  if(ok&&NETW.code)setStatus('host','ok',`${g.name}が参加しました！`);
+}
+function hookGuest(conn){
+  conn.on('data',m=>{
+    if(!m||typeof m!=='object'||!m.type)return;
+    if(m.type==='hello'){
+      const token=typeof m.token==='string'?m.token.slice(0,64):'';const g=NETW.guest;
+      if(g&&token&&g.token===token){
+        if(g.conn&&g.conn!==conn){try{g.conn.close()}catch(e){}}
+        g.conn=conn;g.gone=false;g.name=cleanName(m.name,g.name);S.names[1]=g.name;
+        safeSend(conn,{type:'welcome',resumed:true});
+        if(S.paused&&S.phase==='select'){S.paused=false;S.deadline=Date.now()+Math.max(5000,S.pauseRemain)}
+        if(S.phase!=='lobby'){showNetBar(`${g.name}がもどってきました`,'ok',false);hideNetBar(1800)}
+        SFX.join();renderHostLobby();commit();return;
+      }
+      if(g&&(!g.gone||S.phase!=='lobby')){safeSend(conn,{type:g.gone?'started':'full'});setTimeout(()=>{try{conn.close()}catch(e){}},500);return}
+      NETW.guest={conn,token:token||newToken(),name:cleanName(m.name,TEAMS[1].name),gone:false};
+      S.names[1]=NETW.guest.name;safeSend(conn,{type:'welcome'});SFX.join();renderHostLobby();commit();return;
+    }
+    if(!NETW.guest||NETW.guest.conn!==conn)return;
+    if(m.type==='bye'){
+      const nm=NETW.guest.name;NETW.guest=null;S=Object.assign(freshState(),{names:[S.names[0],TEAMS[1].name],matchNo:S.matchNo,revealId:S.revealId,introId:S.introId});
+      resolving=false;toTitleScene();commit();setModal('hostModal');toast(`${esc(nm)}が退出しました`);return;
+    }
+    handleAction(1,m);
+  });
+  conn.on('close',()=>{
+    const g=NETW.guest;if(!g||g.conn!==conn)return;
+    if(S.phase==='lobby'){NETW.guest=null;S.names[1]=TEAMS[1].name;renderHostLobby();setStatus('host','ok','相手の参加を待っています');commit()}
+    else{
+      g.gone=true;g.conn=null;SFX.leave();
+      if(S.phase==='select'&&!S.paused){S.paused=true;S.pauseRemain=Math.max(3000,S.deadline-Date.now())}
+      showNetBar(`${g.name}の接続が切れました。もどってくるのを待っています`,'warn',true);commit();
+    }
+  });
+  conn.on('error',()=>{});
+}
+function resumeHost(saved){
+  ME.mode='host';ME.team=0;S=Object.assign(freshState(),saved.S);NETW.code=saved.code;
+  NETW.guest=saved.guest?{token:saved.guest.token,name:saved.guest.name,gone:true,conn:null}:null;
+  lastReveal=S.revealId; resolving=false;
+  if(S.phase==='reveal'){const w=decide(S.kicks);if(w>=0){S.phase='end';S.winner=w}else{S.kickNo++;S.phase='select'}}
+  if(S.phase==='intro') S.phase='select';
+  if(S.phase==='select'){S.choices={kick:null,keep:null};S.deadline=Date.now()+SELECT_MS;S.paused=!!(NETW.guest&&NETW.guest.gone);S.pauseRemain=SELECT_MS}
+  if(S.phase==='lobby'){renderCode(saved.code);renderQR(saved.code)}
+  commit();
+  showNetBar('部屋を復旧しています…','warn',false);
+  let tries=0;
+  (function attempt(){loadPeer(err=>{if(err){netFail();return}openHostPeer(saved.code,()=>{
+    showNetBar(NETW.guest?'部屋を復旧しました。相手が自動でもどってきます':'部屋を復旧しました','ok',false);hideNetBar(2600);
+    renderCode(saved.code);renderQR(saved.code);setStatus('host','ok','相手の参加を待っています');
+  },()=>{if(++tries>12){netFail('前の部屋を復旧できませんでした。新しく部屋を作ってね。');return}setTimeout(attempt,2500)})})})();
+}
+/* ---- 参加する ---- */
+function handleGuestData(m){
+  if(!m||!m.type)return;
+  if(m.type==='welcome'){NETW.joined=true;saveSession();noteReconnected();setStatus('join','ok','つながりました！')}
+  else if(m.type==='sync'){NETW.joined=true;noteReconnected();applyView(m.P);saveSession()}
+  else if(m.type==='full')giveUp('この部屋はもう2人そろっています。');
+  else if(m.type==='started')giveUp('この部屋はもう試合が始まっています。');
+  else if(m.type==='closed')leaveOnline('相手が部屋を閉じました');
+}
+function noteReconnected(){if(!NETW.rc.active)return;stopReconnect();showNetBar('再接続しました','ok',false);hideNetBar(1600);SFX.join()}
+function giveUp(text){cleanupNet();clearSession();ME.mode='none';setModal('joinModal');$('#btnJoin').disabled=false;$('#joinRow').hidden=true;$('#joinErr').innerHTML=`<div class="err-box">${esc(text)}</div>`}
+function handleGuestClose(){if(ME.mode!=='guest')return;if(NETW.joined)startReconnect();else giveUp('相手との接続が切れました。もう一度参加してね。')}
+function startReconnect(){if(NETW.rc.active)return;NETW.rc.active=true;NETW.rc.n=0;SFX.leave();attemptReconnect()}
+function attemptReconnect(){
+  if(!NETW.rc.active)return;
+  if(NETW.rc.n>=RC_MAX){NETW.rc.active=false;showNetBar('再接続できませんでした','err',true);return}
+  NETW.rc.n++;showNetBar(`接続が切れました。再接続しています…（${NETW.rc.n}/${RC_MAX}）`,'warn',NETW.rc.n>2);
+  const w=NETW.rc.n===1?400:Math.min(800*Math.pow(1.6,NETW.rc.n-1),7000);
+  NETW.rc.timer=setTimeout(()=>{connectToHost(NETW.code,NETW.name,NETW.token,()=>{if(NETW.rc.active)attemptReconnect()})},w);
+}
+function connectToHost(code,name,token,onFail){
+  let failed=false;const fail=r=>{if(failed)return;failed=true;onFail(r)};
+  loadPeer(err=>{
+    if(err)return fail('net');
+    try{if(NETW.peer&&!NETW.peer.destroyed)NETW.peer.destroy()}catch(e){}
+    NETW.peer=null;NETW.conn=null;ME.mode='guest';ME.team=1;
+    let self;try{self=new Peer(undefined,{debug:0})}catch(e){return fail('peer')}
+    NETW.peer=self;let opened=false,settled=false;
+    self.on('open',()=>{
+      if(opened||NETW.peer!==self)return;opened=true;
+      const c=self.connect(ROOM_PREFIX+code,{reliable:true});NETW.conn=c;
+      c.on('open',()=>{settled=true;safeSend(c,{type:'hello',name,token})});
+      c.on('data',m=>{if(NETW.peer===self)handleGuestData(m)});
+      c.on('close',()=>{if(NETW.peer===self&&NETW.conn===c)handleGuestClose()});
+      c.on('error',()=>{if(!settled)fail('noroom')});
+    });
+    self.on('disconnected',()=>{try{if(!self.destroyed)self.reconnect()}catch(e){}});
+    self.on('error',e=>{if(settled)return;fail(e&&e.type==='peer-unavailable'?'noroom':'other')});
+    setTimeout(()=>{if(!settled)fail('timeout')},15000);
+  });
+}
+function openJoin(code){$('#joinCode').value=code||'';$('#joinName').value=$('#myName').value||savedName();$('#joinErr').innerHTML='';$('#joinRow').hidden=true;$('#btnJoin').disabled=false;setModal('joinModal')}
+function startJoin(){
+  const code=($('#joinCode').value||'').replace(/[^0-9]/g,''),name=cleanName($('#joinName').value,'');
+  $('#joinErr').innerHTML='';const err=t=>{$('#joinErr').innerHTML=`<div class="err-box">${esc(t)}</div>`};
+  if(code.length!==4)return err('あいことばを4桁で入れてね。');
+  if(!name)return err('名前を入れてね（8文字まで）。');
+  cleanupNet();NETW.code=code;NETW.name=name;NETW.token=newToken();rememberName(name);saveSession();
+  $('#btnJoin').disabled=true;$('#joinRow').hidden=false;setStatus('join','wait','つないでいます…');
+  lastReveal=0;
+  connectToHost(code,name,NETW.token,reason=>{
+    $('#btnJoin').disabled=false;ME.mode='none';setStatus('join','err','接続できませんでした');clearSession();
+    err(reason==='noroom'?'その部屋が見つかりませんでした。あいことばを確かめてね。':reason==='net'?'通信の準備に失敗しました。電波を確認して、もう一度試してね。':'接続できませんでした。Wi-Fiを切ってモバイル回線で試すと、つながることがあるよ。');
+  });
+}
+function resumeGuest(s){NETW.code=s.c;NETW.name=s.n||'';NETW.token=s.t;NETW.joined=true;ME.mode='guest';ME.team=1;showNetBar('前の部屋にもどっています…','warn',true);NETW.rc.active=true;NETW.rc.n=0;attemptReconnect()}
+
+/* ---- QRコード（外部ライブラリなし・URL用） ---- */
+var QR=(function(){
+  var EXP=new Array(512),LOG=new Array(256);
+  (function(){var x=1;for(var i=0;i<255;i++){EXP[i]=x;LOG[x]=i;x<<=1;if(x&0x100)x^=0x11d}for(i=255;i<512;i++)EXP[i]=EXP[i-255]})();
+  function mul(a,b){return(a===0||b===0)?0:EXP[LOG[a]+LOG[b]]}
+  function genPoly(n){var g=[1],i,j;for(i=0;i<n;i++){var ng=[];for(j=0;j<=g.length;j++)ng[j]=0;for(j=0;j<g.length;j++){ng[j]^=g[j];ng[j+1]^=mul(g[j],EXP[i])}g=ng}return g}
+  function rsEc(data,ecLen){var g=genPoly(ecLen),res=data.slice(),i,j;for(i=0;i<ecLen;i++)res.push(0);for(i=0;i<data.length;i++){var c=res[i];if(!c)continue;for(j=0;j<g.length;j++)res[i+j]^=mul(g[j],c)}return res.slice(data.length)}
+  var VER=[null,{s:21,t:26,e:7,a:0},{s:25,t:44,e:10,a:18},{s:29,t:70,e:15,a:22},{s:33,t:100,e:20,a:26},{s:37,t:134,e:26,a:30}];
+  function utf8(str){var out=[],i,c;for(i=0;i<str.length;i++){c=str.charCodeAt(i);if(c<0x80)out.push(c);else if(c<0x800){out.push(0xc0|(c>>6),0x80|(c&63))}else if(c>=0xd800&&c<0xdc00&&i+1<str.length){var c2=str.charCodeAt(++i),cp=0x10000+((c-0xd800)<<10)+(c2-0xdc00);out.push(0xf0|(cp>>18),0x80|((cp>>12)&63),0x80|((cp>>6)&63),0x80|(cp&63))}else{out.push(0xe0|(c>>12),0x80|((c>>6)&63),0x80|(c&63))}}return out}
+  function build(text){
+    var bytes=utf8(text),v,info=null;
+    for(v=1;v<=5;v++){var cap=VER[v].t-VER[v].e-2;if(bytes.length<=cap){info=VER[v];break}}
+    if(!info)return null;
+    var dataLen=info.t-info.e,bits=[],i,j;
+    function push(val,len){for(var k=len-1;k>=0;k--)bits.push((val>>k)&1)}
+    push(4,4);push(bytes.length,8);for(i=0;i<bytes.length;i++)push(bytes[i],8);
+    var total=dataLen*8;for(i=0;i<4&&bits.length<total;i++)bits.push(0);while(bits.length%8)bits.push(0);
+    var words=[];for(i=0;i<bits.length;i+=8){var b=0;for(j=0;j<8;j++)b=(b<<1)|bits[i+j];words.push(b)}
+    var pad=[0xEC,0x11],p=0;while(words.length<dataLen)words.push(pad[p++%2]);
+    var all=words.concat(rsEc(words,info.e));
+    var n=info.s,m=[],fn=[];
+    for(i=0;i<n;i++){m[i]=[];fn[i]=[];for(j=0;j<n;j++){m[i][j]=0;fn[i][j]=0}}
+    function setF(r,c,v){if(r<0||c<0||r>=n||c>=n)return;m[r][c]=v;fn[r][c]=1}
+    function finder(r,c){for(var dr=-1;dr<=7;dr++)for(var dc=-1;dc<=7;dc++){var rr=r+dr,cc=c+dc;if(rr<0||cc<0||rr>=n||cc>=n)continue;var on=(dr>=0&&dr<=6&&(dc===0||dc===6))||(dc>=0&&dc<=6&&(dr===0||dr===6))||(dr>=2&&dr<=4&&dc>=2&&dc<=4);setF(rr,cc,on?1:0)}}
+    finder(0,0);finder(0,n-7);finder(n-7,0);
+    for(i=8;i<n-8;i++){setF(6,i,(i%2===0)?1:0);setF(i,6,(i%2===0)?1:0)}
+    if(info.a){var a=info.a;for(var dr=-2;dr<=2;dr++)for(var dc=-2;dc<=2;dc++){var on=(Math.abs(dr)===2||Math.abs(dc)===2||(dr===0&&dc===0));setF(a+dr,a+dc,on?1:0)}}
+    setF(n-8,8,1);
+    for(i=0;i<9;i++){if(i!==6){setF(8,i,0);setF(i,8,0)}}
+    for(i=0;i<8;i++){setF(8,n-1-i,0);setF(n-1-i,8,0)}
+    var bitIdx=0,dirUp=true,col,dataBits=[];
+    for(i=0;i<all.length;i++)for(j=7;j>=0;j--)dataBits.push((all[i]>>j)&1);
+    for(col=n-1;col>0;col-=2){if(col===6)col--;for(var k=0;k<n;k++){var row=dirUp?(n-1-k):k;for(var c2=0;c2<2;c2++){var cc2=col-c2;if(fn[row][cc2])continue;m[row][cc2]=bitIdx<dataBits.length?dataBits[bitIdx++]:0}}dirUp=!dirUp}
+    function maskFn(k,r,c){switch(k){case 0:return(r+c)%2===0;case 1:return r%2===0;case 2:return c%3===0;case 3:return(r+c)%3===0;case 4:return(Math.floor(r/2)+Math.floor(c/3))%2===0;case 5:return((r*c)%2)+((r*c)%3)===0;case 6:return(((r*c)%2)+((r*c)%3))%2===0;default:return(((r+c)%2)+((r*c)%3))%2===0}}
+    function fmtBits(mask){var f=(1<<3)|mask,d=f<<10,g=0x537;for(var i2=4;i2>=0;i2--)if(d&(1<<(i2+10)))d^=g<<i2;return((f<<10)|d)^0x5412}
+    function putFmt(grid,mask){var b=fmtBits(mask),i2;for(i2=0;i2<15;i2++){var bit=(b>>i2)&1;if(i2<6)grid[i2][8]=bit;else if(i2===6)grid[7][8]=bit;else if(i2===7)grid[8][8]=bit;else if(i2===8)grid[8][7]=bit;else grid[8][14-i2]=bit;if(i2<8)grid[8][n-1-i2]=bit;else grid[n-15+i2][8]=bit}grid[n-8][8]=1}
+    function penalty(g){
+      var p=0,i2,j2,run,cnt=0;
+      for(i2=0;i2<n;i2++){run=1;for(j2=1;j2<n;j2++){if(g[i2][j2]===g[i2][j2-1])run++;else{if(run>=5)p+=3+(run-5);run=1}}if(run>=5)p+=3+(run-5);run=1;for(j2=1;j2<n;j2++){if(g[j2][i2]===g[j2-1][i2])run++;else{if(run>=5)p+=3+(run-5);run=1}}if(run>=5)p+=3+(run-5)}
+      for(i2=0;i2<n-1;i2++)for(j2=0;j2<n-1;j2++){var s=g[i2][j2]+g[i2][j2+1]+g[i2+1][j2]+g[i2+1][j2+1];if(s===0||s===4)p+=3}
+      var pat=[1,0,1,1,1,0,1,0,0,0,0],pat2=[0,0,0,0,1,0,1,1,1,0,1];
+      function match(arr,st,p2){for(var q=0;q<11;q++)if(arr[st+q]!==p2[q])return false;return true}
+      for(i2=0;i2<n;i2++){var rowA=g[i2],colA=[];for(j2=0;j2<n;j2++)colA.push(g[j2][i2]);for(j2=0;j2+11<=n;j2++){if(match(rowA,j2,pat)||match(rowA,j2,pat2))p+=40;if(match(colA,j2,pat)||match(colA,j2,pat2))p+=40}}
+      for(i2=0;i2<n;i2++)for(j2=0;j2<n;j2++)if(g[i2][j2])cnt++;
+      p+=Math.floor(Math.abs(cnt*100/(n*n)-50)/5)*10;return p;
+    }
+    var best=null,bestP=Infinity,mk;
+    for(mk=0;mk<8;mk++){var g2=[];for(i=0;i<n;i++){g2[i]=[];for(j=0;j<n;j++)g2[i][j]=m[i][j]^(fn[i][j]?0:(maskFn(mk,i,j)?1:0))}putFmt(g2,mk);var p3=penalty(g2);if(p3<bestP){bestP=p3;best=g2}}
+    return best;
+  }
+  function svg(text,px,dark,light){var g=build(text);if(!g)return null;var n=g.length,q=4,size=(n+q*2)*px,d='',i,j;for(i=0;i<n;i++)for(j=0;j<n;j++)if(g[i][j])d+='M'+((j+q)*px)+' '+((i+q)*px)+'h'+px+'v'+px+'h-'+px+'z';return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 '+size+' '+size+'" width="'+size+'" height="'+size+'" shape-rendering="crispEdges"><rect width="'+size+'" height="'+size+'" fill="'+(light||'#fff')+'"/><path fill="'+(dark||'#000')+'" d="'+d+'"/></svg>'}
+  return {build:build,svg:svg};
+})();
+
+/* =========================================================
+   ボタン
+   ========================================================= */
+$('#myName').value=savedName();
+$('#btnHost').addEventListener('click',()=>{SFX.ensure();SFX.click();startHost()});
+$('#btnJoinOpen').addEventListener('click',()=>{SFX.ensure();SFX.click();openJoin('')});
+$('#btnHow').addEventListener('click',()=>{SFX.ensure();SFX.click();modalReturn=null;setModal('howModal')});
+$('#btnJoin').addEventListener('click',()=>{SFX.ensure();SFX.click();startJoin()});
+$('#joinBack').addEventListener('click',()=>{SFX.click();cleanupNet();clearSession();ME.mode='none';setModal(null)});
+$('#joinCode').addEventListener('input',e=>{e.target.value=e.target.value.replace(/[^0-9]/g,'').slice(0,4)});
+$('#btnStart').addEventListener('click',()=>{if(!NETW.guest||NETW.guest.gone)return;SFX.ensure();SFX.click();startMatch()});
+$('#btnClose').addEventListener('click',()=>{SFX.click();leaveOnline()});
+$('#btnWaitLeave').addEventListener('click',()=>{SFX.click();leaveOnline()});
+$('#btnMenu').addEventListener('click',()=>{SFX.click();$('#mSound').textContent='音：'+(SFX.muted?'OFF':'ON');leaveArm=false;$('#mLeave').textContent='退出してタイトルへ';setModal('menuModal')});
+$('#mSound').addEventListener('click',()=>{SFX.setMuted(!SFX.muted);$('#mSound').textContent='音：'+(SFX.muted?'OFF':'ON')});
+$('#mHow').addEventListener('click',()=>{SFX.click();modalReturn='menuModal';setModal('howModal')});
+let leaveArm=false;
+$('#mLeave').addEventListener('click',()=>{SFX.click();if(!leaveArm){leaveArm=true;$('#mLeave').textContent='もう一度押すと退出します';return}leaveOnline()});
+$('#btnEndLeave').addEventListener('click',()=>{SFX.click();leaveOnline()});
+{const nb=$('#netbar');nb.querySelector('.rt').onclick=()=>{if(ME.mode==='guest'&&NETW.code){stopReconnect();NETW.rc.active=true;NETW.rc.n=0;attemptReconnect()}else hideNetBar()};nb.querySelector('.lc').onclick=()=>leaveOnline()}
+
+/* =========================================================
+   メインループ
+   ========================================================= */
+let last=performance.now(),perfT=0,perfN=0,perfSum=0,clock=0,SPEED=1;
+engine.runRenderLoop(()=>{
+  const now=performance.now(),rdt=Math.min(.05,(now-last)/1000)*SPEED;last=now;
+  const gdt=rdt*timeScale; clock+=rdt;
+  if(ANIM){ANIM.t+=gdt;ANIM.update(ANIM.t,gdt);if(ANIM.t>=ANIM.dur){const a=ANIM;ANIM=null;a.res()}}
+  else if(SCN.mode==='idle'||SCN.mode==='title'){
+    const K=kickerOf(SCN.kt),Gk=keeperOf(SCN.kt);poseIdle(K,clock);poseKeeperReady(Gk,clock);placeBlob(K);placeBlob(Gk);
+    if(SCN.mode==='title'){const a=clock*.08;CG.pos.set(Math.sin(a)*24,7.5,8+Math.cos(a)*24);CG.tgt.set(0,1.2,5);CG.W=12;CG.H=7;CG.fd=24;CG.l=1}
+  }else if(SCN.mode==='celebrate'){
+    for(const g of [0,1]){const P=PL[SCN.cel][g];if(P.n.isEnabled()){poseCheer(P,clock+g*.4);placeBlob(P)}}
+    const Lz=PL[1-SCN.cel];for(const g of [0,1]){const P=Lz[g];if(P.n.isEnabled()){poseSad(P,clock);placeBlob(P)}}
+  }
+  updateTweens(rdt); updateWaits(rdt); updateNet(gdt); updateCamera(rdt);
+  for(const c of CROWD){c.ph+=rdt*(6+c.amp*6);c.m.position.y=c.base+Math.max(0,Math.sin(c.ph))*c.amp*.35;c.amp=Math.max(.02,c.amp-rdt*.05)}
+  LED.t.uOffset=(LED.t.uOffset+rdt*.04)%1;
+  updateSelectFrame();
+  scene.render();
+  updateZonePositions();
+  if(perfT>=0){perfT+=rdt;perfSum+=engine.getFps();perfN++;if(perfT>3){const fps=perfSum/perfN;perfT=perfSum=perfN=0;if(fps<38&&dprCap>1){dprCap=Math.max(1,dprCap-.35);engine.setHardwareScalingLevel(1/dprCap)}}}
+});
+window.addEventListener('resize',()=>engine.resize());
+
+/* ---------- 起動 ---------- */
+toTitleScene();
+shot(new V3(0,7.5,32),new V3(0,1.2,5),12,7,24,{cut:true});
+scene.executeWhenReady(()=>{
+  probe.refreshRate=B.RenderTargetTexture.REFRESHRATE_RENDER_ONCE;
+  setTimeout(()=>{$('#loader').classList.add('out');setTimeout(()=>$('#loader').remove(),700)},250);
+});
+{
+  const mr=(location.search||'').match(/[?&]r=(\d{4})/);
+  const gs=loadSession(),hs=loadHost();
+  if(mr){try{history.replaceState(null,'',location.pathname)}catch(e){}if(gs&&gs.c===mr[1])resumeGuest(gs);else openJoin(mr[1])}
+  else if(hs)resumeHost(hs);
+  else if(gs)resumeGuest(gs);
+}
+document.addEventListener('visibilitychange',()=>{
+  last=performance.now();
+  if(document.visibilityState!=='visible')return;
+  if(wantWake&&!wakeLock)keepAwake(true);
+  if(ME.mode==='guest'&&NETW.joined&&(!NETW.conn||!NETW.conn.open)&&!NETW.rc.active)startReconnect();
+});
+
+// テスト・デバッグ用（遊びには影響しない）
+window.__lk={get S(){return S},get V(){return V},ME,NETW,SEL,choose:(z,sp,q)=>{if(!V||V.phase!=='select')return false;SEL.zone=z;SEL.sp=!!sp;SEL.q=q;SEL.stage='done';SEL.locked=true;showStage();return act({type:'choose',kickNo:V.kickNo,z,sp:!!sp,q})},
+  get anim(){return !!ANIM},get animT(){return ANIM?ANIM.t:-1},set speed(v){SPEED=v},judge,decide};
+})();
+</script>
+</body>
+</html>
