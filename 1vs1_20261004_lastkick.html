@@ -830,7 +830,7 @@ function makePlayer(team,gk){
   const num=B.MeshBuilder.CreatePlane('num',{size:.32},scene);
   const nt=new B.DynamicTexture('numT',{width:128,height:128},scene,false),c=nt.getContext();c.clearRect(0,0,128,128);c.fillStyle='#ffffff';c.font='bold 92px "Bebas Neue", Impact, sans-serif';c.textAlign='center';c.textBaseline='middle';c.fillText(gk?'1':(team?'7':'10'),64,70);nt.update();nt.hasAlpha=true;
   const nm=new B.StandardMaterial('numM',scene);nm.diffuseTexture=nt;nm.useAlphaFromDiffuseTexture=true;nm.emissiveColor=new C3(.6,.6,.6);nm.backFaceCulling=false;
-  num.material=nm;num.parent=pivot;num.position.set(0,.12,-.28);num.rotation.y=Math.PI;num.isPickable=false;
+  num.material=nm;num.parent=pivot;num.position.set(0,.12,-.28);num.isPickable=false; // 板の表は -z（背中側）向きなので回さない（回すと鏡文字になる）
   const limb=(name,x,y,len,r,mat,end,endD,endMat)=>{
     const p=new B.TransformNode(name,scene); p.parent=pivot; p.position.set(x,y,0);
     at(B.MeshBuilder.CreateCapsule(name+'c',{height:len,radius:r,tessellation:10},scene),p,0,-len/2+r*.5,0,mat);
