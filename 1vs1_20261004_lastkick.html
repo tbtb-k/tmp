@@ -323,12 +323,13 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--a);outline-offs
     <div class="sec">判定のルール</div>
     <div class="rules">
       <div><i class="g">セーブ</i>キーパーが同じマスを選んだら、必ず止める</div>
-      <div><i class="y">勝負</i>となりのマスなら、タイミングがキッカーより良ければ止める</div>
-      <div><i class="r">ミス</i>キッカーが赤で止めると、端のマスはゴールを外れる（まん中は弱いシュートになる）</div>
+      <div><i class="y">勝負</i>となりのマス（左右か上下）なら、タイミングがキッカーより良ければ止める</div>
+      <div><i class="y">ゴール</i>ななめや反対側のマスなら、ほぼゴール</div>
+      <div><i class="r">ミス</i>キッカーが赤で止めると、端のマスとチップは枠を外れる（まん中は弱いシュートになる）</div>
     </div>
     <div class="sec">1試合に1回だけの切り札</div>
     <div class="rules">
-      <div><i class="g">キッカー</i><span><b>チップキック</b>：まん中上にふわっと蹴る。キーパーが左右に飛べば必ず決まるけど、まん中にいると止められる</span></div>
+      <div><i class="g">キッカー</i><span><b>チップキック</b>：まん中上にふわっと蹴る。キーパーが左右に飛べば決まるけど、まん中にいると止められる（赤で止めるとバーの上）</span></div>
       <div><i class="g">キーパー</i><span><b>ビッグセーブ</b>：守れる範囲が広がる。となりのマスは必ず止め、ななめも止めやすくなる</span></div>
     </div>
     <div class="acts"><button class="btn btn-cool" data-close>わかった！</button></div>
@@ -401,6 +402,7 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--a);outline-offs
     <div class="win-name" id="endName"></div>
     <div class="win-score"><span id="endS0">0</span><em>-</em><span id="endS1">0</span></div>
     <div class="stats" id="endStats"></div>
+    <p class="lead" id="endNote" style="margin:12px 0 0;color:var(--gold)"></p>
     <div class="acts">
       <button class="btn btn-hot" id="btnAgain">もう1戦</button>
       <button class="btn btn-ghost" id="btnEndLeave">退出してタイトルへ</button>
@@ -478,7 +480,7 @@ const SFX=(()=>{
   function noise({t=0,dur=.2,vol=.3,type='bandpass',f=1000,f2=0,q=1,att=.005}){
     if(!ctx||muted)return;
     const s=ctx.createBufferSource(),fl=ctx.createBiquadFilter(),g=ctx.createGain(),t0=ctx.currentTime+t;
-    s.buffer=noiseBuf;fl.type=type;fl.Q.value=q;fl.frequency.setValueAtTime(f,t0);if(f2)fl.frequency.exponentialRampToValueAtTime(f2,t0+dur);
+    s.buffer=noiseBuf;s.loop=true;fl.type=type;fl.Q.value=q;fl.frequency.setValueAtTime(f,t0);if(f2)fl.frequency.exponentialRampToValueAtTime(f2,t0+dur);
     g.gain.setValueAtTime(0,t0);g.gain.linearRampToValueAtTime(vol,t0+att);g.gain.exponentialRampToValueAtTime(.0001,t0+dur);
     s.connect(fl);fl.connect(g);g.connect(master);s.start(t0,Math.random()*1.5);s.stop(t0+dur+.05);
   }
@@ -814,6 +816,8 @@ const BALL=(()=>{
 BALL.set(SPOT.x,SPOT.y,SPOT.z);
 
 /* ---------- 選手 ---------- */
+const NUMS=[];
+function drawNum({nt,txt}){const c=nt.getContext();c.clearRect(0,0,128,128);c.fillStyle='#ffffff';c.font='bold 92px "Bebas Neue", Impact, sans-serif';c.textAlign='center';c.textBaseline='middle';c.fillText(txt,64,70);nt.update()}
 function makePlayer(team,gk){
   const K=TEAMS[team].kit, n=new B.TransformNode('pl',scene);
   const pivot=new B.TransformNode('pv',scene); pivot.parent=n; pivot.position.y=1.0;
@@ -828,7 +832,7 @@ function makePlayer(team,gk){
   [-1,1].forEach(s=>{const e=at(B.MeshBuilder.CreateSphere('eye',{diameter:.06,segments:8},scene),pivot,s*.085,.74,.185,MAT.eye)});
   // 背番号
   const num=B.MeshBuilder.CreatePlane('num',{size:.32},scene);
-  const nt=new B.DynamicTexture('numT',{width:128,height:128},scene,false),c=nt.getContext();c.clearRect(0,0,128,128);c.fillStyle='#ffffff';c.font='bold 92px "Bebas Neue", Impact, sans-serif';c.textAlign='center';c.textBaseline='middle';c.fillText(gk?'1':(team?'7':'10'),64,70);nt.update();nt.hasAlpha=true;
+  const nt=new B.DynamicTexture('numT',{width:128,height:128},scene,false);nt.hasAlpha=true;NUMS.push({nt,txt:gk?'1':(team?'7':'10')});drawNum(NUMS[NUMS.length-1]);
   const nm=new B.StandardMaterial('numM',scene);nm.diffuseTexture=nt;nm.useAlphaFromDiffuseTexture=true;nm.emissiveColor=new C3(.6,.6,.6);nm.backFaceCulling=false;
   num.material=nm;num.parent=pivot;num.position.set(0,.12,-.28);num.isPickable=false; // 板の表は -z（背中側）向きなので回さない（回すと鏡文字になる）
   const limb=(name,x,y,len,r,mat,end,endD,endMat)=>{
@@ -1087,7 +1091,7 @@ async function playReveal(R){
     }
     placeBlob(K); placeBlob(G);
   });
-  timeScale=1; BALL.trailOff(); SCN.mode='idle';
+  timeScale=1; BALL.trailOff(); if(SCN.mode==='reveal') SCN.mode='idle';
   function contact(){
     const out=R.out;
     if(out==='goal'){
@@ -1133,13 +1137,13 @@ function banner(main,sub,color,q){
    状態（部屋を作った側が S を持ち、表示用の P を配る）
    ========================================================= */
 const ME={team:0,mode:'none'}; // mode: host / guest / none
-function freshState(){return {phase:'lobby',names:[TEAMS[0].name,TEAMS[1].name],kickNo:0,first:0,kicks:[],specials:{chip:[1,1],big:[1,1]},choices:{kick:null,keep:null},deadline:0,paused:false,pauseRemain:0,reveal:null,revealId:0,winner:-1,matchNo:0,introId:0}}
+function freshState(){return {phase:'lobby',names:[TEAMS[0].name,TEAMS[1].name],kickNo:0,first:0,kicks:[],specials:{chip:[1,1],big:[1,1]},choices:{kick:null,keep:null},deadline:0,paused:false,pauseRemain:0,reveal:null,revealId:0,winner:-1,matchNo:0,introId:0,again:[false,false]}}
 let S=freshState();
 const kickerTeam=(s)=>(s.first+s.kickNo)%2;
 function scores(kicks){const g=[0,0];for(const k of kicks) if(k.out==='goal') g[k.t]++;return g}
 function pub(){
   return {phase:S.phase,names:S.names,kickNo:S.kickNo,first:S.first,kicks:S.kicks,specials:S.specials,remain:S.paused?S.pauseRemain:Math.max(0,S.deadline-Date.now()),paused:S.paused,
-    locks:{kick:!!S.choices.kick,keep:!!S.choices.keep},reveal:S.reveal,revealId:S.revealId,winner:S.winner,matchNo:S.matchNo,introId:S.introId,guestOn:!!(NETW.guest&&!NETW.guest.gone)};
+    locks:{kick:!!S.choices.kick,keep:!!S.choices.keep},reveal:S.reveal,revealId:S.revealId,winner:S.winner,matchNo:S.matchNo,introId:S.introId,again:S.again,guestOn:!!(NETW.guest&&!NETW.guest.gone)};
 }
 function commit(){
   if(ME.mode!=='host') return;
@@ -1149,6 +1153,8 @@ function commit(){
 }
 // 部屋を作った側の進行
 async function startMatch(){
+  if(S.phase==='intro') return;
+  S.again=[false,false];
   S.matchNo++; S.kicks=[]; S.kickNo=0; S.first=(S.matchNo-1)%2; S.specials={chip:[1,1],big:[1,1]}; S.winner=-1; S.choices={kick:null,keep:null};
   S.phase='intro'; S.introId++; commit();
   await wait(3400); if(S.phase!=='intro') return;
@@ -1173,7 +1179,11 @@ function handleAction(team,m){
     commit();
     if(S.choices.kick&&S.choices.keep) resolveKick();
   }else if(m.type==='rematch'){
-    if(S.phase==='end') startMatch();
+    if(S.phase!=='end'||S.again[team]) return;
+    S.again[team]=true;
+    if(S.again[0]&&S.again[1]) startMatch(); else commit();
+  }else if(m.type==='revealDone'){
+    if(team===1) guestRevealAck=Math.max(guestRevealAck,m.id|0);
   }
 }
 const randChoice=role=>role==='kick'?{z:(Math.random()*6)|0,c:false,q:1}:{z:(Math.random()*6)|0,b:false,q:1};
@@ -1191,7 +1201,10 @@ async function resolveKick(){
   S.phase='reveal';
   const done=new Promise(r=>revealWaiters.push(r));
   commit();
-  await done; await wait(500);
+  await done;
+  const t0=performance.now();
+  while(NETW.guest&&!NETW.guest.gone&&guestRevealAck<S.revealId&&performance.now()-t0<3000) await new Promise(r=>setTimeout(r,100));
+  await wait(500);
   resolving=false;
   if(S.phase!=='reveal') return;
   const w=decide(S.kicks);
@@ -1199,6 +1212,7 @@ async function resolveKick(){
   S.kickNo++; startSelect();
 }
 const revealWaiters=[];
+let guestRevealAck=0;
 // 制限時間（部屋を作った側だけが見る）
 setInterval(()=>{
   if(ME.mode!=='host'||S.phase!=='select'||S.paused||resolving) return;
@@ -1213,7 +1227,8 @@ setInterval(()=>{
    ========================================================= */
 let V=null, lastReveal=0, lastIntro=0, selKey='', viewBusy=false;
 const viewQ=[];
-function applyView(P){viewQ.push(P);pumpView()}
+let viewEpoch=0;
+function applyView(P){P._rt=performance.now();P._ep=viewEpoch;viewQ.push(P);pumpView()}
 async function pumpView(){
   if(viewBusy) return; viewBusy=true;
   while(viewQ.length){
@@ -1221,7 +1236,11 @@ async function pumpView(){
     try{
       if(P.revealId>lastReveal){
         lastReveal=P.revealId;
-        if(P.phase==='reveal'&&P.reveal){V=P;await playReveal(P.reveal);revealWaiters.splice(0).forEach(r=>r())}
+        if(P.phase==='reveal'&&P.reveal){
+          V=P;await playReveal(P.reveal);revealWaiters.splice(0).forEach(r=>r());
+          if(P._ep!==viewEpoch) continue; // 再現中に退出した
+          if(ME.mode==='guest') safeSend(NETW.conn,{type:'revealDone',id:P.reveal.id});
+        }
       }
       // もっと新しい状態がすでに届いていれば、そちらで描く（再現中にたまった分を飛ばす）
       if(viewQ.length&&viewQ[0].revealId<=lastReveal) continue;
@@ -1238,8 +1257,8 @@ function render(P){
     hideSelectUI();
     if(ME.mode==='guest'){
       $('#wslot0').textContent=P.names[0];$('#wslot1').textContent=P.names[1];$('#waitLead').textContent=`${P.names[0]}がキックオフするのを待っています`;
-      if(!G.inTitle) toTitleScene(); setModal('waitModal');
-    }else if(ME.mode==='host'){renderHostLobby();if(G.modal!=='menuModal')setModal('hostModal')}
+      if(!G.inTitle) toTitleScene(); setModal('waitModal'); keepAwake(true);
+    }else if(ME.mode==='host'){renderHostLobby();if(G.modal!=='menuModal')setModal('hostModal');keepAwake(true)}
     return;
   }
   if(P.phase==='intro'){
@@ -1247,7 +1266,7 @@ function render(P){
     return;
   }
   if(P.phase==='select'){ensureGameUI();renderSelect(P);return}
-  if(P.phase==='end'){ensureGameUI();hideSelectUI();showEnd(P);return}
+  if(P.phase==='end'){ensureGameUI();hideSelectUI();showEnd(P);updateEndUI(P);return}
 }
 function renderScore(P){
   const sc=scores(P.kicks);
@@ -1283,7 +1302,7 @@ function renderSelect(P){
   if(key!==selKey){
     selKey=key;
     setupKickScene(kt);
-    Object.assign(SEL,{zone:-1,sp:false,stage:'pick',q:-1,locked:false});
+    Object.assign(SEL,{zone:-1,sp:false,stage:'pick',q:-1,locked:false,sentAt:0});
     // カメラ
     selCam(role);
     const T=TEAMS[ME.team];
@@ -1295,17 +1314,22 @@ function renderSelect(P){
     $('#gLabel').textContent=role==='kick'?'緑で止めて、強いシュート！':'緑で止めて、すばやく反応！';
     renderTend(P,role);
     $('#lockMsg').textContent='決定！ 相手を待っています…';
-    SEL.deadlineLocal=performance.now()+P.remain;
+    SEL.deadlineLocal=P._rt+P.remain;
     SFX.whistle(false);
-    if(role==='kick') toast(`<b>KICK ${Math.floor(P.kickNo/2)+1}</b>　あなたが蹴る番！`); else toast(`<b>KICK ${Math.floor(P.kickNo/2)+1}</b>　${esc(P.names[1-ME.team])}が蹴るよ。止めよう！`);
+    const r=Math.floor(P.kickNo/2)+1, lb=r>REG?`サドンデス ${r-REG}`:`KICK ${r}`;
+    if(role==='kick') toast(`<b>${lb}</b>　あなたが蹴る番！`); else toast(`<b>${lb}</b>　${esc(P.names[1-ME.team])}が蹴るよ。止めよう！`);
   }else{
-    SEL.deadlineLocal=performance.now()+P.remain;
+    SEL.deadlineLocal=P._rt+P.remain;
   }
   const spLeft=role==='kick'?P.specials.chip[ME.team]:P.specials.big[ME.team];
   const btnSp=$('#btnSpecial'); btnSp.disabled=!spLeft&&!SEL.sp; btnSp.classList.toggle('on',SEL.sp);
   $('#spN').textContent=spLeft?'1試合1回 ・ 残り1':'使用済み';
   const iLocked=role==='kick'?P.locks.kick:P.locks.keep, oLocked=role==='kick'?P.locks.keep:P.locks.kick;
   if(iLocked&&!SEL.locked){SEL.locked=true;SEL.stage='done'}
+  // 手元だけ時間切れになったが、まだ受付中（切断からの復帰など）なら選び直せるようにする
+  if(!iLocked&&!SEL.locked&&SEL.stage==='done'&&SEL.q<0&&!P.paused&&P.remain>0){SEL.stage='pick';$('#lockMsg').textContent='決定！ 相手を待っています…'}
+  // 決めたのに相手（部屋）に届いていなかったら送り直す
+  if(!iLocked&&SEL.locked&&SEL.q>=0&&ME.mode==='guest'&&performance.now()-(SEL.sentAt||0)>800){SEL.sentAt=performance.now();safeSend(NETW.conn,{type:'choose',kickNo:P.kickNo,z:SEL.zone,sp:SEL.sp,q:SEL.q})}
   const oc=$('#oppChip'); oc.textContent=P.paused?'相手の接続待ち…':oLocked?'相手：決定！':'相手：考え中…'; oc.classList.toggle('ok',oLocked&&!P.paused);
   $('#infobar').classList.remove('hide'); $('#tend').classList.remove('hide');
   $('#hud').classList.add('selecting');
@@ -1392,19 +1416,20 @@ function stopGauge(){
   if(SEL.stage!=='gauge') return;
   const p=gaugePos(), d=Math.abs(p-.5), q=d<=.045?2:d<=.17?1:0;
   SEL.q=q; SEL.stage='done'; SEL.locked=true; showStage(); SFX.lock(q); buzz(q===2?[20,30,20]:15);
-  act({type:'choose',kickNo:V.kickNo,z:SEL.zone,sp:SEL.sp,q});
+  SEL.sentAt=performance.now(); act({type:'choose',kickNo:V.kickNo,z:SEL.zone,sp:SEL.sp,q});
 }
 $('#gauge').addEventListener('pointerdown',e=>{e.preventDefault();stopGauge()});
+document.addEventListener('keydown',e=>{if(SEL.stage==='gauge'&&(e.key===' '||e.key==='Enter')){e.preventDefault();stopGauge()}});
 canvas.addEventListener('pointerdown',()=>{SFX.ensure();if(SEL.stage==='gauge') stopGauge()});
 function updateSelectFrame(){
   if(!V||V.phase!=='select') return;
   if(SEL.stage==='gauge'){const p=gaugePos();$('#gNeedle').style.left=(p*100)+'%'}
-  const remain=Math.max(0,SEL.deadlineLocal-performance.now()), s=Math.ceil(remain/1000);
-  const tn=$('#timerNum'); if(tn.textContent!==String(s)){tn.textContent=s;if(s<=5&&s>0&&SEL.stage!=='done') SFX.beep(s<=3)}
+  const paused=!!V.paused; if(paused) SEL.deadlineLocal=performance.now()+V.remain;
+  const remain=Math.max(0,SEL.deadlineLocal-performance.now()), s=Math.ceil(remain/1000), label=paused?'‖':String(s);
+  const tn=$('#timerNum'); if(tn.textContent!==label){tn.textContent=label;if(!paused&&s<=5&&s>0&&SEL.stage!=='done') SFX.beep(s<=3)}
   const ring=$('#timerRing'), L=2*Math.PI*17; ring.style.strokeDasharray=L; ring.style.strokeDashoffset=L*(1-remain/SELECT_MS);
-  $('#timer').classList.toggle('hurry',s<=5);
-  if(V.paused){tn.textContent='‖'}
-  if(remain<=0&&SEL.stage!=='done'&&!V.paused){SEL.stage='done';SEL.q=-1;$('#lockMsg').textContent='時間切れ… おまかせで決まるよ';showStage()}
+  $('#timer').classList.toggle('hurry',!paused&&s<=5);
+  if(remain<=0&&SEL.stage!=='done'&&!paused){SEL.stage='done';SEL.q=-1;$('#lockMsg').textContent='時間切れ… おまかせで決まるよ';showStage()}
 }
 
 /* ---------- キックオフの演出・タイトル ---------- */
@@ -1422,7 +1447,9 @@ function ensureGameUI(){
   if(['hostModal','joinModal','waitModal'].includes(G.modal)) setModal(null);
   $('#hud').classList.remove('off'); keepAwake(true);
 }
+function stopAnim(){if(ANIM){const a=ANIM;ANIM=null;timeScale=1;a.res()}}
 function toTitleScene(){
+  stopAnim();
   G.inTitle=true; const t=$('#title'); t.hidden=false; requestAnimationFrame(()=>t.classList.remove('out'));
   $('#hud').classList.add('off'); hideSelectUI(); setupKickScene(0); SCN.mode='title'; keepAwake(false);
   selKey=''; lastIntro=0;
@@ -1439,8 +1466,13 @@ function showEnd(P){
   $('#endS0').textContent=sc[0]; $('#endS1').textContent=sc[1];
   const st=t=>{const ks=P.kicks.filter(k=>k.t===t),kp=P.kicks.filter(k=>k.t!==t);return {g:ks.filter(k=>k.out==='goal').length,n:ks.length,s:kp.filter(k=>k.out==='save').length,p:ks.filter(k=>k.kq===2).length+kp.filter(k=>k.gq===2).length}};
   $('#endStats').innerHTML=[0,1].map(t=>{const s=st(t);return `<div style="--tc:${TEAMS[t].css}">${esc(P.names[t])}<b>GOAL ${s.g}/${s.n}</b><b>SAVE ${s.s}</b>PERFECT ${s.p}回</div>`}).join('');
-  const ag=$('#btnAgain'); ag.disabled=false; ag.textContent='もう1戦';
   setTimeout(()=>{if(V&&V.phase==='end') setModal('endModal')},1800);
+}
+// もう1戦：自分が押したら相手待ち。相手が先に押していたら知らせる
+function updateEndUI(P){
+  const ag=$('#btnAgain'), me=!!(P.again&&P.again[ME.team]), op=!!(P.again&&P.again[1-ME.team]);
+  ag.disabled=me; ag.textContent=me?'相手を待っています…':op?'もう1戦（相手はOK！）':'もう1戦';
+  $('#endNote').textContent=op&&!me?`${P.names[1-ME.team]}がもう1戦を待っています！`:me?'相手が「もう1戦」を押すと始まるよ':'';
 }
 $('#btnAgain').addEventListener('click',()=>{SFX.click();const b=$('#btnAgain');b.disabled=true;b.textContent='相手を待っています…';act({type:'rematch'})});
 
@@ -1485,14 +1517,14 @@ function saveHost(){if(ME.mode!=='host'||!NETW.code)return;try{sessionStorage.se
 function loadHost(){try{const r=sessionStorage.getItem(HOST_KEY),o=r?JSON.parse(r):null;if(!o||!o.code||!o.S||Date.now()-o.at>3*3600*1000)return null;return o}catch(e){return null}}
 function clearHost(){try{sessionStorage.removeItem(HOST_KEY)}catch(e){}}
 let netbarTimer=0;
-function showNetBar(text,kind,withButtons){const b=$('#netbar');if(kind==='err'&&!b.classList.contains('err'))SFX.alert();clearTimeout(netbarTimer);b.className='on '+(kind||'');b.querySelector('.msg').textContent=text;b.querySelector('.acts').style.display=withButtons?'flex':'none'}
+function showNetBar(text,kind,withButtons){const b=$('#netbar');if(kind==='err'&&!b.classList.contains('err'))SFX.alert();clearTimeout(netbarTimer);b.className='on '+(kind||'');b.querySelector('.msg').textContent=text;b.querySelector('.acts').style.display=withButtons?'flex':'none';b.querySelector('.rt').hidden=ME.mode==='host'}
 function hideNetBar(delay){clearTimeout(netbarTimer);if(delay){netbarTimer=setTimeout(()=>hideNetBar(),delay);return}$('#netbar').className=''}
 function stopReconnect(){NETW.rc.active=false;NETW.rc.n=0;clearTimeout(NETW.rc.timer)}
 function cleanupNet(){
   stopReconnect();hideNetBar();
   try{if(NETW.peer&&!NETW.peer.destroyed)NETW.peer.destroy()}catch(e){}
   NETW.peer=null;NETW.conn=null;NETW.joined=false;NETW.code=null;NETW.guest=null;
-  viewQ.length=0;
+  viewQ.length=0;viewEpoch++;
 }
 function leaveOnline(note){
   if(ME.mode==='guest')safeSend(NETW.conn,{type:'bye'});
@@ -1526,7 +1558,7 @@ function setStatus(w,cls,txt){$('#'+w+'Dot').className='sdot '+cls;$('#'+w+'Stat
 function startHost(){
   const nm=cleanName($('#myName').value,TEAMS[0].name);rememberName(nm);
   cleanupNet();clearHost();clearSession();$('#titleErr').innerHTML='';
-  ME.mode='host';ME.team=0;S=freshState();S.names=[nm,TEAMS[1].name];lastReveal=0;
+  ME.mode='host';ME.team=0;S=freshState();S.names=[nm,TEAMS[1].name];lastReveal=0;guestRevealAck=0;
   renderCode(null);$('#hostQr').innerHTML='';setStatus('host','wait','部屋を準備しています…');
   renderHostLobby();setModal('hostModal');keepAwake(true);
   loadPeer(err=>{if(err){netFail();return}tryHostCode(0)});
@@ -1589,7 +1621,7 @@ function hookGuest(conn){
 function resumeHost(saved){
   ME.mode='host';ME.team=0;S=Object.assign(freshState(),saved.S);NETW.code=saved.code;
   NETW.guest=saved.guest?{token:saved.guest.token,name:saved.guest.name,gone:true,conn:null}:null;
-  lastReveal=S.revealId; resolving=false;
+  lastReveal=S.revealId; resolving=false; guestRevealAck=0;
   if(S.phase==='reveal'){const w=decide(S.kicks);if(w>=0){S.phase='end';S.winner=w}else{S.kickNo++;S.phase='select'}}
   if(S.phase==='intro') S.phase='select';
   if(S.phase==='select'){S.choices={kick:null,keep:null};S.deadline=Date.now()+SELECT_MS;S.paused=!!(NETW.guest&&NETW.guest.gone);S.pauseRemain=SELECT_MS}
@@ -1717,6 +1749,7 @@ var QR=(function(){
    ボタン
    ========================================================= */
 $('#myName').value=savedName();
+['pointerdown','touchend','click'].forEach(ev=>document.addEventListener(ev,()=>SFX.ensure(),{capture:true,passive:true}));
 $('#btnHost').addEventListener('click',()=>{SFX.ensure();SFX.click();startHost()});
 $('#btnJoinOpen').addEventListener('click',()=>{SFX.ensure();SFX.click();openJoin('')});
 $('#btnHow').addEventListener('click',()=>{SFX.ensure();SFX.click();modalReturn=null;setModal('howModal')});
@@ -1760,6 +1793,7 @@ engine.runRenderLoop(()=>{
 window.addEventListener('resize',()=>{engine.resize();if(V&&V.phase==='select'&&SCN.mode==='idle'&&selKey)selCam(myRole(V))});
 
 /* ---------- 起動 ---------- */
+try{document.fonts&&document.fonts.ready.then(()=>{NUMS.forEach(drawNum);LED.draw('n')})}catch(e){}
 toTitleScene();
 shot(new V3(0,7.5,32),new V3(0,1.2,5),12,7,24,{cut:true});
 scene.executeWhenReady(()=>{
