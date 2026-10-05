@@ -175,7 +175,7 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--a);outline-offs
 #toast{position:fixed;left:50%;top:calc(212px + var(--st));transform:translate(-50%,-10px);opacity:0;pointer-events:none;z-index:30;background:var(--panel2);border:1px solid var(--line2);
   font-weight:700;font-size:13px;padding:9px 16px;width:max-content;max-width:calc(100vw - 32px);text-align:center;transition:opacity .3s,transform .3s}
 #toast.show{opacity:1;transform:translate(-50%,0)}
-#netbar{position:fixed;left:50%;top:calc(6px + var(--st));transform:translate(-50%,-170%);z-index:70;display:flex;align-items:center;gap:8px;max-width:calc(100vw - 20px);
+#netbar{position:fixed;left:50%;top:calc(6px + var(--st));transform:translate(-50%,-170%);z-index:70;display:flex;align-items:center;gap:8px;width:max-content;max-width:calc(100vw - 20px);
   padding:8px 12px;background:var(--panel2);border:1px solid var(--line2);font-size:12.5px;font-weight:700;line-height:1.4;transition:transform .35s cubic-bezier(.2,1.2,.4,1);box-shadow:var(--sh)}
 #netbar.on{transform:translate(-50%,0)}
 #netbar .ndot{flex:none;width:8px;height:8px;border-radius:50%;background:var(--mid);animation:pulse 1s infinite}
@@ -803,14 +803,18 @@ const BALL=(()=>{
   const bm=new B.StandardMaterial('bbm',scene); bm.diffuseTexture=radialTex('bbt',[[0,'rgba(0,0,10,.55)'],[1,'rgba(0,0,10,0)']]); bm.diffuseTexture.hasAlpha=true; bm.useAlphaFromDiffuseTexture=true; bm.disableLighting=true; bm.zOffset=-2;
   blob.material=bm; blob.isPickable=false;
   const trailAnchor=new B.TransformNode('ta',scene); trailAnchor.parent=root;
-  let trail=null;
+  let trail=null, dying=[];
   const trailMat=glowMat('btrail','#dff6ff',.45,true);
+  const kill=t=>{try{if(!t.isDisposed())t.dispose()}catch(e){}};
   return {
     root,g,blob,
     set(x,y,z){root.position.set(x,y,z);blob.position.set(x,.012,z);const s=clamp(1-(y-.11)*.25,.3,1);blob.scaling.set(s,1,s)},
     spin(ax,ay,az){g.rotation.x+=ax;g.rotation.y+=ay;g.rotation.z+=az},
-    trailOn(){if(trail) trail.dispose();trail=new B.TrailMesh('bt',trailAnchor,scene,.16,26,true);trail.material=trailMat;trail.isPickable=false},
-    trailOff(){if(trail){const t=trail;trail=null;setTimeout(()=>t.dispose(),400)}},
+    trailOn(){this.trailKill();trail=new B.TrailMesh('bt',trailAnchor,scene,.16,26,true);trail.material=trailMat;trail.isPickable=false},
+    // 再現の終わり：軌跡をその形のまま止めて、少ししてから消す
+    trailOff(){if(trail){const t=trail;trail=null;try{t.stop()}catch(e){}dying.push(t);setTimeout(()=>{kill(t);dying=dying.filter(x=>x!==t)},400)}},
+    // 次の場面へ：残っている軌跡をすぐ消す（ボールをスポットに戻したときに線が伸びないように）
+    trailKill(){if(trail){kill(trail);trail=null}dying.forEach(kill);dying=[]},
   };
 })();
 BALL.set(SPOT.x,SPOT.y,SPOT.z);
@@ -915,6 +919,7 @@ function showRoles(kt){
 function kickerOf(kt){return PL[kt][0]} function keeperOf(kt){return PL[1-kt][1]}
 const KICK_START=new V3(1.45,0,14.3), KICK_PLANT=new V3(.34,0,11.42), KICK_WAIT=new V3(1.75,0,13.6);
 function setupKickScene(kt){
+  BALL.trailKill();
   showRoles(kt);
   const K=kickerOf(kt), G=keeperOf(kt);
   neutral(K); K.n.position.copyFrom(KICK_WAIT); K.n.rotation.y=Math.atan2(-KICK_WAIT.x,-KICK_WAIT.z);
