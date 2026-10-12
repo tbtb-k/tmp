@@ -265,7 +265,7 @@ label.f{display:block;font-weight:800;margin:12px 0 4px;font-size:14px}
 .order .oc{display:flex;flex-direction:column;align-items:center;gap:1px;font-size:11px;font-weight:800;color:#fff}
 .order .oc .hn{width:clamp(28px,2.6vw,40px);height:clamp(28px,2.6vw,40px);border-radius:8px;display:grid;place-items:center;font-family:var(--head);font-size:clamp(16px,1.6vw,24px);border:2px solid rgba(255,255,255,.6)}
 .order .oc.mine .hn{box-shadow:0 0 0 3px var(--gold)}
-.rdist{position:fixed;right:16px;top:66px;z-index:3;background:var(--glass-d);color:#fff;border-radius:14px;padding:6px 14px;font-weight:800;font-size:clamp(14px,1.3vw,18px)}
+.rdist{position:fixed;right:16px;top:66px;z-index:4;background:var(--glass-d);color:#fff;border-radius:14px;padding:6px 14px;font-weight:800;font-size:clamp(14px,1.3vw,18px)}
 .rdist b{font-family:var(--head);font-weight:400;font-size:clamp(22px,2.4vw,34px);margin:0 4px}
 .ticker{position:fixed;left:50%;bottom:calc(64px + var(--sb));transform:translateX(-50%);z-index:3;width:max-content;max-width:min(92vw,1100px);background:linear-gradient(90deg,rgba(185,44,64,.95),rgba(232,69,90,.95));color:#fff;
   border-radius:16px;padding:10px 22px;font-family:var(--head);font-size:clamp(17px,2.2vw,34px);box-shadow:var(--sh);text-align:center;transition:opacity .25s}
@@ -278,18 +278,47 @@ label.f{display:block;font-weight:800;margin:12px 0 4px;font-size:14px}
 .rb .h i{width:12px;height:12px;border-radius:50%;flex:none}
 .rb .h .n{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .rb .bl{display:flex;flex-wrap:wrap;gap:4px;margin-top:3px}
-.rb .bl span,.mybets span{font-size:clamp(11px,.95vw,13px);font-weight:800;background:var(--cream-2);border-radius:6px;padding:0 6px}
-.rb .bl span.live,.mybets span.live{background:var(--gold)}
-.mybets{position:fixed;left:12px;right:12px;bottom:calc(12px + var(--sb));z-index:3;display:none;align-items:center;gap:5px;overflow-x:auto;background:var(--glass);border-radius:12px;padding:7px 10px;box-shadow:var(--sh);white-space:nowrap;scrollbar-width:none}
-.mybets::-webkit-scrollbar{display:none}
-.mybets b{font-size:12px;flex:none}
-.mybets span{flex:none;font-size:13px;padding:1px 7px}
+.rb .bl span{font-size:clamp(11px,.95vw,13px);font-weight:800;background:var(--cream-2);border-radius:6px;padding:0 6px}
+.rb .bl span.live{background:var(--gold)}
+/* レース中の「あなたの馬券」 */
+.tickets{position:fixed;left:8px;right:8px;bottom:calc(8px + var(--sb));z-index:3;display:flex;flex-direction:column;align-items:center;pointer-events:none}
+.tickets>*{pointer-events:auto}
+.tk-bar{display:inline-flex;align-items:center;gap:6px;background:var(--glass-d);color:#fff;border-radius:99px;padding:5px 14px;font-weight:800;font-size:12px;margin-bottom:6px}
+.tk-list{display:flex;gap:8px;overflow-x:auto;max-width:100%;padding:6px 4px 4px;scrollbar-width:none}
+.tk-list::-webkit-scrollbar{display:none}
+.tickets.closed .tk-list{display:none}
+.tk{position:relative;flex:none;width:172px;background:#fffdf3;border-radius:8px;border:2px solid #d9cfae;box-shadow:var(--sh);overflow:hidden;transition:transform .2s,box-shadow .2s,opacity .3s,filter .3s;
+  background-image:repeating-linear-gradient(135deg,rgba(46,139,87,.05) 0 6px,transparent 6px 12px)}
+.tk::after{content:"";position:absolute;left:0;right:0;bottom:22px;border-top:2px dashed #e2d7b6}
+.tk-h{display:flex;justify-content:space-between;align-items:center;gap:6px;padding:3px 8px;color:#fff;font-size:11px;font-weight:800;background:var(--choco)}
+.tk-h b{font-size:13px}
+.tk.p .tk-h{background:var(--sky-d)}
+.tk.q .tk-h{background:var(--berry)}
+.tk-m{display:flex;align-items:center;gap:4px;padding:6px 8px 4px;min-height:40px}
+.tk-m .hn{flex:none;width:28px;height:28px;border-radius:7px;display:grid;place-items:center;font-family:var(--head);font-size:17px;border:2px solid rgba(0,0,0,.14)}
+.tk-m .ds{font-weight:800;color:var(--choco-2)}
+.tk-n{font-weight:800;font-size:12px;line-height:1.2;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-left:2px}
+.tk-f{display:flex;justify-content:space-between;align-items:center;gap:4px;padding:4px 8px 4px;font-size:11px;font-weight:800;color:var(--choco-2);white-space:nowrap}
+.tk-f b{font-family:var(--head);font-weight:400;color:var(--berry-d);font-size:13px}
+.tk-s{position:absolute;right:6px;top:24px;font-family:var(--head);border-radius:7px;transform:rotate(-10deg);display:none;pointer-events:none}
+.tk.live{border-color:var(--gold);box-shadow:0 0 0 3px rgba(245,184,46,.7),var(--sh);transform:translateY(-5px)}
+.tk.live .tk-s{display:block;background:var(--gold);color:var(--choco);font-size:12px;padding:2px 7px}
+.tk.hit{border-color:var(--bad)}
+.tk.hit .tk-s{display:block;border:3px solid var(--bad);color:var(--bad);background:rgba(255,255,255,.9);font-size:20px;padding:0 8px;animation:stamp2 .35s cubic-bezier(.2,1.6,.4,1) both}
+@keyframes stamp2{from{transform:rotate(-10deg) scale(2.4);opacity:0}to{transform:rotate(-10deg) scale(1);opacity:1}}
+.tk.miss{filter:grayscale(.9);opacity:.55}
+body.tk-open .ticker{bottom:calc(160px + var(--sb))}
+body.tk-closed .ticker{bottom:calc(52px + var(--sb))}
+.hl.mine .num{box-shadow:0 0 0 3px var(--gold),0 2px 8px rgba(0,0,0,.4)}
+.hl .mk{display:none;font-size:11px;background:var(--gold);border-radius:6px;padding:0 3px;line-height:1.4;box-shadow:0 1px 3px rgba(0,0,0,.3)}
+.hl.mine .mk{display:block}
 .precount{position:fixed;left:50%;top:44%;transform:translate(-50%,-50%);z-index:3;text-align:center;color:#fff;font-family:var(--head);font-size:clamp(30px,4.5vw,70px);text-shadow:0 4px 0 var(--choco),0 8px 20px rgba(0,0,0,.4);pointer-events:none;white-space:nowrap}
 .photo{position:fixed;left:50%;top:40%;transform:translate(-50%,-50%) rotate(-4deg);z-index:4;background:#fff;color:var(--choco);border:6px solid var(--choco);border-radius:14px;padding:10px 26px;
   font-family:var(--head);font-size:clamp(28px,4vw,60px);box-shadow:var(--sh);animation:stamp .4s cubic-bezier(.2,1.6,.4,1) both;white-space:nowrap}
 @keyframes stamp{from{transform:translate(-50%,-50%) rotate(-4deg) scale(2.2);opacity:0}to{transform:translate(-50%,-50%) rotate(-4deg) scale(1);opacity:1}}
 .hmini{position:fixed;left:50%;top:52%;transform:translate(-50%,-50%);z-index:3;width:min(92vw,820px)}
-body.simple .precount{top:52%;z-index:5;font-size:28px;background:var(--glass-d);border-radius:16px;padding:6px 18px}
+body.simple .hmini{top:46%}
+body.simple .precount{top:46%;z-index:5;font-size:28px;background:var(--glass-d);border-radius:16px;padding:6px 18px}
 body.simple .precount:empty{display:none}
 body.simple #s-stage{background:linear-gradient(180deg,#8fd0f5 0%,#cdebf7 30%,#2e8b57 30.2%,#1b5e3b 100%);position:fixed;inset:0}
 
@@ -336,7 +365,6 @@ body.fixedmode #sndbtn{top:10px;right:12px;bottom:auto;width:40px;height:40px;fo
   .lobby{grid-template-columns:1fr;align-content:start}
   .rband{max-width:calc(100vw - 330px)}
   .rbets{display:none}
-  .mybets{display:flex}
   .order{top:72px;flex-wrap:wrap;justify-content:center;max-width:calc(100vw - 24px)}
 }
 @media (max-width:640px){
@@ -409,7 +437,7 @@ body.fixedmode #sndbtn{top:10px;right:12px;bottom:auto;width:40px;height:40px;fo
       <li><b>親</b>が「部屋をつくる」を押す（親もいっしょに遊ぶよ）</li>
       <li>ほかの人は<b>スマホでQRコード</b>を読んで参加（親を入れて2〜6人）</li>
       <li>レースごとに、自分の画面でこっそりメダルを賭ける</li>
-      <li>レースは<b>みんなの画面に同じ3D</b>で流れるよ。いっしょに応援！</li>
+      <li>レースは<b>みんなの画面に同じ3D</b>で流れるよ。いっしょに応援！<br><span class="tiny">自分の馬券は画面の下に出るよ。いま当たっている馬券は金色に光って、ゴールで「的中」のハンコが押されるよ</span></li>
       <li>当たればオッズ（倍率）ぶんのメダルがもどってくる</li>
       <li>全レースが終わって、<b>メダルがいちばん多い人が優勝</b></li>
     </ol>
@@ -595,7 +623,7 @@ body.fixedmode #sndbtn{top:10px;right:12px;bottom:auto;width:40px;height:40px;fo
   <div class="precount" id="h-pre"></div>
   <div class="hmini mini" id="h-mini" hidden></div>
   <div class="ticker" id="h-ticker" hidden></div>
-  <div class="mybets" id="h-mybets"></div>
+  <div class="tickets" id="h-tickets"></div>
   <div id="h-photo" hidden></div>
 </section>
 <script>
@@ -2264,7 +2292,7 @@ function segPaint(id,v){
 }
 
 /* ============ レース中（みんなの画面） ============ */
-var HR={key:"",race:"",chips:[],ordKey:"",mini:null,rb:[],lastBetPaint:0,hoofAcc:0,lastReal:-99};
+var HR={key:"",race:"",chips:[],ordKey:"",mini:null,rb:[],tk:[],tkBar:null,fs:null,fsKey:"",lastBetPaint:0,hoofAcc:0,lastReal:-99};
 function renderRaceView(pub,you){
   var c=pub.card, race=c.id+":"+pub.seed, key=race+":"+(use3D()?"3d":"2d");
   $("h-rno").textContent="第"+c.no+"R / 全"+pub.races+"R";
@@ -2283,12 +2311,12 @@ function renderRaceView(pub,you){
   you.bets.forEach(function(b){ b.h.forEach(function(n){ mine[n]=1; }); });
   var ob=$("h-order"); ob.innerHTML=""; HR.chips=[];
   c.horses.forEach(function(h){ var ch=el("div","oc"+(mine[h.n]?" mine":"")); ch.appendChild(hnBadge(h.n)); HR.chips.push(ch); ob.appendChild(ch); });
-  // みんなの賭け（広い画面）と、自分の賭け（せまい画面）
+  // ほかの人の賭け（広い画面だけ）
   var rb=$("h-rbets"); rb.innerHTML=""; HR.rb=[];
   pub.players.forEach(function(p){
-    if(!p.bets||!p.bets.length) return;
-    var b=el("div","rb"+(p.id===you.id?" me":"")), h=el("div","h"), dot=el("i"); dot.style.background=p.color;
-    h.appendChild(dot); h.appendChild(el("span","n",p.id===you.id?p.name+"（あなた）":p.name));
+    if(p.id===you.id||!p.bets||!p.bets.length) return;
+    var b=el("div","rb"), h=el("div","h"), dot=el("i"); dot.style.background=p.color;
+    h.appendChild(dot); h.appendChild(el("span","n",p.name));
     var tot=0; p.bets.forEach(function(x){ tot+=x.a; });
     var m=el("span"); m.appendChild(el("span","coin")); m.appendChild(document.createTextNode(" "+tot)); h.appendChild(m);
     b.appendChild(h);
@@ -2297,13 +2325,64 @@ function renderRaceView(pub,you){
     if(p.bets.length>6) bl.appendChild(el("span",null,"ほか"+(p.bets.length-6)));
     b.appendChild(bl); rb.appendChild(b);
   });
-  var my=$("h-mybets"); my.innerHTML="";
-  my.appendChild(el("b",null,"あなたの賭け"));
-  if(!you.bets.length) my.appendChild(el("span",null,"今回は見送り"));
-  you.bets.forEach(function(x){ var sp=el("span",null,betShort(x)); sp._b=x; my.appendChild(sp); HR.rb.push(sp); });
+  buildTickets(c,you.bets);
   var mini=$("h-mini");
   if(!use3D()){ mini.hidden=false; HR.mini=buildMini(mini,c,mine); } else { mini.hidden=true; mini.innerHTML=""; HR.mini=null; }
 }
+/* ---- あなたの馬券（レース中に画面の下に並べる） ---- */
+var TK_KEY="oyatsuderby.tk.v1", TK_OPEN=true;
+try{ TK_OPEN=localStorage.getItem(TK_KEY)!=="0"; }catch(e){}
+function makeTicket(c,b){
+  var od=betOdds(c,b), t=el("div","tk "+b.t);
+  var h=el("div","tk-h"); h.appendChild(el("b",null,BET_NAMES[b.t])); h.appendChild(el("span",null,"第"+c.no+"R おやつ馬券")); t.appendChild(h);
+  var m=el("div","tk-m");
+  b.h.forEach(function(n,i){ if(i) m.appendChild(el("span","ds","-")); m.appendChild(hnBadge(n)); });
+  m.appendChild(el("span","tk-n",b.h.map(function(n){ return c.horses[n-1].name; }).join("・")));
+  t.appendChild(m);
+  var f=el("div","tk-f");
+  f.appendChild(el("span",null,b.a+"枚×"+fmtOdds(od)+"倍"));
+  var py=el("span"); py.appendChild(document.createTextNode("当たれば")); py.appendChild(el("b",null,payOf(b.a,od)+"枚")); f.appendChild(py);
+  t.appendChild(f);
+  t.appendChild(el("span","tk-s",""));
+  return t;
+}
+function buildTickets(c,bets){
+  var box=$("h-tickets"); box.innerHTML=""; HR.tk=[];
+  var bar=el("button","tk-bar"); bar.type="button";
+  var list=el("div","tk-list");
+  bets.forEach(function(b){ var t=makeTicket(c,b); list.appendChild(t); HR.tk.push({el:t,b:b,st:""}); });
+  bar.onclick=function(){
+    if(!bets.length) return;
+    TK_OPEN=!TK_OPEN; try{ localStorage.setItem(TK_KEY,TK_OPEN?"1":"0"); }catch(e){}
+    SFX.select(); paintTickets();
+  };
+  box.appendChild(bar); box.appendChild(list);
+  HR.tkBar=bar;
+  paintTickets();
+}
+function paintTickets(){
+  var n=HR.tk?HR.tk.length:0, open=n>0&&TK_OPEN, box=$("h-tickets");
+  box.classList.toggle("closed",!open);
+  if(HR.tkBar) HR.tkBar.textContent=n?("🎫 あなたの馬券 "+n+"枚　"+(open?"▼ しまう":"▲ 見る")):"🎫 今回は見送り（馬券なし）";
+  document.body.classList.toggle("tk-open",open);
+  document.body.classList.toggle("tk-closed",!open);
+}
+// レースの進み具合に合わせて「いま当たり」「的中」「はずれ」を切りかえる
+function paintTicketStates(sim,s,real,ord){
+  if(!HR.tk||!HR.tk.length) return;
+  if(!HR.fs || HR.fsKey!==HR.race){ HR.fs=sim.fin.slice().sort(function(a,b){ return a-b; }); HR.fsKey=HR.race; }
+  HR.tk.forEach(function(tk){
+    var k=tk.b.t==="w"?0:tk.b.t==="q"?1:2;
+    var st=(s>=HR.fs[k])?(betHit(tk.b,sim.order)?"hit":"miss"):((real>0&&liveHit(tk.b,ord))?"live":"");
+    if(st===tk.st) return;
+    var first=tk.st==="";
+    tk.st=st;
+    tk.el.classList.toggle("live",st==="live"); tk.el.classList.toggle("hit",st==="hit"); tk.el.classList.toggle("miss",st==="miss");
+    tk.el.querySelector(".tk-s").textContent=st==="live"?"いま当たり！":st==="hit"?"的中":"";
+    if(st==="hit" && !(first && real>12)){ SFX.coin(2); buzz([30,40,30]); }
+  });
+}
+
 /* 実況 */
 var CM=null;
 function cmReset(key){ CM={key:key,d:{},lastAt:-99,rankAtStraight:null,leadAtStraight:-1}; }
@@ -2386,6 +2465,7 @@ function raceFrameUI(){
   if(now-HR.lastBetPaint>300){
     HR.lastBetPaint=now;
     HR.rb.forEach(function(sp){ sp.classList.toggle("live",real>0&&liveHit(sp._b,ord)); });
+    paintTicketStates(sim,s,real,ord);
   }
   if(HR.mini) paintMini(HR.mini,sim,s,D);
   // 実況と音
@@ -2824,9 +2904,9 @@ function makeWorld(){
   /* ---- 馬の上の番号 ---- */
   var lbBox=$("labels"); lbBox.innerHTML="";
   var labels=horses.map(function(h,i){
-    var d=el("div","hl"), n=hnBadge(i+1,"num"), nm=el("div","nm",""), st=el("div","dots");
+    var d=el("div","hl"), n=hnBadge(i+1,"num"), nm=el("div","nm",""), st=el("div","dots"), mk=el("div","mk","🎫");
     st.style.cssText="display:flex;gap:2px;height:8px";
-    d.appendChild(st); d.appendChild(n); d.appendChild(nm); lbBox.appendChild(d);
+    d.appendChild(mk); d.appendChild(st); d.appendChild(n); d.appendChild(nm); lbBox.appendChild(d);
     return {d:d,nm:nm,st:st,on:false};
   });
   var projV=new V3(), idM=B.Matrix.Identity();
@@ -2853,7 +2933,10 @@ function makeWorld(){
   function setBetDots(pub){
     var map={};
     (pub.players||[]).forEach(function(p){ (p.bets||[]).forEach(function(b){ b.h.forEach(function(n){ (map[n]=map[n]||{})[p.color]=1; }); }); });
+    var mine={};
+    if(V&&V.you) (V.you.bets||[]).forEach(function(b){ b.h.forEach(function(n){ mine[n]=1; }); });
     labels.forEach(function(L,i){
+      L.d.classList.toggle("mine",!!mine[i+1]);
       L.st.innerHTML="";
       Object.keys(map[i+1]||{}).forEach(function(col){ var dd=el("i"); dd.style.cssText="width:8px;height:8px;border-radius:50%;border:1px solid #fff;background:"+col; L.st.appendChild(dd); });
     });
