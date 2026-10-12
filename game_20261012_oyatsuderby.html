@@ -2545,7 +2545,11 @@ function stop3D(){
 }
 
 // コースの形：直線500m×2、カーブ半径約95m、1周1600m。ゴールはホームストレッチの420m地点
-var TL=500, TR=1600/(2*Math.PI)-TL/Math.PI, TW=20, TC=1600, U_FIN=420, NOSE=1.85, SLOT0=1.8, SLOTW=1.55;
+var TL=500, TR=1600/(2*Math.PI)-TL/Math.PI, TW=20, TC=1600, U_FIN=420, SLOT0=1.8, SLOTW=1.55;
+var NOSE=1.85;   // 馬の中心から鼻先までの長さ（Blenderの馬を読みこんだら、その長さに変える）
+// Blenderで作ったデフォルメ馬（同じ場所に置いたファイル）と、それを読むための部品
+var HORSE_GLB="oyatsuderby_horse.glb", HORSE_GLB_NOSE=1.42;
+var GLTF_SRC="https://cdn.jsdelivr.net/npm/babylonjs-loaders@9.29.0/babylon.glTF2FileLoader.min.js";
 function trackPt(u,w,o){
   o=o||{};
   u=((u%TC)+TC)%TC;
@@ -2814,13 +2818,18 @@ function makeWorld(){
   var maneM=COATS.map(function(c,k){ return smat("mane"+k,c.m,0.05); });
   var hoofM=smat("hoof","#2a2420",0.1), saddleM=smat("saddle","#3a2a20",0.1), pantsM=smat("pants","#f6f6f2",0.05), bootM=smat("boot","#1d1d1d",0.2);
   var silkM=WAKU.map(function(w,k){ return smat("silk"+k,k===0?"#f2f2ee":w.bg,0.25); });
-  function clothTex(i){
+  function drawCloth(i,c,W,H){
     var w=WAKU[i];
-    return dtex("cloth"+i,128,96,function(c,W,H){
-      c.fillStyle=w.bg; c.fillRect(0,0,W,H);
-      c.strokeStyle=i===0?"#999":"rgba(255,255,255,.7)"; c.lineWidth=6; c.strokeRect(3,3,W-6,H-6);
-      c.fillStyle=w.fg; c.font="bold 70px sans-serif"; c.textAlign="center"; c.textBaseline="middle"; c.fillText(String(i+1),W/2,H/2+4);
-    });
+    c.fillStyle=w.bg; c.fillRect(0,0,W,H);
+    c.strokeStyle=i===0?"#999":"rgba(255,255,255,.7)"; c.lineWidth=6; c.strokeRect(3,3,W-6,H-6);
+    c.fillStyle=w.fg; c.font="bold 70px sans-serif"; c.textAlign="center"; c.textBaseline="middle"; c.fillText(String(i+1),W/2,H/2+4);
+  }
+  function clothTex(i){ return dtex("cloth"+i,128,96,function(c,W,H){ drawCloth(i,c,W,H); }); }
+  // Blenderの馬用：glTFは画像の上下の向きが逆なので、上下をひっくり返さずに作る
+  function clothTexGlb(i){
+    var t=new B.DynamicTexture("clothG"+i,{width:128,height:96},scene,true,B.Texture.TRILINEAR_SAMPLINGMODE,B.Engine.TEXTUREFORMAT_RGBA,false);
+    drawCloth(i,t.getContext(),128,96); t.update(false);
+    return t;
   }
   function cap(r,h,x,y,z,rx){
     var m=B.MeshBuilder.CreateCapsule("cap",{radius:r,height:h,tessellation:10,subdivisions:1,capSubdivisions:3},scene);
@@ -2866,11 +2875,12 @@ function makeWorld(){
     var pants=B.Mesh.MergeMeshes(pp,true,true); pants.parent=torso; pants.material=pantsM;
     var boots=B.Mesh.MergeMeshes([box(0.11,0.3,0.12,0.24,1.88,0.32,0.4),box(0.11,0.3,0.12,-0.24,1.88,0.32,0.4)],true,true); boots.parent=torso; boots.material=bootM;
     var sh=B.MeshBuilder.CreateGround("sh",{width:1.7,height:3.6},scene); sh.parent=root; sh.position.y=0.06; sh.material=blobM;
-    var h={i:i,root:root,torso:torso,coat:coat,mane:mane,tail:tail,tailP:tailP,legs:legs,ph:Math.random(),w:SLOT0+i*SLOTW,coatK:-1,
+    var h={i:i,root:root,torso:torso,coat:coat,mane:mane,tail:tail,tailP:tailP,legs:legs,ph:Math.random(),w:SLOT0+i*SLOTW,coatK:-1,clothM:cm,glb:null,
       setCoat:function(k){
         if(h.coatK===k) return; h.coatK=k;
         coat.material=coatM[k]; mane.material=maneM[k]; tail.material=maneM[k];
         legs.forEach(function(l){ l.up.material=coatM[k]; l.lo.material=(k===2||k===6)&&l.front?pantsM:coatM[k]; });
+        if(h.glb) paintGlb(h,k);
       }};
     h.setCoat(i%COATS.length);
     root.getChildMeshes().forEach(function(m){ m.isPickable=false; });
@@ -2878,8 +2888,71 @@ function makeWorld(){
   }
   var horses=[];
   for(var hi2=0;hi2<8;hi2++) horses.push(makeHorse(hi2));
+  loadHorseModel();
+  /* ---- Blenderで作ったデフォルメ馬に着がえる（読めなければ今の馬のまま） ---- */
+  var glbShared=null;
+  function stdMat(name,hex,spec,emis){ var m=smat(name,hex,spec==null?0.15:spec,emis); return m; }
+  function paintGlb(h,k){
+    var G=h.glb, c=C3.FromHexString(COATS[k].c);
+    G.mats.Coat.diffuseColor=c;
+    G.mats.Mane.diffuseColor=C3.FromHexString(COATS[k].m);
+    G.mats.Muzzle.diffuseColor=C3.Lerp(c,C3.FromHexString("#f3d6b6"),0.6);
+  }
+  function useHorseModel(ct){
+    if(!glbShared) glbShared={
+      Eye:stdMat("gEye","#1d1410",0.9), EyeHi:stdMat("gEyeHi","#ffffff",0,"#ffffff"), Blush:stdMat("gBlush","#ff9fae",0.05,"#552a30"),
+      Hoof:hoofM, Saddle:saddleM, Skin:stdMat("gSkin","#f6d2b4",0.05), Pants:pantsM, Boots:bootM };
+    glbShared.Eye.specularPower=96;
+    horses.forEach(function(h,i){
+      var inst=ct.instantiateModelsToScene(function(n){ return n+"_h"+i; },false,{doNotInstantiate:true});
+      var root=inst.rootNodes[0]; root.parent=h.root;
+      var cg=new B.StandardMaterial("gCloth"+i,scene); cg.diffuseTexture=clothTexGlb(i); cg.specularColor=C3.Black(); cg.emissiveColor=new C3(0.18,0.18,0.18);
+      var mats={Coat:stdMat("gCoat"+i,COATS[0].c,0.2),Mane:stdMat("gMane"+i,COATS[0].m,0.08),Muzzle:stdMat("gMuz"+i,"#e7b48a",0.1),
+                Silk:silkM[i],Cloth:cg};
+      root.getChildMeshes(false).forEach(function(m){
+        m.isPickable=false;
+        var base=m.material?String(m.material.name).replace(/_h\d+$/,"").replace(/\.\d+$/,""):"";
+        var nm=mats[base]||glbShared[base];
+        if(nm) m.material=nm;
+      });
+      var gal=null, idle=null;
+      inst.animationGroups.forEach(function(ag){ if(/Gallop/.test(ag.name)) gal=ag; else if(/Idle/.test(ag.name)) idle=ag; });
+      if(!gal||!idle) throw new Error("animation missing");
+      gal.start(true,1); idle.start(true,1);
+      gal.goToFrame(gal.from+(gal.to-gal.from)*Math.random()); idle.goToFrame(idle.from+(idle.to-idle.from)*Math.random());
+      h.glb={root:root,gal:gal,idle:idle,mats:mats,w:-1};
+      h.torso.setEnabled(false);
+      var k=h.coatK; h.coatK=-1; h.setCoat(k<0?i%COATS.length:k);
+      setGlbWeight(h,0);
+    });
+    NOSE=HORSE_GLB_NOSE;
+  }
+  function setGlbWeight(h,w){
+    var G=h.glb; if(Math.abs(G.w-w)<0.01) return; G.w=w;
+    if("weight" in G.gal){ G.gal.weight=w; G.idle.weight=1-w; }
+    else { G.gal.setWeightForAllAnimatables(w); G.idle.setWeightForAllAnimatables(1-w); }
+  }
+  function loadHorseModel(){
+    if(location.protocol==="file:") return;
+    loadScriptOnce(GLTF_SRC,function(){ return !!(B.GLTFFileLoader||B.GLTF2); },function(err){
+      if(err) return;
+      var url=HORSE_GLB;
+      try{ url=new URL(HORSE_GLB,location.href).href; }catch(e){}
+      var pr=B.LoadAssetContainerAsync?B.LoadAssetContainerAsync(url,scene):B.SceneLoader.LoadAssetContainerAsync("",url,scene);
+      pr.then(function(ct){
+        try{ useHorseModel(ct); }
+        catch(e){ try{ console.error(e); }catch(_){ } horses.forEach(function(h){ if(h.glb){ h.glb.root.dispose(); h.glb=null; } h.torso.setEnabled(true); }); NOSE=1.85; }
+      })["catch"](function(){});
+    });
+  }
   // 走り方のアニメーション。k=走りの強さ（0=止まる 1=全力）、gf=1秒あたりの歩数
   function animHorse(h,k,gf,dt,now){
+    if(h.glb){
+      // Blenderの馬：「ギャロップ」と「立ち止まり」の動きを、走りの強さでまぜる
+      setGlbWeight(h,k<0.03?0:clamp(0.35+k*0.9,0,1));
+      h.glb.gal.speedRatio=gf>0?gf:1;
+      return;
+    }
     h.ph+=dt*gf;
     var c=h.ph*Math.PI*2;
     h.legs.forEach(function(l){
@@ -2917,7 +2990,7 @@ function makeWorld(){
       var L=labels[i];
       if(!show){ if(L.on){ L.d.style.opacity="0"; L.on=false; } return; }
       var p=h.root.position;
-      projV.set(p.x,3.25,p.z);
+      projV.set(p.x,NOSE===HORSE_GLB_NOSE?2.6:3.25,p.z);
       var r=V3.Project(projV,idM,tm,vp);
       var vis=r.z>0&&r.z<1&&r.x>-40&&r.x<W+40&&r.y>-40&&r.y<H+40;
       var dist=V3.Distance(cam.position,p);
