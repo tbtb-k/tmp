@@ -41,7 +41,7 @@ body{margin:0;min-height:100vh;font-family:var(--body);font-weight:500;color:var
     repeating-linear-gradient(90deg,rgba(255,255,255,.05) 0 40px,rgba(0,0,0,0) 40px 80px),
     linear-gradient(180deg,#8fd0f5 0%,#cdebf7 34%,#9fd7a6 34.2%,#2e8b57 62%,#1b5e3b 100%);
   background-attachment:fixed;overscroll-behavior-y:none}
-body.hostmode{overflow:hidden;height:100vh;background:#1b5e3b}
+body.fixedmode{overflow:hidden;height:100vh}
 h1,h2,h3,.head{font-family:var(--head);font-weight:400;font-synthesis:none;letter-spacing:.02em}
 b,strong{font-weight:800}
 button{font:inherit;color:inherit;border:0;background:none;padding:0;cursor:pointer;touch-action:manipulation}
@@ -51,7 +51,7 @@ input{font:inherit;font-size:16px}
 
 /* ---------- 3D の画面 ---------- */
 #c3d{position:fixed;inset:0;width:100vw;height:100vh;display:none;z-index:0;outline:none;touch-action:none}
-body.hostmode #c3d.on{display:block}
+body[data-screen="stage"] #c3d.on{display:block}
 #labels{position:fixed;inset:0;pointer-events:none;z-index:1;overflow:hidden}
 .hl{position:absolute;left:0;top:0;transform:translate(-50%,-100%);display:flex;flex-direction:column;align-items:center;gap:2px;will-change:transform;transition:opacity .2s}
 .hl .num{min-width:26px;height:26px;padding:0 5px;border-radius:7px;display:grid;place-items:center;font-family:var(--head);font-size:16px;box-shadow:0 2px 6px rgba(0,0,0,.35);border:2px solid rgba(255,255,255,.9)}
@@ -222,10 +222,7 @@ label.f{display:block;font-weight:800;margin:12px 0 4px;font-size:14px}
 .up{color:var(--ok)}.dn{color:var(--bad)}
 .hit{color:var(--ok);font-weight:800}.miss{color:var(--choco-3);font-weight:800}
 
-/* ---------- 代表者（大画面） ---------- */
-.hostroot{position:fixed;inset:0;z-index:2;pointer-events:none}
-.hostroot>*{pointer-events:auto}
-.loading3d{position:fixed;left:50%;top:14px;transform:translateX(-50%);z-index:5;background:var(--glass-d);color:#fff;padding:8px 16px;border-radius:99px;font-weight:800;font-size:14px}
+/* ---------- 親：ロビー ---------- */
 .lobby{position:fixed;inset:0;display:grid;grid-template-columns:minmax(300px,420px) minmax(320px,560px);gap:22px;align-content:center;justify-content:center;padding:24px;overflow:auto}
 .lobby .card{background:var(--glass)}
 .lobby h2{margin:0;font-size:30px;color:var(--choco)}
@@ -245,120 +242,72 @@ label.f{display:block;font-weight:800;margin:12px 0 4px;font-size:14px}
 .seg button.on{background:var(--turf);color:#fff;box-shadow:0 2px 0 var(--turf-d)}
 .lobby .members{min-height:44px}
 .lobby .startnote{font-size:13px;color:var(--choco-2);text-align:center;margin-top:8px;font-weight:700}
-.hostcorner{position:fixed;right:62px;top:12px;z-index:6;display:flex;gap:8px}
-.hostcorner button{background:var(--glass-d);color:#fff;border-radius:99px;padding:8px 14px;font-weight:800;font-size:13px}
-.hostcorner button.armed{background:var(--bad)}
-.hostcorner button.off{opacity:.6;text-decoration:line-through}
 
-/* 大画面：レース名の帯 */
+/* ---------- 賭け画面：みんなの状況 ---------- */
+.whobar{display:flex;gap:6px;overflow-x:auto;padding:2px 2px 10px;scrollbar-width:none}
+.whobar::-webkit-scrollbar{display:none}
+.who{display:inline-flex;align-items:center;gap:5px;flex:none;background:rgba(255,255,255,.9);border-radius:99px;padding:4px 10px 4px 6px;font-size:13px;font-weight:800;border:2px solid transparent}
+.who i{width:12px;height:12px;border-radius:50%;flex:none}
+.who.ready{border-color:var(--ok)}
+.who .st{font-size:11px;color:var(--choco-2)}
+.who.ready .st{color:var(--ok)}
+.who.gone{opacity:.5}
+
+/* ---------- レース中（みんなの画面） ---------- */
+.stagecorner{position:fixed;right:62px;top:12px;z-index:6;display:flex;gap:8px}
+.stagecorner button{background:var(--glass-d);color:#fff;border-radius:99px;padding:8px 14px;font-weight:800;font-size:13px;white-space:nowrap}
+.stagecorner button.off{opacity:.6}
 .rband{position:fixed;left:16px;top:12px;z-index:4;display:flex;align-items:center;gap:12px;background:var(--glass-d);color:#fff;border-radius:16px;padding:8px 16px 8px 8px;max-width:calc(100vw - 340px)}
 .rband .no{background:var(--gold);color:var(--choco);border-radius:10px;padding:4px 10px;font-family:var(--head);font-size:clamp(16px,1.7vw,24px);white-space:nowrap}
 .rband .nm{font-family:var(--head);font-size:clamp(18px,2vw,30px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .rband .inf{font-weight:800;font-size:clamp(13px,1.2vw,17px);opacity:.9;white-space:nowrap}
-.gbadge{background:var(--berry);color:#fff;border-radius:6px;padding:0 6px;font-size:12px;margin-left:4px}
-
-/* 大画面：出走表 */
-.pbet{position:fixed;right:16px;top:70px;bottom:16px;z-index:3;width:min(62vw,900px);display:flex;flex-direction:column;gap:10px}
-.pbet .tbl{background:var(--glass);border-radius:18px;box-shadow:var(--sh);overflow:auto;flex:1;min-height:0}
-table.rc{width:100%;border-collapse:collapse;font-size:clamp(13px,1.25vw,19px)}
-table.rc th{position:sticky;top:0;background:var(--choco);color:#fff;font-weight:800;padding:8px 6px;font-size:.78em;white-space:nowrap;z-index:1}
-table.rc td{padding:6px 6px;border-bottom:1px solid rgba(0,0,0,.06);text-align:center;white-space:nowrap;font-weight:800}
-table.rc td.nm{text-align:left;font-size:1.08em}
-table.rc tr.focus td{background:#fff1c9}
-table.rc .hn{display:inline-grid;place-items:center;min-width:1.9em;height:1.9em;border-radius:.4em;font-family:var(--head);font-weight:400;border:2px solid rgba(0,0,0,.12)}
-table.rc .od{font-family:var(--head);font-weight:400;color:var(--berry-d);font-size:1.12em}
-table.rc .od.p{color:var(--sky-d);font-size:1em}
-table.rc .pop1{color:var(--berry);font-weight:800}
-.bfoot{display:flex;gap:10px;align-items:stretch}
-.btimer{background:var(--glass-d);color:#fff;border-radius:18px;padding:8px 18px;display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:130px}
-.btimer b{font-family:var(--head);font-weight:400;font-size:clamp(34px,4vw,56px);line-height:1}
-.btimer span{font-size:13px;font-weight:800;opacity:.85}
-.btimer.hurry b{color:#ffb3bd}
-.ptiles{flex:1;display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));align-content:center;gap:8px;background:var(--glass);border-radius:18px;padding:10px;box-shadow:var(--sh)}
-.pt{display:grid;grid-template-columns:14px minmax(0,1fr) auto;grid-template-rows:auto auto;gap:2px 8px;align-items:center;background:#fff;border-radius:12px;padding:6px 10px;font-weight:800;min-width:0;border:2px solid transparent}
-.pt i{width:14px;height:14px;border-radius:50%;grid-row:1/3}
-.pt .n{grid-column:2/4;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:clamp(13px,1.15vw,17px)}
-.pt .m{font-family:var(--head);font-size:clamp(13px,1.1vw,16px);white-space:nowrap;display:flex;align-items:center;gap:4px}
-.pt .s{font-size:12px;padding:1px 7px;border-radius:99px;background:var(--cream-2);white-space:nowrap;justify-self:end}
-.pt.ready{border-color:var(--ok)}
-.pt.ready .s{background:var(--ok);color:#fff}
-.pt.gone{opacity:.5}
-.bnote{display:flex;align-items:center;justify-content:space-between;gap:10px;color:#fff;font-weight:800;text-shadow:0 1px 3px rgba(0,0,0,.6);font-size:clamp(13px,1.2vw,17px)}
-.bnote .btn{width:auto}
-.paddockname{position:fixed;left:24px;bottom:24px;z-index:3;color:#fff;max-width:34vw}
-.paddockname .hn{display:inline-grid;place-items:center;width:58px;height:58px;border-radius:14px;font-family:var(--head);font-size:34px;border:3px solid #fff;box-shadow:0 4px 12px rgba(0,0,0,.4)}
-.paddockname .t{font-family:var(--head);font-size:clamp(24px,3vw,44px);text-shadow:0 3px 8px rgba(0,0,0,.6);line-height:1.15;margin-top:8px}
-.paddockname .m{font-weight:800;font-size:clamp(13px,1.3vw,18px);text-shadow:0 1px 4px rgba(0,0,0,.7)}
-
-/* 大画面：レース中 */
 .order{position:fixed;left:50%;top:76px;transform:translateX(-50%);z-index:3;display:flex;gap:6px;background:var(--glass-d);border-radius:14px;padding:6px 8px}
 .order .oc{display:flex;flex-direction:column;align-items:center;gap:1px;font-size:11px;font-weight:800;color:#fff}
-.order .oc .hn{width:clamp(28px,2.6vw,40px);height:clamp(28px,2.6vw,40px);border-radius:8px;display:grid;place-items:center;font-family:var(--head);font-size:clamp(16px,1.6vw,24px);border:2px solid rgba(255,255,255,.6);transition:transform .25s}
+.order .oc .hn{width:clamp(28px,2.6vw,40px);height:clamp(28px,2.6vw,40px);border-radius:8px;display:grid;place-items:center;font-family:var(--head);font-size:clamp(16px,1.6vw,24px);border:2px solid rgba(255,255,255,.6)}
+.order .oc.mine .hn{box-shadow:0 0 0 3px var(--gold)}
 .rdist{position:fixed;right:16px;top:66px;z-index:3;background:var(--glass-d);color:#fff;border-radius:14px;padding:6px 14px;font-weight:800;font-size:clamp(14px,1.3vw,18px)}
 .rdist b{font-family:var(--head);font-weight:400;font-size:clamp(22px,2.4vw,34px);margin:0 4px}
-.ticker{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:3;max-width:min(90vw,1100px);background:linear-gradient(90deg,rgba(185,44,64,.95),rgba(232,69,90,.95));color:#fff;
-  border-radius:16px;padding:10px 22px;font-family:var(--head);font-size:clamp(18px,2.2vw,34px);box-shadow:var(--sh);text-align:center;transition:opacity .25s}
+.ticker{position:fixed;left:50%;bottom:calc(64px + var(--sb));transform:translateX(-50%);z-index:3;width:max-content;max-width:min(92vw,1100px);background:linear-gradient(90deg,rgba(185,44,64,.95),rgba(232,69,90,.95));color:#fff;
+  border-radius:16px;padding:10px 22px;font-family:var(--head);font-size:clamp(17px,2.2vw,34px);box-shadow:var(--sh);text-align:center;transition:opacity .25s}
 .ticker.fresh{animation:tick .35s ease}
 @keyframes tick{from{transform:translate(-50%,10px);opacity:0}to{transform:translate(-50%,0);opacity:1}}
 .rbets{position:fixed;left:16px;top:78px;z-index:3;width:min(25vw,300px);display:flex;flex-direction:column;gap:6px;max-height:calc(100vh - 190px);overflow:hidden}
 .rb{background:var(--glass);border-radius:12px;padding:6px 10px;box-shadow:var(--sh)}
+.rb.me{box-shadow:0 0 0 3px var(--gold),var(--sh)}
 .rb .h{display:flex;align-items:center;gap:6px;font-weight:800;font-size:clamp(12px,1.05vw,15px)}
 .rb .h i{width:12px;height:12px;border-radius:50%;flex:none}
 .rb .h .n{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .rb .bl{display:flex;flex-wrap:wrap;gap:4px;margin-top:3px}
-.rb .bl span{font-size:clamp(11px,.95vw,13px);font-weight:800;background:var(--cream-2);border-radius:6px;padding:0 6px}
-.rb .bl span.live{background:var(--gold);}
-.precount{position:fixed;left:50%;top:44%;transform:translate(-50%,-50%);z-index:3;text-align:center;color:#fff;font-family:var(--head);font-size:clamp(30px,4.5vw,70px);text-shadow:0 4px 0 var(--choco),0 8px 20px rgba(0,0,0,.4);pointer-events:none}
-.precount small{display:block;font-size:.42em;font-family:var(--body);font-weight:800}
+.rb .bl span,.mybets span{font-size:clamp(11px,.95vw,13px);font-weight:800;background:var(--cream-2);border-radius:6px;padding:0 6px}
+.rb .bl span.live,.mybets span.live{background:var(--gold)}
+.mybets{position:fixed;left:12px;right:12px;bottom:calc(12px + var(--sb));z-index:3;display:none;align-items:center;gap:5px;overflow-x:auto;background:var(--glass);border-radius:12px;padding:7px 10px;box-shadow:var(--sh);white-space:nowrap;scrollbar-width:none}
+.mybets::-webkit-scrollbar{display:none}
+.mybets b{font-size:12px;flex:none}
+.mybets span{flex:none;font-size:13px;padding:1px 7px}
+.precount{position:fixed;left:50%;top:44%;transform:translate(-50%,-50%);z-index:3;text-align:center;color:#fff;font-family:var(--head);font-size:clamp(30px,4.5vw,70px);text-shadow:0 4px 0 var(--choco),0 8px 20px rgba(0,0,0,.4);pointer-events:none;white-space:nowrap}
 .photo{position:fixed;left:50%;top:40%;transform:translate(-50%,-50%) rotate(-4deg);z-index:4;background:#fff;color:var(--choco);border:6px solid var(--choco);border-radius:14px;padding:10px 26px;
-  font-family:var(--head);font-size:clamp(28px,4vw,60px);box-shadow:var(--sh);animation:stamp .4s cubic-bezier(.2,1.6,.4,1) both}
+  font-family:var(--head);font-size:clamp(28px,4vw,60px);box-shadow:var(--sh);animation:stamp .4s cubic-bezier(.2,1.6,.4,1) both;white-space:nowrap}
 @keyframes stamp{from{transform:translate(-50%,-50%) rotate(-4deg) scale(2.2);opacity:0}to{transform:translate(-50%,-50%) rotate(-4deg) scale(1);opacity:1}}
 .hmini{position:fixed;left:50%;top:52%;transform:translate(-50%,-50%);z-index:3;width:min(92vw,820px)}
+body.simple .precount{top:52%;z-index:5;font-size:28px;background:var(--glass-d);border-radius:16px;padding:6px 18px}
+body.simple .precount:empty{display:none}
+body.simple #s-stage{background:linear-gradient(180deg,#8fd0f5 0%,#cdebf7 30%,#2e8b57 30.2%,#1b5e3b 100%);position:fixed;inset:0}
 
-/* 大画面：結果 */
-.pres{position:fixed;inset:70px 16px 16px;z-index:3;display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:14px;align-content:center;max-width:1300px;margin:0 auto}
-.pres .card{padding:16px 20px}
-.pres h3{margin:0 0 8px;font-size:clamp(18px,1.8vw,26px)}
-.podium{display:flex;flex-direction:column;gap:8px}
-.pd{display:flex;align-items:center;gap:12px;background:#fff;border-radius:14px;padding:8px 12px;font-weight:800}
-.pd .pl{font-family:var(--head);font-size:clamp(20px,2vw,30px);width:2.6em;color:var(--choco-2)}
-.pd.p1{background:linear-gradient(90deg,#fff3c6,#fff);border:3px solid var(--gold)}
-.pd.p1 .pl{color:var(--gold-d)}
-.pd .hn{width:clamp(34px,3vw,46px);height:clamp(34px,3vw,46px);border-radius:10px;display:grid;place-items:center;font-family:var(--head);font-size:clamp(18px,1.9vw,28px);border:2px solid rgba(0,0,0,.12);flex:none}
-.pd .t{flex:1;min-width:0;font-size:clamp(16px,1.7vw,26px);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.pd .mg{font-size:clamp(12px,1vw,15px);color:var(--choco-2);white-space:nowrap}
-.paytbl{width:100%;border-collapse:collapse;margin-top:10px;font-size:clamp(13px,1.2vw,18px)}
+/* ---------- 結果：払いもどし表 ---------- */
+.paytbl{width:100%;border-collapse:collapse;margin-top:10px;font-size:14px}
 .paytbl td{padding:5px 6px;border-bottom:1px dashed var(--cream-2);font-weight:800}
 .paytbl td.k{width:4.5em;color:#fff}
 .paytbl td.k span{background:var(--choco);border-radius:7px;padding:1px 8px;font-size:.85em}
 .paytbl td.o{text-align:right;font-family:var(--head);font-weight:400;color:var(--berry-d)}
-.prow{display:flex;align-items:center;gap:10px;padding:7px 4px;border-bottom:1px dashed var(--cream-2);font-weight:800;font-size:clamp(14px,1.35vw,20px)}
-.prow:last-child{border-bottom:0}
-.prow .rkn{font-family:var(--head);width:1.8em;text-align:center}
-.prow i{width:14px;height:14px;border-radius:50%;flex:none}
-.prow .n{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.prow .g{min-width:4.2em;text-align:right;font-family:var(--head);font-weight:400}
-.prow .m{min-width:4.8em;text-align:right;font-family:var(--head);font-weight:400;display:flex;align-items:center;justify-content:flex-end;gap:5px}
-.prow .ok{font-size:12px;padding:1px 8px;border-radius:99px;background:var(--cream-2)}
-.prow .ok.on{background:var(--ok);color:#fff}
-.prow .hits{font-size:12px;color:var(--choco-2)}
-.resfoot{grid-column:1/-1;display:flex;align-items:center;justify-content:center;gap:14px;color:#fff;font-weight:800;text-shadow:0 1px 3px rgba(0,0,0,.6)}
-.resfoot .btn{width:auto;min-width:240px}
+.rk .okb{font-size:11px;padding:1px 7px;border-radius:99px;background:var(--cream-2);color:var(--choco-2)}
+.rk .okb.on{background:var(--ok);color:#fff}
 
-/* 大画面：最終結果 */
-.pfin{position:fixed;inset:64px 16px 16px;z-index:3;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;overflow:auto}
-.crown{text-align:center;color:#fff}
-.crown .c1{font-family:var(--head);font-size:clamp(20px,2.2vw,32px);text-shadow:0 2px 6px rgba(0,0,0,.5)}
-.crown .c2{font-family:var(--head);font-size:clamp(44px,6vw,96px);line-height:1.1;text-shadow:0 4px 0 var(--gold-d),0 8px 0 var(--choco),0 14px 26px rgba(0,0,0,.4)}
-.crown .c3{font-weight:800;font-size:clamp(16px,1.6vw,24px);text-shadow:0 2px 4px rgba(0,0,0,.6)}
-.fincols{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:14px;width:min(1100px,100%)}
+/* ---------- 最終結果：表彰 ---------- */
 .award{display:flex;align-items:center;gap:10px;background:#fff;border-radius:12px;padding:8px 12px;font-weight:800}
 .award+.award{margin-top:8px}
 .award .ic{font-size:26px}
 .award .t{font-size:12px;color:var(--choco-2)}
-.award .w{font-size:clamp(15px,1.4vw,20px)}
-.finbtns{display:flex;gap:12px}
-.finbtns .btn{width:auto;min-width:220px}
+.award .w{font-size:16px}
 
 /* ---------- 共通の部品 ---------- */
 #fx{position:fixed;inset:0;pointer-events:none;z-index:70}
@@ -379,35 +328,26 @@ table.rc .pop1{color:var(--berry);font-weight:800}
 #netbar .acts button{background:rgba(255,255,255,.2);border-radius:8px;padding:5px 10px;font-size:13px}
 #sndbtn{position:fixed;right:10px;bottom:calc(10px + var(--sb));z-index:60;width:44px;height:44px;border-radius:50%;background:rgba(255,250,240,.92);font-size:19px;box-shadow:var(--sh)}
 body.betting #sndbtn{display:none}
-body.hostmode #sndbtn{top:10px;right:12px;bottom:auto;width:40px;height:40px;font-size:17px}
+body.fixedmode #sndbtn{top:10px;right:12px;bottom:auto;width:40px;height:40px;font-size:17px}
 .shake{animation:shk .45s}
 @keyframes shk{20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(3px)}}
 
 @media (max-width:980px){
   .lobby{grid-template-columns:1fr;align-content:start}
-  .pbet{left:12px;right:12px;width:auto;top:auto;bottom:12px;max-height:64vh}
-  .paddockname{bottom:auto;top:72px;left:16px;max-width:70vw}
-  .paddockname .hn{width:44px;height:44px;font-size:26px}
   .rband{max-width:calc(100vw - 330px)}
-  .pres,.fincols{grid-template-columns:minmax(0,1fr)}
-  .pres{align-content:start;overflow:auto}
-  .resfoot{flex-direction:column;gap:8px}
-  .resfoot .btn,.finbtns .btn{min-width:0;width:100%}
-  .finbtns{flex-direction:column;width:100%;max-width:420px}
   .rbets{display:none}
+  .mybets{display:flex}
   .order{top:72px;flex-wrap:wrap;justify-content:center;max-width:calc(100vw - 24px)}
-  .rdist{top:auto;bottom:90px}
 }
 @media (max-width:640px){
-  .rband{top:58px;max-width:calc(100vw - 24px);left:12px}
+  .rband{top:58px;max-width:calc(100vw - 24px);left:12px;padding:6px 12px 6px 6px;gap:8px}
   .rband .inf{display:none}
-  .paddockname{top:116px}
-  .order{top:116px}
-  .pres{top:112px}
+  .order{top:110px;gap:4px;padding:5px 6px}
+  .rdist{top:auto;bottom:auto;top:166px;right:12px}
+  .stagecorner{right:58px;top:10px}
+  .stagecorner button{padding:8px 11px}
   .lobby{padding:64px 12px 24px}
   .codebox span{width:48px;height:60px;font-size:34px}
-  .bfoot{flex-direction:column}
-  .btimer{flex-direction:row;gap:8px;min-width:0}
 }
 @media (prefers-reduced-motion:reduce){
   *{animation:none!important;transition:none!important}
@@ -452,9 +392,9 @@ body.hostmode #sndbtn{top:10px;right:12px;bottom:auto;width:40px;height:40px;fon
   </svg>
   <p class="lead">最初にメダル100枚。競馬に賭けて、<br>いちばん増やした人が優勝！</p>
   <div class="card stack" style="margin-top:14px">
-    <button class="btn gold" id="btn-host" type="button">🖥️ 大画面で部屋をつくる</button>
-    <p class="note" style="margin-top:6px">パソコン・タブレット・テレビにつないだ画面がおすすめ。<br>レースはこの画面に3Dで映るよ</p>
-    <button class="btn" id="btn-tojoin" type="button">📱 スマホで参加する</button>
+    <button class="btn gold" id="btn-host" type="button">🏁 部屋をつくる（親になる）</button>
+    <p class="note" style="margin-top:6px">親もいっしょに賭けて遊べるよ。レースはみんなの画面に同じ3Dで映るよ<br>（パソコンやテレビで親になれば、大きな画面でも見られるよ）</p>
+    <button class="btn" id="btn-tojoin" type="button">📱 あいことばで参加する</button>
     <button class="btn sub" id="btn-howto" type="button">遊び方</button>
   </div>
   <div id="title-err"></div>
@@ -466,10 +406,10 @@ body.hostmode #sndbtn{top:10px;right:12px;bottom:auto;width:40px;height:40px;fon
   <div class="card howto">
     <h2>遊び方</h2>
     <ol>
-      <li><b>大画面</b>（パソコンやタブレット）で部屋をつくる</li>
-      <li>みんなは<b>スマホでQRコード</b>を読んで参加（2〜6人）</li>
-      <li>レースごとに、スマホでこっそりメダルを賭ける</li>
-      <li>大画面の3Dレースをみんなで応援！</li>
+      <li><b>親</b>が「部屋をつくる」を押す（親もいっしょに遊ぶよ）</li>
+      <li>ほかの人は<b>スマホでQRコード</b>を読んで参加（親を入れて2〜6人）</li>
+      <li>レースごとに、自分の画面でこっそりメダルを賭ける</li>
+      <li>レースは<b>みんなの画面に同じ3D</b>で流れるよ。いっしょに応援！</li>
       <li>当たればオッズ（倍率）ぶんのメダルがもどってくる</li>
       <li>全レースが終わって、<b>メダルがいちばん多い人が優勝</b></li>
     </ol>
@@ -486,6 +426,7 @@ body.hostmode #sndbtn{top:10px;right:12px;bottom:auto;width:40px;height:40px;fon
        <b>スタミナ</b>…長い距離のレースほど大事<br>
        <b>得意</b>…芝とダート（土）のどっちが得意か</p>
     <p>メダルが0枚になっても大丈夫。次のレースの前に<b>救済メダル10枚</b>がもらえるよ。</p>
+    <p>3Dが重いときは、レース中の「📺 かんたん表示」ボタンで軽い表示に切りかえられるよ。</p>
     <p class="tiny">※ゲームの中のメダルです。本物のお金は使いません。</p>
   </div>
   <div style="margin-top:14px"><button class="btn sub" id="btn-howto-back" type="button">もどる</button></div>
@@ -495,7 +436,7 @@ body.hostmode #sndbtn{top:10px;right:12px;bottom:auto;width:40px;height:40px;fon
 <section class="screen" id="s-join"><div class="wrap">
   <div class="card">
     <h2 style="margin:0 0 4px;font-size:24px">スマホで参加</h2>
-    <p class="tiny" style="margin:0">大画面に出ている4けたの「あいことば」を入れてね</p>
+    <p class="tiny" style="margin:0">親の画面に出ている4けたの「あいことば」を入れてね</p>
     <label class="f" for="join-code">あいことば</label>
     <input class="inp code" id="join-code" inputmode="numeric" maxlength="4" autocomplete="off" placeholder="0000">
     <label class="f" for="join-name">あなたの名前（8文字まで）</label>
@@ -512,7 +453,8 @@ body.hostmode #sndbtn{top:10px;right:12px;bottom:auto;width:40px;height:40px;fon
   <div class="card center">
     <div class="bigwait">参加できたよ！</div>
     <div id="w-me"></div>
-    <p style="margin:10px 0 0;font-weight:800">大画面を見ながら待っててね。<br>みんながそろったら、大画面でスタート！</p>
+    <p style="margin:10px 0 0;font-weight:800">親がスタートを押すまで待っててね。<br>レースはこの画面にも3Dで映るよ！</p>
+    <p class="tiny" id="w-3d" style="margin:8px 0 0"></p>
   </div>
   <div class="card">
     <b>いまいる人</b>
@@ -520,7 +462,7 @@ body.hostmode #sndbtn{top:10px;right:12px;bottom:auto;width:40px;height:40px;fon
   </div>
   <div class="card">
     <b>ルールをちょっとだけ</b>
-    <p style="margin:6px 0 0;font-size:14px">最初にメダル<b id="w-start">100</b>枚。全<b id="w-races">3</b>レースで、最後にいちばん多くメダルを持っていた人が優勝。スマホで賭けて、大画面のレースを応援しよう！</p>
+    <p style="margin:6px 0 0;font-size:14px">最初にメダル<b id="w-start">100</b>枚。全<b id="w-races">3</b>レースで、最後にいちばん多くメダルを持っていた人が優勝。自分のスマホで賭けて、みんなでレースを応援しよう！</p>
   </div>
   <button class="leave" id="btn-wait-leave" type="button">退出する</button>
 </div></section>
@@ -533,6 +475,7 @@ body.hostmode #sndbtn{top:10px;right:12px;bottom:auto;width:40px;height:40px;fon
     <span class="pill medal"><span class="coin"></span><span id="b-medals">100</span></span>
   </header>
   <div class="gwrap">
+    <div class="whobar" id="b-who"></div>
     <div class="tabs" role="tablist">
       <button class="tab on" data-t="w" type="button" role="tab">単勝<small>1着を当てる</small></button>
       <button class="tab" data-t="p" type="button" role="tab">複勝<small>3着以内</small></button>
@@ -545,6 +488,7 @@ body.hostmode #sndbtn{top:10px;right:12px;bottom:auto;width:40px;height:40px;fon
     <div class="readybox">
       <button class="btn green" id="btn-ready" type="button">これで決定！</button>
       <p class="readynote" id="b-readynote">決定したあとも、締め切りまでは賭けなおせるよ</p>
+      <button class="btn sub hostonly" id="btn-closebet" type="button" style="margin-top:12px" hidden>すぐ締め切る（親だけ）</button>
     </div>
     <button class="leave" id="btn-bet-leave" type="button">退出する</button>
   </div>
@@ -567,27 +511,13 @@ body.hostmode #sndbtn{top:10px;right:12px;bottom:auto;width:40px;height:40px;fon
   </div>
 </section>
 
-<!-- ========== 参加者：レース中 ========== -->
-<section class="screen" id="s-grace">
-  <header class="gbar">
-    <div class="rt"><b id="g-title">第1レース</b><span id="g-info"></span></div>
-    <span class="pill medal"><span class="coin"></span><span id="g-medals">100</span></span>
-  </header>
-  <div class="gwrap" style="padding-bottom:calc(90px + var(--sb))">
-    <div class="cdown" id="g-cd">まもなく発走<small>大画面に注目！</small></div>
-    <div class="mini" id="g-mini"></div>
-    <div class="sectitle"><span>あなたの賭け</span><span id="g-staked"></span></div>
-    <div class="slip" id="g-slip"></div>
-    <button class="leave" id="btn-race-leave" type="button">退出する</button>
-  </div>
-</section>
-
 <!-- ========== 参加者：結果 ========== -->
 <section class="screen" id="s-gres"><div class="wrap">
   <div class="card verdict" id="r-verdict"></div>
   <div class="card">
     <b>このレースの着順</b>
     <div class="top3" id="r-top3"></div>
+    <table class="paytbl" id="r-pay"></table>
   </div>
   <div class="card">
     <b>あなたの賭け</b>
@@ -599,6 +529,7 @@ body.hostmode #sndbtn{top:10px;right:12px;bottom:auto;width:40px;height:40px;fon
   </div>
   <div style="margin-top:14px"><button class="btn gold" id="btn-gnext" type="button">次のレースへ OK！</button></div>
   <p class="readynote" id="r-note"></p>
+  <div style="margin-top:10px"><button class="btn sub hostonly" id="btn-forcenext" type="button" hidden>みんなを待たずに進む（親だけ）</button></div>
   <button class="leave" id="btn-res-leave" type="button">退出する</button>
 </div></section>
 
@@ -613,11 +544,15 @@ body.hostmode #sndbtn{top:10px;right:12px;bottom:auto;width:40px;height:40px;fon
     <b>表彰</b>
     <div id="f-awards" style="margin-top:6px"></div>
   </div>
-  <p class="readynote">大画面で「もう一度あそぶ」を押すと、このまま続けて遊べるよ</p>
+  <div class="stack hostonly" id="f-hostbtns" style="margin-top:14px" hidden>
+    <button class="btn gold" id="btn-again" type="button">もう一度あそぶ</button>
+    <button class="btn sub" id="btn-fin-close" type="button">部屋を閉じる</button>
+  </div>
+  <p class="readynote guestonly">親が「もう一度あそぶ」を押すと、このまま続けて遊べるよ</p>
   <button class="leave" id="btn-fin-leave" type="button">退出する</button>
 </div></section>
 
-<!-- ========== 大画面：ロビー ========== -->
+<!-- ========== 親：ロビー ========== -->
 <section class="screen" id="s-host">
   <div class="lobby">
     <div class="card center">
@@ -630,12 +565,15 @@ body.hostmode #sndbtn{top:10px;right:12px;bottom:auto;width:40px;height:40px;fon
     <div class="card">
       <h2 style="font-size:26px">おやつダービー</h2>
       <p class="tiny" style="margin:2px 0 0">ひとりメダル100枚でスタート。全レース終わって、いちばん多い人が優勝！</p>
+      <label class="f" for="host-name">あなた（親）の名前</label>
+      <input class="inp" id="host-name" maxlength="8" autocomplete="nickname" placeholder="なまえ">
       <div class="optrow"><span class="lbl">レース数</span><div class="seg" id="opt-races"><button data-v="1" type="button">1</button><button data-v="3" type="button">3</button><button data-v="5" type="button">5</button></div></div>
       <div class="optrow"><span class="lbl">賭ける時間</span><div class="seg" id="opt-sec"><button data-v="45" type="button">45秒</button><button data-v="60" type="button">60秒</button><button data-v="90" type="button">90秒</button></div></div>
       <div style="margin-top:16px;font-weight:800">参加している人 <span id="host-count">0</span>/6</div>
       <div class="members" id="host-members"></div>
       <div style="margin-top:16px"><button class="btn gold" id="btn-start" type="button" disabled>スタート！</button></div>
-      <p class="startnote" id="host-startnote">2人以上そろったらスタートできるよ（3〜6人がおすすめ）</p>
+      <p class="startnote" id="host-startnote">親を入れて2人以上そろったらスタートできるよ（3〜6人がおすすめ）</p>
+      <p class="startnote" id="host-3d"></p>
       <div class="row" style="margin-top:10px">
         <button class="btn sub small" id="btn-host-howto" type="button">遊び方</button>
         <button class="btn sub small danger" id="btn-host-close" type="button">部屋を閉じる</button>
@@ -644,66 +582,22 @@ body.hostmode #sndbtn{top:10px;right:12px;bottom:auto;width:40px;height:40px;fon
   </div>
 </section>
 
-<!-- ========== 大画面：ゲーム中 ========== -->
+<!-- ========== レース中（みんなの画面） ========== -->
 <section class="screen" id="s-stage">
   <div class="rband" id="h-band"><span class="no" id="h-rno">第1R</span><span class="nm" id="h-rname"></span><span class="inf" id="h-rinfo"></span></div>
-  <div class="hostcorner">
-    <button type="button" id="btn-voice">🎙 実況ボイス</button>
-    <button type="button" id="btn-stage-close">部屋を閉じる</button>
+  <div class="stagecorner">
+    <button type="button" id="btn-voice">🎙 実況</button>
+    <button type="button" id="btn-simple">📺 かんたん表示</button>
   </div>
-
-  <div id="p-bet" hidden>
-    <div class="paddockname" id="pd-name"></div>
-    <div class="pbet">
-      <div class="tbl"><table class="rc" id="h-card"></table></div>
-      <div class="bfoot">
-        <div class="btimer" id="h-timer"><span>締め切りまで</span><b id="h-remain">60</b><span>秒</span></div>
-        <div class="ptiles" id="h-ptiles"></div>
-      </div>
-      <div class="bnote"><span id="h-betnote">スマホで賭けてね！全員が「決定」したら締め切るよ</span><button class="btn sub small" id="btn-closebet" type="button">すぐ締め切る</button></div>
-    </div>
-  </div>
-
-  <div id="p-race" hidden>
-    <div class="order" id="h-order"></div>
-    <div class="rdist" id="h-dist"></div>
-    <div class="rbets" id="h-rbets"></div>
-    <div class="precount" id="h-pre"></div>
-    <div class="hmini mini" id="h-mini" hidden></div>
-    <div class="ticker" id="h-ticker" hidden></div>
-    <div id="h-photo" hidden></div>
-  </div>
-
-  <div id="p-result" hidden>
-    <div class="pres">
-      <div class="card">
-        <h3 id="hr-ttl">着順</h3>
-        <div class="podium" id="hr-podium"></div>
-        <table class="paytbl" id="hr-pay"></table>
-      </div>
-      <div class="card">
-        <h3>みんなのメダル</h3>
-        <div id="hr-players"></div>
-      </div>
-      <div class="resfoot"><span id="hr-note">スマホで「OK」を押すと次へ進むよ</span><button class="btn gold" id="btn-next" type="button">次のレースへ</button></div>
-    </div>
-  </div>
-
-  <div id="p-final" hidden>
-    <div class="pfin">
-      <div class="crown" id="hf-crown"></div>
-      <div class="fincols">
-        <div class="card"><h3 style="margin:0 0 6px">最終順位</h3><div id="hf-rank"></div></div>
-        <div class="card"><h3 style="margin:0 0 6px">表彰</h3><div id="hf-awards"></div></div>
-      </div>
-      <div class="finbtns">
-        <button class="btn gold" id="btn-again" type="button">もう一度あそぶ</button>
-        <button class="btn sub" id="btn-fin-close" type="button">部屋を閉じる</button>
-      </div>
-    </div>
-  </div>
+  <div class="order" id="h-order"></div>
+  <div class="rdist" id="h-dist"></div>
+  <div class="rbets" id="h-rbets"></div>
+  <div class="precount" id="h-pre"></div>
+  <div class="hmini mini" id="h-mini" hidden></div>
+  <div class="ticker" id="h-ticker" hidden></div>
+  <div class="mybets" id="h-mybets"></div>
+  <div id="h-photo" hidden></div>
 </section>
-<div class="loading3d" id="load3d" hidden>3Dの競馬場を準備しています…</div>
 <script>
 (function(){
 "use strict";
@@ -897,8 +791,10 @@ function paintVol(){
 }
 
 /* ============ 実況の声（読み上げ機能がある端末だけ） ============ */
-var VOICE_KEY="oyatsuderby.voice.v1", VOICE_ON=true, jaVoice=null;
-try{ if(localStorage.getItem(VOICE_KEY)==="0") VOICE_ON=false; }catch(e){}
+// 実況の声は、何も設定していなければ親の端末だけで鳴らす（全員のスマホでしゃべると聞き取りにくいので）
+var VOICE_KEY="oyatsuderby.voice.v1", VOICE_PREF=null, jaVoice=null;
+try{ var _vp=localStorage.getItem(VOICE_KEY); if(_vp==="0") VOICE_PREF=false; else if(_vp==="1") VOICE_PREF=true; }catch(e){}
+function voiceOn(){ return VOICE_PREF!==null?VOICE_PREF:(S&&S.mode==="host"); }
 function findVoice(){
   try{
     if(!window.speechSynthesis) return;
@@ -908,7 +804,7 @@ function findVoice(){
 }
 try{ if(window.speechSynthesis){ findVoice(); speechSynthesis.onvoiceschanged=findVoice; } }catch(e){}
 function speak(text){
-  if(!VOICE_ON || VOL<=0 || !window.speechSynthesis) return;
+  if(!voiceOn() || VOL<=0 || !window.speechSynthesis) return;
   try{
     if(!jaVoice) findVoice();
     if(!jaVoice) return;
@@ -919,8 +815,19 @@ function speak(text){
 }
 function paintVoice(){
   var b=$("btn-voice"); if(!b) return;
-  b.classList.toggle("off",!VOICE_ON);
-  b.textContent=VOICE_ON?"🎙 実況ボイス":"🎙 実況ボイス（オフ）";
+  var on=voiceOn();
+  b.classList.toggle("off",!on);
+  b.textContent=on?"🎙 実況オン":"🎙 実況オフ";
+}
+// 3Dを使わず「かんたん表示」にするかどうか（端末ごとに覚えておく）
+var SIMPLE_KEY="oyatsuderby.simple.v1", SIMPLE=false;
+try{ SIMPLE=localStorage.getItem(SIMPLE_KEY)==="1"; }catch(e){}
+function use3D(){ return has3D && !SIMPLE; }
+function paintSimple(){
+  var b=$("btn-simple"); if(!b) return;
+  b.textContent=use3D()?"📺 かんたん表示":"🎥 3D表示";
+  b.hidden=!has3D;
+  document.body.classList.toggle("simple",!use3D());
 }
 
 /* ============ 画面演出 ============ */
@@ -983,7 +890,7 @@ function keepAwake(on){
     } else if(wakeLock){ var w=wakeLock; wakeLock=null; try{ w.release(); }catch(e){} }
   }catch(e){}
 }
-var AWAKE_ON={host:1,stage:1,wait:1,bet:1,grace:1,gres:1,gfin:1};
+var AWAKE_ON={host:1,stage:1,wait:1,bet:1,gres:1,gfin:1};
 var curScreen="title";
 function show(id){
   var list=document.querySelectorAll(".screen");
@@ -992,9 +899,9 @@ function show(id){
   keepAwake(!!AWAKE_ON[id]);
   if(id!==curScreen){ curScreen=id; if(id!=="stage"&&id!=="host") window.scrollTo(0,0); SFX.screen(); }
   document.body.setAttribute("data-screen",id);
-  document.body.classList.toggle("hostmode",id==="host"||id==="stage");
+  document.body.classList.toggle("fixedmode",id==="host"||id==="stage");
   document.body.classList.toggle("betting",id==="bet");
-  $("labels").hidden=!(id==="stage" && has3D);
+  $("labels").hidden=!(id==="stage" && use3D());
 }
 
 /* ============ QRコード生成（バイトモード・誤り訂正L・型番1〜5） ============ */
@@ -1300,15 +1207,19 @@ function netFail(m){
   msg("title-err","err-box",m||"通信の準備に失敗しました。電波の良い場所で、もう一度お試しください。");
 }
 
-/* ---- 代表者（大画面）：部屋を作る ---- */
+/* ---- 親：部屋を作る（親も1人のプレイヤーとして賭ける） ---- */
+function hostP(){ for(var i=0;i<S.players.length;i++) if(S.players[i].host) return S.players[i]; return null; }
 function startHost(){
   cleanupNet(); clearHost(); clearSession(); msg("title-err",null,null);
-  S.mode="host"; S.players=[];
+  S.mode="host";
+  var me=newPlayer("p0",cleanName(savedName(),"親"),"host",null); me.host=true; me.color=COLORS[0];
+  S.players=[me];
+  $("host-name").value=savedName();
   renderCode(null); $("host-qr").innerHTML="";
   setStatus("host","wait","部屋を準備しています…");
   show("host");
   start3D();
-  applyView(pubState(),null);
+  applyView(pubState(),youFor(hostP()));
   loadPeer(function(err){ if(err){ netFail(); return; } tryHostCode(0); });
 }
 function tryHostCode(a){
@@ -1362,7 +1273,7 @@ function hookGuest(conn){
     if(m.type==="hello"){
       var token=(typeof m.token==="string")?m.token.slice(0,64):"";
       var back=null;
-      if(token) S.players.forEach(function(p){ if(p.token===token) back=p; });
+      if(token) S.players.forEach(function(p){ if(!p.host && p.token===token) back=p; });
       if(back){
         if(back.conn && back.conn!==conn){ try{ back.conn.close(); }catch(e){} }
         back.conn=conn; back.gone=false; back.left=false;
@@ -1382,11 +1293,11 @@ function hookGuest(conn){
       SFX.join(); commit();
       return;
     }
-    var p=null; S.players.forEach(function(x){ if(x.conn===conn) p=x; });
+    var p=null; S.players.forEach(function(x){ if(!x.host && x.conn===conn) p=x; });
     if(p) handleAction(p,m);
   });
   conn.on("close",function(){
-    var p=null; S.players.forEach(function(x){ if(x.conn===conn) p=x; });
+    var p=null; S.players.forEach(function(x){ if(!x.host && x.conn===conn) p=x; });
     if(!p) return;
     if(S.phase==="lobby"){ S.players=S.players.filter(function(x){ return x!==p; }); }
     else {
@@ -1405,13 +1316,14 @@ function closeRoom(){
   setTimeout(function(){ try{ if(pr&&!pr.destroyed) pr.destroy(); }catch(e){} },400);
   goTitle();
 }
-/* 大画面をリロードしてしまったときの復旧 */
+/* 親がリロードしてしまったときの復旧 */
 function resumeHost(saved){
   cleanupNet();
   var st=saved.S; S=freshState();
   for(var k in st) S[k]=st[k];
   S.mode="host"; roomCode=saved.code;
-  S.players.forEach(function(p){ p.conn=null; p.gone=true; });
+  S.players.forEach(function(p){ p.conn=null; if(!p.host) p.gone=true; });
+  var me=hostP(); $("host-name").value=me?me.name:"";
   show("host");
   renderCode(saved.code); renderQR(saved.code);
   showNetBar("部屋を復旧しています…","warn",false);
@@ -1430,18 +1342,18 @@ function resumeHost(saved){
       });
     });
   })();
-  applyView(pubState(),null);
+  applyView(pubState(),youFor(hostP()));
 }
 
 /* ---- 参加者（スマホ） ---- */
 function handleGuestData(m){
   if(!m||!m.type) return;
-  if(m.type==="welcome"){ joined=true; myId=m.id; saveSession(); }
+  if(m.type==="welcome"){ joined=true; myId=m.id; saveSession(); start3D(); }
   else if(m.type==="sync"){ joined=true; noteReconnected(); applyView(m.pub,m.you); saveSession(); }
   else if(m.type==="deny"){ SFX.deny(); toast(m.msg||"できませんでした",null,"ng"); }
   else if(m.type==="full") giveUp("この部屋は満員です（最大"+MAX_PLAYERS+"人）。");
   else if(m.type==="started") giveUp("この部屋はもうゲームが始まっています。終わってから参加してください。");
-  else if(m.type==="closed") goTitle("大画面の部屋が閉じられました");
+  else if(m.type==="closed") goTitle("親が部屋を閉じました");
 }
 function noteReconnected(){
   if(!rcActive) return;
@@ -1455,7 +1367,7 @@ function giveUp(text){
 function handleGuestClose(){
   if(S.mode!=="guest") return;
   if(joined) startReconnect();
-  else giveUp("大画面との接続が切れました。もう一度参加してください。");
+  else giveUp("親との接続が切れました。もう一度参加してください。");
 }
 function startReconnect(){
   if(rcActive) return;
@@ -1521,22 +1433,23 @@ function resumeGuest(s){
   show("wait");
   showNetBar("前の部屋にもどっています…","warn",true);
   rcActive=true; rcAttempts=0; attemptReconnect();
+  start3D();
 }
 function leaveRoom(){
   if(S.mode==="guest"){ safeSend(gConn,{type:"bye"}); var pr=peer; peer=null; setTimeout(function(){ try{ if(pr&&!pr.destroyed) pr.destroy(); }catch(e){} },300); }
   goTitle();
 }
 
-/* 状態が変わったら：保存 → 全員に配る → 大画面も同じ情報で描く */
+/* 状態が変わったら：保存 → 全員に配る → 親も同じ情報で描く */
 function commit(){
   if(S.mode!=="host") return;
   var pub=pubState();
   S.players.forEach(function(p){
-    if(!p.conn) return;
+    if(p.host || !p.conn) return;
     safeSend(p.conn,{type:"sync",pub:pub,you:youFor(p)});
   });
   saveHost();
-  applyView(pub,null);
+  var me=hostP(); if(me) applyView(pub,youFor(me));
 }
 var HOST_KEY="oyatsuderby.host.v1";
 function saveHost(){
@@ -1552,10 +1465,11 @@ function loadHost(){
 }
 function clearHost(){ try{ sessionStorage.removeItem(HOST_KEY); }catch(e){} }
 
-/* 参加者の操作を大画面へ送る */
+/* 自分の操作を送る（親なら自分で処理） */
 var actSeq=Date.now();
 function act(m){
   m.q=++actSeq;
+  if(S.mode==="host"){ handleAction(hostP(),m); return true; }
   if(S.mode==="guest" && gConn && gConn.open){ safeSend(gConn,m); return true; }
   SFX.deny();
   toast("接続が切れています","つながり直すまで少し待ってね","ng");
@@ -1576,7 +1490,6 @@ function rng(seed){
 }
 var STYLE_NAMES=["逃げ","先行","差し","追込"];
 var COND_MARK=["◎","○","△","▲","×"];
-var COND_NAMES=["絶好調","好調","ふつう","いまいち","不調"];
 var COND_EFF=[0.09,0.045,0,-0.045,-0.10];   // 調子で速さがどれだけ変わるか（m/s）
 // 脚質ごとの走り方：序盤／中盤のペース、末脚のはじまり（残りm）と伸び
 var ST_EARLY=[1.020,1.008,0.992,0.982];
@@ -1681,7 +1594,6 @@ function starsEl(k){
   for(var i=0;i<5;i++){ if(i<k) s.appendChild(document.createTextNode("★")); else s.appendChild(el("i",null,"★")); }
   return s;
 }
-function surfPref(h){ return h.sf===1?"芝":h.sf===2?"ダート":"どちらも"; }
 function surfShort(h){ return h.sf===1?"芝が得意":h.sf===2?"ダートが得意":"芝もダートも"; }
 function hnBadge(n,cls){
   var w=WAKU[(n-1)%8], b=el("span",cls||"hn",String(n));
@@ -1713,7 +1625,7 @@ function marginLabel(ds){
 }
 function raceInfo(c){ return SURF_NAMES[c.surf]+" "+c.dist+"m・"+GOING_NAMES[c.going]; }
 
-/* ============ 出走表を作る（大画面だけ） ============ */
+/* ============ 出走表を作る（親だけ） ============ */
 function makeCard(no,total){
   var fin=(no===total);
   var dist=fin?2400:pick([1200,1600,1600,2000,2400]);
@@ -1793,7 +1705,7 @@ function raceClock(){
   return (ms-PRE_MS)/1000;
 }
 
-/* ============ 代表者（大画面）のゲーム進行 ============ */
+/* ============ 親のゲーム進行（本当の状態は親だけが持つ） ============ */
 function freshState(){
   return {mode:null,phase:"lobby",players:[],nextId:0,cfg:{races:3,sec:60},raceNo:0,card:null,seed:0,
           deadline:0,deadline0:0,closing:false,raceStart:0,raceEnd:0,result:null,history:[],
@@ -1900,7 +1812,10 @@ function backToLobby(){
 }
 
 /* ---- 参加者からの操作 ---- */
-function deny(p,text){ safeSend(p.conn,{type:"deny",msg:text}); }
+function deny(p,text){
+  if(p.host){ SFX.deny(); toast(text,null,"ng"); return; }
+  safeSend(p.conn,{type:"deny",msg:text});
+}
 function checkAllReady(){
   if(S.phase!=="bet"||S.closing) return;
   var a=activePlayers(); if(!a.length) return;
@@ -1919,6 +1834,7 @@ function afterPresenceChange(){ checkAllReady(); checkAllNext(); }
 function handleAction(p,m){
   if(!p||!m) return;
   if(m.type==="bye"){
+    if(p.host) return;
     p.left=true; p.gone=true; var c=p.conn; p.conn=null;
     setTimeout(function(){ try{ if(c) c.close(); }catch(e){} },200);
     if(S.phase==="lobby") S.players=S.players.filter(function(x){ return x!==p; });
@@ -1965,7 +1881,7 @@ function pubState(){
   var ph=S.phase;
   var pub={phase:ph,raceNo:S.raceNo,races:S.cfg.races,sec:S.cfg.sec,start:START_MEDALS,
     players:S.players.map(function(p){
-      var o={id:p.id,name:p.name,color:p.color,medals:p.medals,gone:!!p.gone,left:!!p.left,ready:!!p.ready,rescued:p.rescued||0};
+      var o={id:p.id,name:p.name,color:p.color,medals:p.medals,gone:!!p.gone,left:!!p.left,ready:!!p.ready,rescued:p.rescued||0,host:!!p.host};
       if(ph==="bet") o.hasBet=p.bets.length>0;
       if(ph==="race") o.bets=p.bets.map(function(b){ return {t:b.t,h:b.h,a:b.a}; });
       if(ph==="result" && p.last) o.last={stake:p.last.stake,pay:p.last.pay,hits:p.last.hits};
@@ -1986,32 +1902,46 @@ function youFor(p){
           rescuedNow:p.rescuedNow===S.raceNo&&S.phase==="bet",stats:p.stats};
 }
 
-/* ============ 画面を描く（入口） ============ */
+/* ============ 画面を描く（入口）：親もスマホも同じ画面を使う ============ */
 function applyView(pub,you){
   V={pub:pub,you:you,at:performance.now()};
   document.body.className=document.body.className.replace(/\bphase-\w+/g,"").trim();
   document.body.classList.add("phase-"+pub.phase);
-  if(S.mode==="host") renderHost(pub);
-  else if(S.mode==="guest" && you) renderGuest(pub,you);
+  if(!you) return;
+  var host=S.mode==="host";
+  if(pub.phase==="lobby"){ if(host){ show("host"); renderLobby(pub); } else { show("wait"); renderWait(pub,you); } }
+  else if(pub.phase==="bet"){ show("bet"); renderBet(pub,you); }
+  else if(pub.phase==="race"){ show("stage"); renderRaceView(pub,you); }
+  else if(pub.phase==="result"){ show("gres"); renderGRes(pub,you); }
+  else if(pub.phase==="final"){ show("gfin"); renderGFin(pub,you); }
+  if(G3) G3.sync(pub);
+  paintHostOnly(); paint3DStatus(); paintSimple(); paintVoice(); update3DRun();
 }
 var VK={};   // 何を描いたかの記録（同じものは作り直さない）
-function resetViewKeys(){ VK={}; ui.key=""; HR.key=""; MINI.key=""; MINI.rows=[]; RC=null; CM=null; }
+function resetViewKeys(){ VK={}; ui.key=""; HR.key=""; HR.race=""; HR.chips=[]; RC=null; CM=null; }
+// 親だけのボタン・参加者だけの文を出し分ける
+function paintHostOnly(){
+  var host=S.mode==="host", i, l;
+  l=document.querySelectorAll(".hostonly"); for(i=0;i<l.length;i++) l[i].hidden=!host;
+  l=document.querySelectorAll(".guestonly"); for(i=0;i<l.length;i++) l[i].hidden=host;
+  ["btn-bet-leave","btn-res-leave"].forEach(function(id){ var b=$(id); if(b && !b._armed) b.textContent=host?"部屋を閉じる":"退出する"; });
+  $("btn-fin-leave").hidden=host;
+}
+function paint3DStatus(){
+  var t=b3Loading?"🎥 3Dレースを準備しています…":has3D?(SIMPLE?"📺 かんたん表示で見るよ（レース中に3Dへ切りかえOK）":"🎥 3Dレースの準備OK！"):
+        b3Failed?"📺 この端末では3Dが使えないので、かんたん表示で見るよ":"";
+  ["w-3d","host-3d"].forEach(function(id){ var e=$(id); if(e && e.textContent!==t) e.textContent=t; });
+}
 
-/* ============ 参加者（スマホ）の画面 ============ */
+/* ============ 参加者の画面（親も同じ） ============ */
 function memChip(p,meId){
   var m=el("span","mem"+(p.gone?" gone":""));
   var dot=el("i"); dot.style.background=p.color; m.appendChild(dot);
   m.appendChild(document.createTextNode(p.name));
+  if(p.host) m.appendChild(el("span","tag","親"));
   if(p.id===meId) m.appendChild(el("span","tag","あなた"));
   if(p.gone) m.appendChild(el("span","tag",p.left?"退出":"切断中"));
   return m;
-}
-function renderGuest(pub,you){
-  if(pub.phase==="lobby"){ show("wait"); renderWait(pub,you); }
-  else if(pub.phase==="bet"){ show("bet"); renderBet(pub,you); }
-  else if(pub.phase==="race"){ show("grace"); renderGRace(pub,you); }
-  else if(pub.phase==="result"){ show("gres"); renderGRes(pub,you); }
-  else if(pub.phase==="final"){ show("gfin"); renderGFin(pub,you); }
 }
 function renderWait(pub,you){
   var me=$("w-me"); me.innerHTML="";
@@ -2031,7 +1961,10 @@ function renderBet(pub,you){
     buildHorseList(c);
     window.scrollTo(0,0);
     if(you.rescuedNow) setTimeout(function(){ toast("救済メダル "+RESCUE+"枚もらったよ","ここから逆転しよう！","ok"); SFX.coin(3); },400);
+    SFX.bell(); crowdLevel(0.0001,1);
+    setTimeout(function(){ speak("第"+c.no+"レース、"+c.name+"。賭けてください"); },700);
   }
+  renderWho(pub,you);
   $("b-title").textContent="第"+c.no+"レース "+c.name;
   $("b-info").textContent=raceInfo(c)+"　全"+pub.races+"レース";
   $("b-medals").textContent=you.medals;
@@ -2043,9 +1976,19 @@ function renderBet(pub,you){
   var rb=$("btn-ready");
   if(you.ready){ rb.textContent="決定ずみ ✓（押すと取り消し）"; rb.className="btn sub"; }
   else { rb.textContent=you.bets.length?"これで決定！":"今回は賭けずに見送る"; rb.className="btn green"; }
-  $("b-readynote").textContent=pub.closing?"全員そろったよ！まもなく締め切り":"決定したあとも、締め切りまでは賭けなおせるよ";
+  $("b-readynote").textContent=pub.closing?"全員そろったよ！まもなく締め切り":"全員が「決定」すると締め切るよ。決定したあとも、締め切りまでは賭けなおせるよ";
   paintDock();
   updateTimers();
+}
+function renderWho(pub,you){
+  var box=$("b-who"); box.innerHTML="";
+  pub.players.forEach(function(p){
+    var w=el("span","who"+(p.ready?" ready":"")+(p.gone?" gone":""));
+    var dot=el("i"); dot.style.background=p.color; w.appendChild(dot);
+    w.appendChild(document.createTextNode(p.id===you.id?"あなた":p.name));
+    w.appendChild(el("span","st",p.gone?(p.left?"退出":"切断中"):p.ready?"決定！":p.hasBet?"賭け中":"考え中"));
+    box.appendChild(w);
+  });
 }
 function buildHorseList(c){
   var box=$("b-list"); box.innerHTML=""; ui.rows=[];
@@ -2155,15 +2098,14 @@ function renderSlip(box,c,bets,removable,order){
   });
 }
 
-/* ---- レース中（スマホ） ---- */
-var MINI={key:"",rows:[],mine:{},box:null};
+/* ---- レース中の「かんたん表示」（3Dが使えない・重いとき） ---- */
 function buildMini(box,c,mine){
   box.innerHTML=""; var rows=[];
   c.horses.forEach(function(h,i){
     var r=el("div","mr"+(mine&&mine[h.n]?" mine":""));
     r.appendChild(hnBadge(h.n,"mn"));
     var lane=el("div","lane"), mk=el("span","hm");
-    var w=WAKU[i]; mk.style.background=w.bg;
+    mk.style.background=WAKU[i].bg;
     lane.appendChild(mk); r.appendChild(lane);
     var pos=el("span","pos","");
     r.appendChild(pos);
@@ -2181,21 +2123,6 @@ function paintMini(rows,sim,s,D){
     r.pos.textContent=s>0?rank[i]+"番手":"";
   });
   return ord;
-}
-function renderGRace(pub,you){
-  var c=pub.card, key=c.id+":"+pub.seed;
-  $("g-title").textContent="第"+c.no+"レース "+c.name;
-  $("g-info").textContent=raceInfo(c);
-  $("g-medals").textContent=you.medals;
-  if(MINI.key!==key){
-    MINI.key=key; MINI.mine={};
-    you.bets.forEach(function(b){ b.h.forEach(function(n){ MINI.mine[n]=1; }); });
-    MINI.rows=buildMini($("g-mini"),c,MINI.mine);
-    window.scrollTo(0,0);
-  }
-  renderSlip($("g-slip"),c,you.bets,false,true);
-  var st=0; you.bets.forEach(function(b){ st+=b.a; });
-  $("g-staked").textContent=st?("合計 "+st+"枚"):"";
 }
 function liveHit(b,ord){
   var o=ord.map(function(i){ return i+1; });
@@ -2224,6 +2151,13 @@ function renderGRes(pub,you){
     var t=el("div","t"); t.appendChild(el("span",null,(i+1)+"着")); t.appendChild(hnBadge(n)); t.appendChild(el("span",null,c.horses[n-1].name));
     t3.appendChild(t);
   });
+  var pt=$("r-pay"); pt.innerHTML="";
+  [["単勝",r.pays.w],["複勝",r.pays.p],["馬連",r.pays.q]].forEach(function(x){
+    var tr=el("tr"), td=el("td","k"); td.appendChild(el("span",null,x[0])); tr.appendChild(td);
+    tr.appendChild(el("td",null,x[1].map(function(y){ return y.h.join("-"); }).join("　")));
+    tr.appendChild(el("td","o",x[1].map(function(y){ return fmtOdds(y.odds)+"倍"; }).join("　")));
+    pt.appendChild(tr);
+  });
   var ln=$("r-lines"); ln.innerHTML="";
   if(L && L.lines.length){
     L.lines.forEach(function(x){
@@ -2236,18 +2170,22 @@ function renderGRes(pub,you){
   } else ln.appendChild(el("div","empty","見送り"));
   var last=pub.raceNo>=pub.races;
   $("r-rankttl").textContent=last?"最終レースの結果":"いまの順位（全"+pub.races+"レース中 "+pub.raceNo+"レース終了）";
-  renderRankList($("r-rank"),pub.players,you.id,true);
+  renderRankList($("r-rank"),pub.players,you.id,true,true);
   var nb=$("btn-gnext");
   if(you.ready){ nb.textContent="OK！ほかの人を待っています"; nb.className="btn sub"; }
   else { nb.textContent=last?"最終結果へ OK！":"次のレースへ OK！"; nb.className="btn gold"; }
-  $("r-note").textContent="全員がOKを押すと進むよ（大画面からも進められるよ）";
+  var waiting=pub.players.filter(function(p){ return !p.gone && !p.left && !p.ready; }).length;
+  $("r-note").textContent=waiting?("全員がOKを押すと進むよ（あと"+waiting+"人）"):"全員OK！まもなく進むよ";
   if(VK.gres!==key){
     VK.gres=key;
+    crowdLevel(0.0001,2);
+    try{ if(window.speechSynthesis) speechSynthesis.cancel(); }catch(e){}
+    window.scrollTo(0,0);
     if(L && L.pay>0){ SFX.payout(); flash("win"); setTimeout(function(){ confetti(L.pay>=L.stake*3?200:110); },150); }
     else if(L && L.lines.length){ SFX.lose(); flash("lose"); }
   }
 }
-function renderRankList(box,players,meId,withDiff){
+function renderRankList(box,players,meId,withDiff,withOk){
   box.innerHTML="";
   rankList(players).forEach(function(x){
     var p=x.p, r=el("div","rk"+(p.id===meId?" me":""));
@@ -2260,6 +2198,7 @@ function renderRankList(box,players,meId,withDiff){
       var df=p.last?(p.last.pay-p.last.stake):0;
       r.appendChild(el("span","df "+(df>0?"up":df<0?"dn":""),df>0?"+"+df:df<0?String(df):"±0"));
     }
+    if(withOk) r.appendChild(el("span","okb"+(p.ready?" on":""),p.gone?"—":p.ready?"OK":"…"));
     box.appendChild(r);
   });
 }
@@ -2289,7 +2228,10 @@ function renderGFin(pub,you){
   $("f-awards-card").hidden=!f.awards.length;
   if(VK.gfin!==f.id){
     VK.gfin=f.id;
-    if(mine && mine.rank===1 && !mine.left){ SFX.win(); setTimeout(function(){ confetti(220); },200); } else SFX.confirm();
+    window.scrollTo(0,0);
+    if(mine && mine.rank===1 && !mine.left){ SFX.fanfare(true); setTimeout(function(){ SFX.win(); confetti(220); },1500); } else SFX.confirm();
+    var tops=f.rank.filter(function(x){ return x.rank===1 && !x.left; }).map(function(x){ return x.name; });
+    if(tops.length) setTimeout(function(){ speak("優勝は、"+tops.join("さんと、")+"さん！ おめでとう！"); },900);
   }
 }
 function renderAwards(box,awards){
@@ -2305,122 +2247,62 @@ function renderAwards(box,awards){
   });
 }
 
-/* ============ 大画面の画面 ============ */
-var pdFocus=0, pdAt=0;
-function renderHost(pub){
-  if(pub.phase==="lobby"){ show("host"); renderLobby(pub); if(G3) G3.sync(pub); return; }
-  show("stage");
-  $("p-bet").hidden=pub.phase!=="bet";
-  $("p-race").hidden=pub.phase!=="race";
-  $("p-result").hidden=pub.phase!=="result";
-  $("p-final").hidden=pub.phase!=="final";
-  $("h-band").hidden=pub.phase==="final";
-  if(pub.card){
-    $("h-rno").textContent="第"+pub.card.no+"R / 全"+pub.races+"R";
-    $("h-rname").textContent=pub.card.name;
-    $("h-rinfo").textContent=raceInfo(pub.card)+(pub.card.final?"　最終レース":"");
-  }
-  if(pub.phase==="bet") renderHBet(pub);
-  else if(pub.phase==="race") renderHRace(pub);
-  else if(pub.phase==="result") renderHRes(pub);
-  else if(pub.phase==="final") renderHFin(pub);
-  if(G3) G3.sync(pub);
-  paintVoice();
-}
+/* ============ 親：ロビー ============ */
 function renderLobby(pub){
   var box=$("host-members"); box.innerHTML="";
-  pub.players.forEach(function(p){ box.appendChild(memChip(p,null)); });
-  if(!pub.players.length) box.appendChild(el("span","tiny","まだだれもいないよ。スマホでQRを読んでね"));
+  var me=hostP();
+  pub.players.forEach(function(p){ box.appendChild(memChip(p,me?me.id:null)); });
   var on=pub.players.filter(function(p){ return !p.gone; }).length;
   $("host-count").textContent=on;
   $("btn-start").disabled=on<MIN_PLAYERS;
-  $("host-startnote").textContent=on<MIN_PLAYERS?(MIN_PLAYERS+"人以上そろったらスタートできるよ（3〜6人がおすすめ）"):"準備OK！みんなそろったらスタートを押してね";
+  $("host-startnote").textContent=on<MIN_PLAYERS?("親を入れて"+MIN_PLAYERS+"人以上そろったらスタートできるよ（3〜6人がおすすめ）"):"準備OK！みんなそろったらスタートを押してね";
   segPaint("opt-races",pub.races); segPaint("opt-sec",pub.sec);
 }
 function segPaint(id,v){
   var bs=$(id).querySelectorAll("button");
   for(var i=0;i<bs.length;i++) bs[i].classList.toggle("on",parseInt(bs[i].getAttribute("data-v"),10)===v);
 }
-function renderHBet(pub){
-  var c=pub.card, key=String(c.id);
-  if(VK.hbet!==key){
-    VK.hbet=key; pdFocus=0; pdAt=performance.now();
-    var t=$("h-card"); t.innerHTML="";
-    var hr=el("tr");
-    ["馬番","馬名","脚質","調子","スピード","スタミナ","得意","人気","単勝","複勝"].forEach(function(x){ hr.appendChild(el("th",null,x)); });
-    var th=el("thead"); th.appendChild(hr); t.appendChild(th);
-    var tb=el("tbody");
-    c.horses.forEach(function(h,i){
-      var tr=el("tr"); tr.setAttribute("data-i",i);
-      var td=el("td"); td.appendChild(hnBadge(h.n)); tr.appendChild(td);
-      tr.appendChild(el("td","nm",h.name));
-      tr.appendChild(el("td",null,STYLE_NAMES[h.style]));
-      tr.appendChild(el("td",null,COND_MARK[h.cond]));
-      td=el("td"); td.appendChild(starsEl(starsOf(h.spd,40,8))); tr.appendChild(td);
-      td=el("td"); td.appendChild(starsEl(starsOf(h.sta,30,9))); tr.appendChild(td);
-      tr.appendChild(el("td",null,surfPref(h)));
-      tr.appendChild(el("td",c.pop[i]===1?"pop1":null,c.pop[i]+"番人気"));
-      tr.appendChild(el("td","od",fmtOdds(c.odds.win[i])));
-      tr.appendChild(el("td","od p",fmtOdds(c.odds.place[i])));
-      tb.appendChild(tr);
-    });
-    t.appendChild(tb);
-    paintPaddock();
-    SFX.bell();
-    crowdLevel(0.02,1);
-    setTimeout(function(){ speak("第"+c.no+"レース、"+c.name+"。スマホで賭けてください"); },700);
-  }
-  var pt=$("h-ptiles"); pt.innerHTML="";
-  pub.players.forEach(function(p){
-    var d=el("div","pt"+(p.ready?" ready":"")+(p.gone?" gone":""));
-    var dot=el("i"); dot.style.background=p.color; d.appendChild(dot);
-    d.appendChild(el("span","n",p.name));
-    var m=el("span","m"); m.appendChild(el("span","coin")); m.appendChild(document.createTextNode(" "+p.medals)); d.appendChild(m);
-    d.appendChild(el("span","s",p.gone?(p.left?"退出":"切断中"):p.ready?"決定！":p.hasBet?"賭け中":"考え中"));
-    pt.appendChild(d);
-  });
-  $("h-betnote").textContent=pub.closing?"全員そろった！まもなく締め切り！":"スマホで賭けてね！全員が「決定」したら締め切るよ";
-  updateTimers();
-}
-function paintPaddock(){
-  if(!V||!V.pub.card) return;
-  var c=V.pub.card, h=c.horses[pdFocus];
-  var rows=document.querySelectorAll("#h-card tbody tr");
-  for(var i=0;i<rows.length;i++) rows[i].classList.toggle("focus",i===pdFocus);
-  var box=$("pd-name"); box.innerHTML="";
-  box.appendChild(hnBadge(h.n));
-  box.appendChild(el("div","t",h.name));
-  box.appendChild(el("div","m",STYLE_NAMES[h.style]+"・調子"+COND_MARK[h.cond]+COND_NAMES[h.cond]+"・"+COATS[h.coat].n+"・単勝"+fmtOdds(c.odds.win[pdFocus])+"倍（"+c.pop[pdFocus]+"番人気）"));
-}
 
-/* ---- 大画面：レース中 ---- */
-var HR={key:"",chips:[],ordKey:"",mini:null,rb:[],lastBetPaint:0,hoofAcc:0,lastReal:-99};
-function renderHRace(pub){
-  var c=pub.card, key=c.id+":"+pub.seed;
+/* ============ レース中（みんなの画面） ============ */
+var HR={key:"",race:"",chips:[],ordKey:"",mini:null,rb:[],lastBetPaint:0,hoofAcc:0,lastReal:-99};
+function renderRaceView(pub,you){
+  var c=pub.card, race=c.id+":"+pub.seed, key=race+":"+(use3D()?"3d":"2d");
+  $("h-rno").textContent="第"+c.no+"R / 全"+pub.races+"R";
+  $("h-rname").textContent=c.name;
+  $("h-rinfo").textContent=raceInfo(c)+(c.final?"　最終レース":"");
   if(HR.key===key) return;
-  HR.key=key; HR.ordKey=""; HR.lastReal=-99; HR.hoofAcc=0;
-  cmReset(key);
-  var R=getRace(c,pub.seed);
+  HR.key=key; HR.ordKey="";
+  if(HR.race!==race){
+    HR.race=race; HR.lastReal=-99; HR.hoofAcc=0;
+    cmReset(race);
+    $("h-ticker").hidden=true; $("h-photo").hidden=true; $("h-photo").innerHTML="";
+    $("h-pre").textContent="";
+  }
+  getRace(c,pub.seed);
+  var mine={};
+  you.bets.forEach(function(b){ b.h.forEach(function(n){ mine[n]=1; }); });
   var ob=$("h-order"); ob.innerHTML=""; HR.chips=[];
-  c.horses.forEach(function(h){ var ch=el("div","oc"); ch.appendChild(hnBadge(h.n)); HR.chips.push(ch); ob.appendChild(ch); });
+  c.horses.forEach(function(h){ var ch=el("div","oc"+(mine[h.n]?" mine":"")); ch.appendChild(hnBadge(h.n)); HR.chips.push(ch); ob.appendChild(ch); });
+  // みんなの賭け（広い画面）と、自分の賭け（せまい画面）
   var rb=$("h-rbets"); rb.innerHTML=""; HR.rb=[];
   pub.players.forEach(function(p){
     if(!p.bets||!p.bets.length) return;
-    var b=el("div","rb"), h=el("div","h"), dot=el("i"); dot.style.background=p.color;
-    h.appendChild(dot); h.appendChild(el("span","n",p.name));
+    var b=el("div","rb"+(p.id===you.id?" me":"")), h=el("div","h"), dot=el("i"); dot.style.background=p.color;
+    h.appendChild(dot); h.appendChild(el("span","n",p.id===you.id?p.name+"（あなた）":p.name));
     var tot=0; p.bets.forEach(function(x){ tot+=x.a; });
     var m=el("span"); m.appendChild(el("span","coin")); m.appendChild(document.createTextNode(" "+tot)); h.appendChild(m);
     b.appendChild(h);
     var bl=el("div","bl");
-    p.bets.slice().sort(function(a,b2){ return b2.a-a.a; }).slice(0,6).forEach(function(x){ var s=el("span",null,betShort(x)); s._b=x; bl.appendChild(s); HR.rb.push(s); });
+    p.bets.slice().sort(function(a,b2){ return b2.a-a.a; }).slice(0,6).forEach(function(x){ var sp=el("span",null,betShort(x)); sp._b=x; bl.appendChild(sp); HR.rb.push(sp); });
     if(p.bets.length>6) bl.appendChild(el("span",null,"ほか"+(p.bets.length-6)));
     b.appendChild(bl); rb.appendChild(b);
   });
+  var my=$("h-mybets"); my.innerHTML="";
+  my.appendChild(el("b",null,"あなたの賭け"));
+  if(!you.bets.length) my.appendChild(el("span",null,"今回は見送り"));
+  you.bets.forEach(function(x){ var sp=el("span",null,betShort(x)); sp._b=x; my.appendChild(sp); HR.rb.push(sp); });
   var mini=$("h-mini");
-  if(!has3D){ mini.hidden=false; HR.mini=buildMini(mini,c,null); } else { mini.hidden=true; HR.mini=null; }
-  $("h-ticker").hidden=true; $("h-photo").hidden=true; $("h-photo").innerHTML="";
-  $("h-pre").textContent="";
-  void R;
+  if(!use3D()){ mini.hidden=false; HR.mini=buildMini(mini,c,mine); } else { mini.hidden=true; mini.innerHTML=""; HR.mini=null; }
 }
 /* 実況 */
 var CM=null;
@@ -2442,7 +2324,7 @@ function commentary(R,c,real,s,order){
     return;
   }
   if(d.fin || real-CM.lastAt<1.7) return;
-  if(!d.start){ d.start=1; cmSay("スタートしました！",null,real); return; }
+  if(!d.start){ d.start=1; if(real<3){ cmSay("スタートしました！",null,real); return; } }
   if(!d.late && real>1.5){
     d.late=1;
     for(i=0;i<sim.late.length;i++) if(sim.late[i]>0){ cmSay("あっと、"+hname(c,i)+"は出遅れた！",null,real); return; }
@@ -2470,9 +2352,9 @@ function commentary(R,c,real,s,order){
     return;
   }
 }
-/* 大画面のレースの毎フレーム処理（文字・音・実況） */
-function hostRaceFrame(){
-  if(!V||V.pub.phase!=="race"||S.mode!=="host") return;
+/* レース中の毎フレーム処理（文字・音・実況）。どの端末も同じ計算をするので、同じ実況になる */
+function raceFrameUI(){
+  if(!V||V.pub.phase!=="race"||curScreen!=="stage"||!CM||!HR.chips.length) return;
   var c=V.pub.card, R=getRace(c,V.pub.seed), real=raceClock(), tm=R.tm;
   var s=real>0?simOf(tm,real):0, sim=R.sim, D=c.dist;
   var ord=liveOrder(sim,s), d=CM.d;
@@ -2521,127 +2403,23 @@ function hostRaceFrame(){
   HR.lastReal=real;
 }
 
-/* ---- 大画面：結果 ---- */
-function renderHRes(pub){
-  var r=pub.result, c=pub.card, key=c.id+":"+pub.seed;
-  $("hr-ttl").textContent="第"+c.no+"レース "+c.name+" 着順";
-  var pd=$("hr-podium"); pd.innerHTML="";
-  r.order.slice(0,3).forEach(function(n,i){
-    var row=el("div","pd p"+(i+1));
-    row.appendChild(el("span","pl",(i+1)+"着"));
-    row.appendChild(hnBadge(n));
-    row.appendChild(el("span","t",c.horses[n-1].name));
-    row.appendChild(el("span","mg",i===0?(c.pop[n-1]+"番人気"):r.margins[i-1]));
-    pd.appendChild(row);
-  });
-  var pt=$("hr-pay"); pt.innerHTML="";
-  function payRow(k,items){
-    var tr=el("tr"), td=el("td","k"); td.appendChild(el("span",null,k)); tr.appendChild(td);
-    tr.appendChild(el("td",null,items.map(function(x){ return x.h.join("-"); }).join("　")));
-    tr.appendChild(el("td","o",items.map(function(x){ return fmtOdds(x.odds)+"倍"; }).join("　")));
-    pt.appendChild(tr);
-  }
-  payRow("単勝",r.pays.w); payRow("複勝",r.pays.p); payRow("馬連",r.pays.q);
-  var box=$("hr-players"); box.innerHTML="";
-  rankList(pub.players).forEach(function(x){
-    var p=x.p, row=el("div","prow");
-    row.appendChild(el("span","rkn",x.rank+"位"));
-    var dot=el("i"); dot.style.background=p.color; row.appendChild(dot);
-    row.appendChild(el("span","n",p.name+(p.left?"（退出）":"")));
-    var g=p.last?(p.last.pay-p.last.stake):0;
-    var hits=el("span","hits",p.last&&p.last.hits?("的中"+p.last.hits):"");
-    row.appendChild(hits);
-    row.appendChild(el("span","g "+(g>0?"up":g<0?"dn":""),g>0?"+"+g:g<0?String(g):"±0"));
-    var m=el("span","m"); m.appendChild(el("span","coin")); m.appendChild(document.createTextNode(String(p.medals))); row.appendChild(m);
-    row.appendChild(el("span","ok"+(p.ready?" on":""),p.gone?"—":p.ready?"OK":"…"));
-    box.appendChild(row);
-  });
-  var last=pub.raceNo>=pub.races;
-  $("btn-next").textContent=last?"最終結果へ":"次のレースへ";
-  $("hr-note").textContent="スマホで「OK」を押すと進むよ";
-  if(VK.hres!==key){
-    VK.hres=key;
-    var any=pub.players.some(function(p){ return p.last && p.last.pay>0; });
-    if(any){ SFX.payout(); setTimeout(function(){ confetti(120,{x:0.75,y:0.3}); },200); } else SFX.lose();
-    crowdLevel(0.03,2);
-    try{ if(window.speechSynthesis) speechSynthesis.cancel(); }catch(e){}
-  }
-}
-
-/* ---- 大画面：最終結果 ---- */
-function renderHFin(pub){
-  var f=pub.final, key="fin:"+f.id;
-  var cr=$("hf-crown"); cr.innerHTML="";
-  var tops=f.rank.filter(function(x){ return x.rank===1 && !x.left; });
-  cr.appendChild(el("div","c1","🏆 優勝 🏆"));
-  cr.appendChild(el("div","c2",tops.map(function(x){ return x.name; }).join("・")));
-  if(tops.length) cr.appendChild(el("div","c3","メダル "+tops[0].medals+"枚（最初の"+pub.start+"枚から "+(tops[0].medals-pub.start>=0?"+":"")+(tops[0].medals-pub.start)+"）"));
-  var rb=$("hf-rank"); rb.innerHTML="";
-  f.rank.forEach(function(x){
-    var row=el("div","prow");
-    row.appendChild(el("span","rkn",x.rank+"位"));
-    var dot=el("i"); dot.style.background=x.color; row.appendChild(dot);
-    row.appendChild(el("span","n",x.name+(x.left?"（退出）":"")));
-    row.appendChild(el("span","hits",x.hits?("的中"+x.hits):""));
-    var m=el("span","m"); m.appendChild(el("span","coin")); m.appendChild(document.createTextNode(String(x.medals))); row.appendChild(m);
-    rb.appendChild(row);
-  });
-  renderAwards($("hf-awards"),f.awards);
-  if(VK.hfin!==key){
-    VK.hfin=key; SFX.fanfare(true); setTimeout(function(){ SFX.win(); confetti(240); },1600);
-    crowdLevel(0.1,1.5); setTimeout(function(){ crowdLevel(0.02,4); },6000);
-    if(tops.length) setTimeout(function(){ speak("優勝は、"+tops.map(function(x){ return x.name; }).join("さんと、")+"さん！ おめでとう！"); },900);
-  }
-}
-
 /* ============ 時計（残り時間の表示） ============ */
 function updateTimers(){
-  if(!V||!V.pub) return;
-  var pub=V.pub;
-  if(pub.phase==="bet"){
-    var rem=Math.max(0,pub.remain-(performance.now()-V.at)), sec=Math.ceil(rem/1000);
-    if(S.mode==="guest"){
-      var t=$("b-timer"); t.textContent=sec>0?sec+"秒":"締切";
-      t.classList.toggle("hurry",sec<=10);
-      if(sec<=5 && sec>=1 && ui.tick!==sec){ ui.tick=sec; SFX.tick(); }
-      if(sec===0 && ui.tick!==0){ ui.tick=0; SFX.expire(); paintDock(); }
-    } else if(S.mode==="host"){
-      $("h-remain").textContent=sec;
-      $("h-timer").classList.toggle("hurry",sec<=10);
-      if(performance.now()-pdAt>3400){ pdAt=performance.now(); pdFocus=(pdFocus+1)%8; paintPaddock(); }
-    }
-  }
+  if(!V||!V.pub||V.pub.phase!=="bet"||curScreen!=="bet") return;
+  var rem=Math.max(0,V.pub.remain-(performance.now()-V.at)), sec=Math.ceil(rem/1000);
+  var t=$("b-timer"); t.textContent=sec>0?sec+"秒":"締切";
+  t.classList.toggle("hurry",sec<=10);
+  if(sec<=5 && sec>=1 && ui.tick!==sec){ ui.tick=sec; SFX.tick(); }
+  if(sec===0 && ui.tick!==0){ ui.tick=0; SFX.expire(); paintDock(); }
 }
 
-/* ============ 毎フレーム（スマホのかんたん表示・大画面の文字） ============ */
+/* ============ 毎フレーム ============ */
 function frameLoop(){
   requestAnimationFrame(frameLoop);
-  if(!V||!V.pub||V.pub.phase!=="race") return;
-  if(S.mode==="host"){ hostRaceFrame(); return; }
-  if(curScreen!=="grace"||!MINI.rows.length) return;
-  var c=V.pub.card, R=getRace(c,V.pub.seed), real=raceClock();
-  var s=real>0?simOf(R.tm,real):0;
-  var ord=paintMini(MINI.rows,R.sim,s,c.dist);
-  var cd=$("g-cd"), txt, sub;
-  if(real<-3){ txt="まもなく発走"; sub="大画面に注目！"; }
-  else if(real<0){ txt=String(Math.ceil(-real)); sub="もうすぐスタート！"; }
-  else {
-    var lead=ord[0], fin=R.sim.fin[lead]>=0&&s>=R.sim.fin[lead];
-    if(fin){ txt="ゴール！"; sub="結果を待っています…"; }
-    else { txt="残り "+Math.max(0,Math.ceil((c.dist-horseX(R.sim,lead,s))/10)*10)+"m"; sub="がんばれー！"; }
-  }
-  if(cd.firstChild && cd.firstChild.nodeValue!==txt){ cd.innerHTML=""; cd.appendChild(document.createTextNode(txt)); cd.appendChild(el("small",null,sub)); }
-  var now=performance.now();
-  if(now-(MINI.lastPaint||0)>300){
-    MINI.lastPaint=now;
-    var rows=$("g-slip").querySelectorAll(".sl");
-    var bets=V.you?V.you.bets:[];
-    for(var i=0;i<rows.length&&i<bets.length;i++) rows[i].style.background=(real>0&&liveHit(bets[i],ord))?"#fff4d6":"";
-  }
+  raceFrameUI();
 }
-
-/* ============ 3Dの競馬場（大画面だけ。Babylon.js を使う） ============ */
-var G3=null, has3D=false, b3Loading=false;
+/* ============ 3Dの競馬場（みんなの端末で同じレースを描く。Babylon.js を使う） ============ */
+var G3=null, has3D=false, b3Loading=false, b3Failed=false;
 var BABYLON_SRC="https://cdn.jsdelivr.net/npm/babylonjs@9.29.0/babylon.js";
 function loadScriptOnce(src,check,cb){
   if(check()) return cb(null);
@@ -2652,23 +2430,32 @@ function loadScriptOnce(src,check,cb){
   document.head.appendChild(s);
   setTimeout(function(){ if(!check()) fin(new Error("timeout")); },60000);
 }
+function webglOK(){
+  try{ var c=document.createElement("canvas"); return !!(window.WebGLRenderingContext && (c.getContext("webgl2")||c.getContext("webgl"))); }catch(e){ return false; }
+}
+// 部屋に入ったら裏で3Dを準備しておく（レースが始まるまでは描かない）
 function start3D(){
-  if(G3){ $("c3d").classList.add("on"); G3.resume(); return; }
-  if(b3Loading) return;
-  b3Loading=true; $("load3d").hidden=false;
+  if(G3||b3Loading||b3Failed){ update3DRun(); return; }
+  if(!webglOK()){ b3Failed=true; paint3DStatus(); paintSimple(); return; }
+  b3Loading=true; paint3DStatus();
   loadScriptOnce(BABYLON_SRC,function(){ return !!window.BABYLON; },function(err){
-    b3Loading=false; $("load3d").hidden=true;
-    if(S.mode!=="host") return;
+    b3Loading=false;
+    if(!S.mode){ paint3DStatus(); return; }
     if(!err){
       try{ G3=makeWorld(); has3D=true; }
       catch(e){ try{ console.error(e); }catch(_){ } G3=null; has3D=false; }
     }
-    if(!has3D) toast("3Dを表示できませんでした","かんたん表示で遊べるよ","ng");
-    else { $("c3d").classList.add("on"); }
-    $("labels").hidden=!(curScreen==="stage" && has3D);
+    if(!has3D) b3Failed=true;
     HR.key="";
-    if(V) applyView(V.pub,V.you);
+    if(V) applyView(V.pub,V.you); else { paint3DStatus(); paintSimple(); }
   });
+}
+// レース中の画面のときだけ3Dを描く（電池の節約）
+function update3DRun(){
+  var on=!!G3 && use3D(), run=on && curScreen==="stage";
+  $("c3d").classList.toggle("on",on);
+  if(G3){ if(run) G3.resume(); else G3.pause(); }
+  $("labels").hidden=!run;
 }
 function stop3D(){
   if(G3) G3.pause();
@@ -2899,7 +2686,7 @@ function makeWorld(){
   var crA=B.MeshBuilder.CreateSphere("crA",{diameter:7,segments:6},scene); crA.material=smat("leafA","#3f7d3a",0);
   var crB=B.MeshBuilder.CreateSphere("crB",{diameter:7,segments:6},scene); crB.material=smat("leafB","#5a9a45",0);
   var tm1=[], tA=[], tB=[], q0=B.Quaternion.Identity();
-  for(var ti=0;ti<300;ti++){
+  for(var ti=0;ti<(mobile?170:300);ti++){
     var inside=Math.random()<0.28, tu=Math.random()*TC, tw=inside?-(28+Math.random()*58):(TW+75+Math.random()*240);
     TP(tu,tw);
     if(!inside && O.z<-100 && O.x>SX0-30 && O.x<SX1+30) continue;
@@ -3072,31 +2859,8 @@ function makeWorld(){
     });
   }
 
-  /* ---- 花火（最終結果） ---- */
-  var dotT=dtex("dot",32,32,function(c,w,h){ var g=c.createRadialGradient(w/2,h/2,0,w/2,h/2,w/2); g.addColorStop(0,"rgba(255,255,255,1)"); g.addColorStop(0.4,"rgba(255,255,255,0.8)"); g.addColorStop(1,"rgba(255,255,255,0)"); c.fillStyle=g; c.fillRect(0,0,w,h); });
-  dotT.hasAlpha=true;
-  var fwPS=[], fwT=0;
-  for(var fwi=0;fwi<4;fwi++){
-    var ps=new B.ParticleSystem("fw"+fwi,420,scene);
-    ps.particleTexture=dotT; ps.emitter=new V3(0,100,0);
-    ps.createSphereEmitter(1.5);
-    ps.minLifeTime=1.0; ps.maxLifeTime=1.8; ps.minSize=2.2; ps.maxSize=3.6;
-    ps.minEmitPower=26; ps.maxEmitPower=40; ps.gravity=new V3(0,-14,0);
-    ps.emitRate=0; ps.blendMode=B.ParticleSystem.BLENDMODE_ONEONE; ps.updateSpeed=0.016;
-    ps.start(); fwPS.push(ps);
-  }
-  var FW_COLS=["#ff5a6e","#ffd35a","#7fd3ff","#9dff8f","#ff9ef0","#ffffff"];
-  function burst(){
-    var ps=fwPS[Math.floor(Math.random()*fwPS.length)];
-    ps.emitter=new V3(SCX-120+Math.random()*240,90+Math.random()*60,40+Math.random()*120);
-    var c1=C3.FromHexString(pick(FW_COLS)), c2=C3.FromHexString(pick(FW_COLS));
-    ps.color1=new C4(c1.r,c1.g,c1.b,1); ps.color2=new C4(c2.r,c2.g,c2.b,1); ps.colorDead=new C4(0,0,0,0);
-    ps.manualEmitCount=320;
-    noise(0.6,0.07,0.2,"lowpass",380);
-  }
-
   /* ---- 状態 ---- */
-  var mode="lobby", cardId=null, uStart=0, R=null, lastPhase="", modeAt=0, shot="", finalAt=0, demoCoats=null;
+  var mode="idle", cardId=null, uStart=0, R=null, lastPhase="", modeAt=0, shot="";
   var lanesW=horses.map(function(h){ return h.w; });
   function applyCard(card){
     if(!card || card.id===cardId) return;
@@ -3110,14 +2874,10 @@ function makeWorld(){
   function sync(pub){
     var ph=pub.phase;
     if(ph!==lastPhase){ lastPhase=ph; modeAt=performance.now()/1000; want.cut=true; shot=""; }
-    if(ph==="lobby"){ mode="lobby"; boardText("おやつダービー","みんなの参加を待っています"); if(!demoCoats){ demoCoats=1; horses.forEach(function(h,i){ h.setCoat((i*3)%COATS.length); horseNames[i]=""; }); } }
-    else if(ph==="bet"){ mode="paddock"; applyCard(pub.card); gate.setEnabled(false); boardText("第"+pub.card.no+"レース "+pub.card.name,raceInfo(pub.card)+"　まもなく締め切り"); }
-    else if(ph==="race"){ mode="race"; applyCard(pub.card); R=getRace(pub.card,pub.seed); gate.setEnabled(true); setBetDots(pub); boardText("第"+pub.card.no+"レース "+pub.card.name,raceInfo(pub.card)); }
-    else if(ph==="result"){ mode="result"; applyCard(pub.card); R=getRace(pub.card,pub.seed); gate.setEnabled(false);
-      var o=pub.result.order; boardText("1着 "+o[0]+"番 "+pub.card.horses[o[0]-1].name,"2着 "+o[1]+"番　3着 "+o[2]+"番"); }
-    else if(ph==="final"){ mode="final"; gate.setEnabled(false); finalAt=performance.now()/1000; fwT=0;
-      var tops=pub.final.rank.filter(function(x){ return x.rank===1 && !x.left; }).map(function(x){ return x.name; });
-      boardText("優勝 "+tops.join("・"),"おめでとう！"); }
+    if(pub.card) applyCard(pub.card);
+    if(ph==="race"){ mode="race"; R=getRace(pub.card,pub.seed); gate.setEnabled(true); setBetDots(pub); boardText("第"+pub.card.no+"レース "+pub.card.name,raceInfo(pub.card)); }
+    else if(ph==="result"){ mode="result"; R=getRace(pub.card,pub.seed); gate.setEnabled(false); }
+    else { mode="idle"; gate.setEnabled(false); }
   }
 
   /* ---- カメラの行き先 ---- */
@@ -3133,25 +2893,14 @@ function makeWorld(){
   }
   function labelsWant(show,big,name){ lbl.show=show; lbl.big=big==null?-1:big; lbl.name=!!name; }
 
-  function paradeFrame(dt,now,focus,lobby){
+  function idleFrame(dt,now){
     var t=now-modeAt, walk=Math.min(70,t*1.05);
     horses.forEach(function(h,i){
-      var u=U_FIN-150-i*6.5+walk;
-      placeHorse(h,u,6);
+      placeHorse(h,U_FIN-150-i*6.5+walk,6);
       animHorse(h,0.12,1.15,dt,now);
     });
-    if(lobby){
-      var a=now*0.035;
-      setWant(tmpA.set(Math.cos(a)*420,95,Math.sin(a)*320-30),tmpB.set(0,0,-30),0.8,1.2,false);
-      return;
-    }
-    var h=horses[focus], p=h.root.position;
-    TP(U_FIN-150-focus*6.5+walk,6);
-    var aspect=engine.getAspectRatio(cam), wide=aspect>1.25;
-    var shift=wide?3.6:0, lift=wide?1.0:-1.6, dist=wide?11:18;
-    tmpA.set(p.x+O.nx*dist+O.hx*1.6,wide?2.3:3,p.z+O.nz*dist+O.hz*1.6);
-    tmpB.set(p.x+O.hx*shift,lift,p.z+O.hz*shift);
-    setWant(tmpA,tmpB,wide?0.62:0.7,3.2,false);
+    var a=now*0.035;
+    setWant(tmpA.set(Math.cos(a)*420,95,Math.sin(a)*320-30),tmpB.set(0,0,-30),0.8,1.2,false);
   }
   function raceFrame(dt,now){
     if(!R) return;
@@ -3226,32 +2975,23 @@ function makeWorld(){
     setWant(tmpA,tmpB,0.7,2.5,false);
     labelsWant(true,w0,true);
   }
-  function finalFrame(dt,now){
-    paradeFrame(dt,now,0,true);
-    var t=now-finalAt;
-    tmpA.set(SCX+Math.sin(t*0.05)*60,26,zf+60); tmpB.set(SCX,60,140);
-    setWant(tmpA,tmpB,0.95,1.2,false);
-    fwT-=dt;
-    if(fwT<=0 && t<40){ fwT=0.45+Math.random()*0.9; burst(); }
-    labelsWant(false);
-  }
-
   /* ---- 毎フレーム ---- */
   var paused=false;
   scene.onBeforeRenderObservable.add(function(){
     var dt=Math.min(0.25,engine.getDeltaTime()/1000), now=performance.now()/1000;
-    if(mode==="lobby"){ paradeFrame(dt,now,0,true); labelsWant(false); }
-    else if(mode==="paddock"){ paradeFrame(dt,now,pdFocus,false); labelsWant(true,pdFocus,false); }
-    else if(mode==="race") raceFrame(dt,now);
+    if(mode==="race") raceFrame(dt,now);
     else if(mode==="result") resultFrame(dt,now);
-    else if(mode==="final") finalFrame(dt,now);
+    else { idleFrame(dt,now); labelsWant(false); }
     if(want.cut){ camOP.copyFrom(want.op); camOT.copyFrom(want.ot); camF=want.f; want.cut=false; }
     else {
       var a=1-Math.exp(-want.k*dt);
       V3.LerpToRef(camOP,want.op,a,camOP); V3.LerpToRef(camOT,want.ot,a,camOT); camF+=(want.f-camF)*a;
     }
     camA.copyFrom(want.a);
-    camA.addToRef(camOP,cam.position); camA.addToRef(camOT,tmpC); cam.setTarget(tmpC); cam.fov=camF;
+    camA.addToRef(camOP,cam.position); camA.addToRef(camOT,tmpC); cam.setTarget(tmpC);
+    // 縦長の画面（スマホ）では、横の見える範囲が狭くなりすぎないように画角を広げる
+    var asp=engine.getAspectRatio(cam), ratio=asp<16/9?Math.pow((16/9)/asp,0.75):1;
+    cam.fov=Math.min(1.45,2*Math.atan(Math.tan(camF/2)*ratio));
   });
   // 番号ラベルは「描き終わったあと」に、その絵と同じカメラで位置を決める（ずれないように）
   scene.onAfterRenderObservable.add(function(){ updateLabels(lbl.show,lbl.big,lbl.name); });
@@ -3292,10 +3032,18 @@ function boot(){
   $("join-code").addEventListener("keydown",function(e){ if(e.key==="Enter") $("join-name").focus(); });
   $("join-name").addEventListener("keydown",function(e){ if(e.key==="Enter") startJoin(); });
   $("btn-join-back").onclick=function(){ cleanupNet(); clearSession(); show("title"); };
-  ["btn-wait-leave","btn-bet-leave","btn-race-leave","btn-res-leave","btn-fin-leave"].forEach(function(id){
-    $(id).onclick=function(){ armConfirm(this,leaveRoom,"もう一度押すと退出します"); };
+  ["btn-wait-leave","btn-bet-leave","btn-res-leave","btn-fin-leave"].forEach(function(id){
+    $(id).onclick=function(){
+      if(S.mode==="host") armConfirm(this,closeRoom,"もう一度押すと部屋を閉じます");
+      else armConfirm(this,leaveRoom,"もう一度押すと退出します");
+    };
   });
-  // 大画面
+  // 親
+  var nameT=null;
+  $("host-name").addEventListener("input",function(){
+    var v=this.value; clearTimeout(nameT);
+    nameT=setTimeout(function(){ var me=hostP(); if(!me||S.mode!=="host") return; me.name=cleanName(v,"親"); rememberName(cleanName(v,"")); commit(); },350);
+  });
   $("btn-start").onclick=startGame;
   [["opt-races","races"],["opt-sec","sec"]].forEach(function(o){
     $(o[0]).addEventListener("click",function(e){
@@ -3304,14 +3052,17 @@ function boot(){
     });
   });
   $("btn-host-close").onclick=function(){ if(S.players.length) armConfirm(this,closeRoom,"もう一度押すと閉じます"); else closeRoom(); };
-  $("btn-stage-close").onclick=function(){ armConfirm(this,closeRoom,"もう一度押すと閉じます"); };
   $("btn-fin-close").onclick=function(){ armConfirm(this,closeRoom,"もう一度押すと閉じます"); };
   $("btn-voice").onclick=function(){
-    VOICE_ON=!VOICE_ON; try{ localStorage.setItem(VOICE_KEY,VOICE_ON?"1":"0"); }catch(e){}
-    paintVoice(); if(!VOICE_ON){ try{ speechSynthesis.cancel(); }catch(e){} } else speak("実況ボイス、オンにしました");
+    VOICE_PREF=!voiceOn(); try{ localStorage.setItem(VOICE_KEY,VOICE_PREF?"1":"0"); }catch(e){}
+    paintVoice(); if(!VOICE_PREF){ try{ speechSynthesis.cancel(); }catch(e){} } else speak("実況、オンにしました");
+  };
+  $("btn-simple").onclick=function(){
+    SIMPLE=!SIMPLE; try{ localStorage.setItem(SIMPLE_KEY,SIMPLE?"1":"0"); }catch(e){}
+    SFX.select(); if(V) applyView(V.pub,V.you);
   };
   $("btn-closebet").onclick=function(){ if(S.mode==="host"&&S.phase==="bet") armConfirm(this,closeBets,"もう一度押すと締め切ります"); };
-  $("btn-next").onclick=function(){ if(S.mode==="host") advanceFromResult(); };
+  $("btn-forcenext").onclick=function(){ if(S.mode==="host"&&S.phase==="result") armConfirm(this,advanceFromResult,"もう一度押すと進みます"); };
   $("btn-again").onclick=function(){ if(S.mode==="host"&&S.phase==="final") backToLobby(); };
   // スマホ：賭ける
   var tabs=document.querySelectorAll("#s-bet .tab");
@@ -3334,7 +3085,7 @@ function boot(){
     if(wantWake && !wakeLock) keepAwake(true);
     if(S.mode==="guest" && joined && (!gConn || !gConn.open) && !rcActive) startReconnect();
   });
-  // 大画面の進行（締め切り・レース終わり）
+  // 親の端末での進行（締め切り・レース終わり）
   setInterval(function(){
     if(S && S.mode==="host"){
       var now=Date.now();
@@ -3345,7 +3096,7 @@ function boot(){
   },200);
   requestAnimationFrame(frameLoop);
 
-  // URL の部屋番号 → 大画面の復旧 → 参加者の復旧 → タイトル の順
+  // URL の部屋番号 → 親の復旧 → 参加者の復旧 → タイトル の順
   var mr=(location.search||"").match(/[?&]r=(\d{4})/);
   var gs=loadSession(), hs=loadHost();
   if(mr){
