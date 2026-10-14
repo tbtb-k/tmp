@@ -280,7 +280,7 @@
     transition:background .2s, border-color .2s, color .2s, transform .25s var(--ease-spring);
   }
   .num{min-width:44px;font:700 .95rem/1 var(--latin)}
-  .num.all{font:800 .85rem/1 var(--body)}
+  .num.all, .num.solo{font:800 .85rem/1 var(--body)}
   .chip{border-radius:999px;font:800 .85rem/1 var(--body)}
   .chip .n{font:500 .68rem/1 var(--latin);color:var(--dim)}
   .more{border-style:dashed;border-radius:999px;font:800 .8rem/1 var(--body);color:var(--muted)}
@@ -379,6 +379,7 @@
     font:700 .7rem/1 var(--latin);white-space:nowrap;
   }
   .ppl span{font:800 .66rem/1 var(--body);margin-left:.1em}
+  .ppl.solo{font:800 .66rem/1 var(--body);letter-spacing:.04em}
   .body{display:flex;flex-direction:column;gap:6px;flex:1;padding:12px 8px 6px}
   .name{
     margin:0;font-family:var(--display);font-weight:400;
@@ -769,10 +770,12 @@
     const lo = t.match(/MIN_PLAYERS\s*=\s*(\d+)/), hi = t.match(/MAX_PLAYERS\s*=\s*(\d+)/);
     if (lo && hi && +lo[1] <= +hi[1]) return [+lo[1], +hi[1]];
     if (hi && +hi[1] === 2) return [2, 2];
+    if (hi && +hi[1] === 1) return [1, 1];
     const r = t.match(/(\d{1,2})\s*[〜~\-–—]\s*(\d{1,2})\s*人/);
     if (r && +r[1] <= +r[2]) return [+r[1], +r[2]];
     const y = t.match(/(\d{1,2})\s*人(用|専用|対戦)/);
     if (y) return [+y[1], +y[1]];
+    if (/ひとり(用|専用)/.test(t)) return [1, 1];
     return null;
   }
   function splitTags(s){
@@ -867,7 +870,7 @@
   }
 
   function toItem(c, g){
-    const fallback = c.base.replace(/^(game|1vs1)_/i, "").replace(/(^|_)20\d{6}(_|$)/, "$1").replace(/[-_]+/g, " ").trim() || c.base;
+    const fallback = c.base.replace(/^(game|1vs1|solo)_/i, "").replace(/(^|_)20\d{6}(_|$)/, "$1").replace(/[-_]+/g, " ").trim() || c.base;
     const title = g.title || fallback;
     const tags = g.tags.length ? g.tags : guessTags(title + " " + g.desc);
     return {
@@ -911,6 +914,9 @@
   }
   function isNew(it){ return newKeys.has(it.key); }
   function pplText(p){ return p ? (p[0] === p[1] ? String(p[0]) : p[0] + "–" + p[1]) : ""; }
+  // 1人でしか遊べないゲーム（「ひとり用」と表示し、人数を選ばずに回すルーレットには入れない）
+  function isSolo(it){ return !!(it.players && it.players[1] === 1); }
+  function pplLabel(p){ return p ? (p[1] === 1 ? "ひとり用" : pplText(p) + "人") : ""; }
   function fmtDate(t){ const d = new Date(t); return (d.getMonth() + 1) + "/" + d.getDate(); }
   function norm(s){
     return String(s).normalize("NFKC").toLowerCase()
@@ -937,7 +943,8 @@
     }
     const badges = el("div", "badges");
     if (isNew(it)) badges.append(el("span", "new", "NEW"));
-    if (it.players) {
+    if (isSolo(it)) badges.append(el("span", "ppl solo", "ひとり用"));
+    else if (it.players) {
       const p = el("span", "ppl", pplText(it.players));
       p.append(el("span", "", "人"));
       badges.append(p);
@@ -1107,9 +1114,9 @@
     for (let n = lo; n <= hi; n++) opts.push(n);
     if (!opts.includes(state.players)) state.players = 0;
     pplBox.replaceChildren(...opts.map(n => {
-      const b = el("button", n ? "num" : "num all", n ? String(n) : "すべて");
+      const b = el("button", n === 1 ? "num solo" : n ? "num" : "num all", n === 1 ? "ひとり" : n ? String(n) : "すべて");
       b.type = "button";
-      if (n) b.setAttribute("aria-label", n + "人");
+      if (n) b.setAttribute("aria-label", n === 1 ? "ひとりで遊ぶ" : n + "人");
       b.setAttribute("aria-pressed", String(state.players === n));
       b.addEventListener("click", () => {
         state.players = n;
@@ -1272,12 +1279,12 @@
   /* ---------- ルーレット ---------- */
   let spinToken = 0;
 
-  function poolLabel(n){
+  function poolLabel(n, soloOut){
     const parts = [];
-    if (state.players) parts.push(state.players + "人で遊べる");
+    if (state.players) parts.push(state.players === 1 ? "ひとりで遊べる" : state.players + "人で遊べる");
     if (state.tag) parts.push("#" + state.tag + " の");
     if (state.q) parts.push("「" + state.q + "」に合う");
-    return (parts.length ? parts.join("・") + " " : "全") + n + "本の中から";
+    return (parts.length ? parts.join("・") + " " : "全") + n + "本の中から" + (soloOut ? "（ひとり用はのぞく）" : "");
   }
 
   function openRoulette(){
@@ -1289,12 +1296,18 @@
   async function runSpin(){
     const token = ++spinToken;
     const vis = items.filter(matches);
-    const pool = vis.length ? vis : items;
+    let pool = vis.length ? vis : items;
+    // 人数を選んでいないときは、みんなで遊ぶゲームを決める場面なので、ひとり用は入れない
+    let soloOut = false;
+    if (!state.players) {
+      const group = pool.filter(i => !isSolo(i));
+      if (group.length && group.length < pool.length) { pool = group; soloOut = true; }
+    }
     const target = pool[rand(pool.length)];
     const still = reduced() || pool.length < 2;
 
     rlCard.dataset.state = "spin";
-    $("#rlSub").textContent = poolLabel(pool.length);
+    $("#rlSub").textContent = poolLabel(pool.length, soloOut);
     stopConfetti();
 
     const rows = [];
@@ -1340,7 +1353,7 @@
     $("#rlDesc").hidden = !it.desc;
     const meta = $("#rlMeta");
     meta.replaceChildren();
-    if (it.players) meta.append(el("span", "", pplText(it.players) + "人"));
+    if (it.players) meta.append(el("span", "", pplLabel(it.players)));
     for (const t of it.tags.slice(0, 3)) meta.append(el("span", "", "#" + t));
     $("#rlGo").href = it.href;
     rlCard.dataset.state = "done";
@@ -1439,7 +1452,7 @@
       tr.append(
         tag(el("td", "", it.date ? new Date(it.date).toLocaleDateString("ja-JP") : "—"), it.date && it.dateAuto),
         (() => { const td = el("td", "", it.title + (it.hidden ? "（非表示）" : "")); if (!it.desc) td.append(el("div", "warn", "説明文なし")); return td; })(),
-        tag(el("td", it.players ? "" : "warn", it.players ? pplText(it.players) + "人" : "不明"), it.players && it.playersAuto),
+        tag(el("td", it.players ? "" : "warn", it.players ? pplLabel(it.players) : "不明"), it.players && it.playersAuto),
         tag(el("td", it.tags.length ? "" : "warn", it.tags.length ? it.tags.join("、") : "なし"), it.tags.length && it.tagsAuto),
         (() => { const td = el("td"); td.append(el("code", "", it.file)); return td; })()
       );
