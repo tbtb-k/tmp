@@ -1008,7 +1008,7 @@ function swoosh(up,dur,vol){
     s.start(t); s.stop(t+dur+0.03);
   }catch(e){}
 }
-function buzz(pat){ try{ if(VOL>0 && navigator.vibrate) navigator.vibrate(pat); }catch(e){} }
+function buzz(pat){ try{ if(navigator.userActivation && !navigator.userActivation.hasBeenActive) return; if(VOL>0 && navigator.vibrate) navigator.vibrate(pat); }catch(e){} }
 var selStep=0;
 var SFX={
   tap:     function(){ tone(880,0.032,"square",0.045); },
@@ -1177,12 +1177,15 @@ function pickTopic(){
 }
 
 /* ---- ゲームの進行（司会の操作） ---- */
+/* 切断中の人（代表者のリロード後にもどってこなかった人）は数えない */
+function activePlayers(){ return S.players.filter(function(p){ return !p.gone; }); }
 function canStart(){
-  var n=S.players.length, ans=S.players.filter(plays).length;
-  return n>=3 && ans>=2;
+  var ps=activePlayers();
+  return ps.length>=3 && ps.filter(plays).length>=2;
 }
 function startGame(){
   if(S.phase!=="lobby" || !canStart()) return;
+  S.players=activePlayers();
   S.players.forEach(function(p){ p.score=0; });
   S.round=1; S.extra=0; S.history=[]; S.game=(S.game||0)+1;
   startRound(null);
@@ -1527,7 +1530,8 @@ function renderHostLobby(){
     box.appendChild(pchip(p,tag));
   });
   $("host-count").textContent=pub.players.length+" / "+MAX_PLAYERS;
-  var b=$("btn-start"), n=pub.players.length, ans=pub.players.filter(function(p){ return p.plays; }).length;
+  var ps=pub.players.filter(function(p){ return !p.gone; });
+  var b=$("btn-start"), n=ps.length, ans=ps.filter(function(p){ return p.plays; }).length;
   b.disabled=!canStart();
   b.textContent = n<3 ? "あと"+(3-n)+"人で始められます" : ans<2 ? "答える人が2人以上必要です" : "会議をはじめる（"+n+"人）";
   paintSegs();
@@ -1571,7 +1575,7 @@ function renderTheme(){
   if(key!==themeKey){ themeKey=key; rollIn($("th-l"),pub.letter,$("th-t"),pub.topic); }
   var a=$("th-act"); a.innerHTML="";
   if(m && !m.ans){
-    a.appendChild(el("p","note-card", pub.extra
+    a.appendChild(el("p","note-card", m.plays
       ? "延長戦は同点の人だけが答えます。あなたは審査員として「それな」を入れてね"
       : "あなたは司会に専念中。みんなの答えを楽しみに待とう"));
   }
@@ -1588,7 +1592,7 @@ function renderTheme(){
 var thinkKey="", subOverride=null, subOverrideAt=0, draftTimer=null;
 var DRAFT_KEY="nattoku.draft.v1";
 function saveDraft(k,t){ try{ sessionStorage.setItem(DRAFT_KEY,JSON.stringify({k:k,t:t})); }catch(e){} }
-function loadDraft(k){ try{ var o=JSON.parse(sessionStorage.getItem(DRAFT_KEY)||"null"); return (o&&o.k===k)?o.t:""; }catch(e){ return ""; } }
+function loadDraft(k){ try{ var o=JSON.parse(sessionStorage.getItem(DRAFT_KEY)||"null"); return (o&&o.k===k)?o.t:null; }catch(e){ return null; } }
 function updateCount(){
   var inp=$("tk-in"), n=chars(inp.value).length;
   $("tk-cnt").textContent=n+" / "+ANS_MAX;
@@ -1609,7 +1613,9 @@ function renderThink(){
   var inp=$("tk-in"), board=$("tk-board");
   if(key!==thinkKey){
     thinkKey=key; subOverride=null;
-    inp.value=you.text||loadDraft(key)||"";
+    // まだ出していないなら、手元に保存した書きかけのほうが新しい（代表者へは少し遅れて届くため）
+    var ld=you.sub?null:loadDraft(key);
+    inp.value=ld!=null?ld:(you.text||"");
     board.classList.remove("sent"); setTimeout(updateCount,0);
     if(answering && !you.sub && !isTouch()) setTimeout(function(){ try{ inp.focus(); }catch(e){} },450);
   } else if(!inp.value && you.text && document.activeElement!==inp){ inp.value=you.text; updateCount(); }
@@ -1619,6 +1625,8 @@ function renderThink(){
   inp.disabled=!!sent;
   $("tk-send").style.display=sent?"none":"";
   $("tk-redo").style.display=sent?"":"none";
+  // 代表者に届いている書きかけが画面とちがえば送り直す（切断中やリロード直前に書いた分）
+  if(answering && !sent && cleanText(inp.value)!==(you.text||"")) queueDraft();
   var ansP=pub.players.filter(function(p){ return p.ans; });
   var done=ansP.filter(function(p){ return p.sub; }).length;
   $("tk-count").textContent=done+" / "+ansP.length;
@@ -1658,8 +1666,15 @@ function onDraftInput(){
   updateCount();
   if(!V) return;
   saveDraft(roundKey(V.pub),inp.value);
+  queueDraft();
+}
+function queueDraft(){
   clearTimeout(draftTimer);
-  draftTimer=setTimeout(function(){ if(V && V.pub.phase==="think") act({type:"draft",text:inp.value}); },350);
+  draftTimer=setTimeout(function(){
+    if(!V || V.pub.phase!=="think") return;
+    if(S.mode==="guest" && !(gConn && gConn.open)) return;   // 切れている間は送らない（つながり直したら送り直す）
+    act({type:"draft",text:$("tk-in").value});
+  },350);
 }
 
 /* ---- めくり（1人ずつプレゼン） ---- */
