@@ -214,6 +214,11 @@ input[type=text]:focus{border-color:var(--cue);box-shadow:0 0 0 3px rgba(255,210
 .q-start{font-weight:900;color:var(--dim);font-size:15px;letter-spacing:.2em;margin:18px 0 6px}
 .q-topic{font-size:clamp(28px,8.6vw,40px);padding:6px 4px 14px;clip-path:inset(-30% 100% -30% -10%);transition:clip-path .55s cubic-bezier(.3,.8,.3,1)}
 .q-topic.in{clip-path:inset(-30% -10% -30% -10%)}
+.x2{display:table;margin:-6px auto 18px;padding:5px 16px 7px;border-radius:8px;background:var(--shu);color:#fff;
+  font-family:var(--f-display);font-weight:900;font-synthesis:none;font-size:18px;letter-spacing:.06em;transform:rotate(-3deg);
+  box-shadow:0 4px 0 var(--shu-d),0 10px 20px rgba(0,0,0,.35);animation:x2In .5s 1.1s cubic-bezier(.2,1.7,.4,1) both}
+@keyframes x2In{from{opacity:0;transform:rotate(-14deg) scale(2.2)}to{opacity:1;transform:rotate(-3deg)}}
+.x2s{display:inline-block;margin-left:8px;padding:0 7px;border-radius:5px;background:var(--shu);color:#fff;font-size:10.5px;letter-spacing:.04em;vertical-align:1px}
 
 /* ---- お題の帯（考える時間以降） ---- */
 .strip{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:18px;background:rgba(255,255,255,.07);border:1px solid var(--line);margin:0 0 16px}
@@ -299,7 +304,8 @@ input[type=text]:focus{border-color:var(--cue);box-shadow:0 0 0 3px rgba(255,210
 
 /* ---- 激論タイム ---- */
 .sect{font-size:26px;text-align:center;margin:6px 0 8px;--tb:var(--cue)}
-#s-debate .lead{text-align:center}
+#s-debate .lead{text-align:center;margin-bottom:6px}
+.bonus-note{text-align:center;font-size:12.5px;font-weight:800;color:var(--cue);margin:0 0 16px;line-height:1.6;white-space:pre-line}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:20px 12px;margin-bottom:16px}
 .gcard{position:relative;display:block;width:100%;background:none;border:0;padding:8px 6px 10px;border-radius:18px;color:inherit;text-align:left;cursor:pointer;
   transition:background .2s,transform .1s;animation:cardIn .5s var(--d,0ms) cubic-bezier(.2,1.4,.4,1) both}
@@ -342,6 +348,7 @@ input[type=text]:focus{border-color:var(--cue);box-shadow:0 0 0 3px rgba(255,210
 .opt .on{font-size:12px;color:var(--dim);font-weight:700;margin-top:2px}
 .opt .or{display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex:0 0 auto}
 .opt .oc{font-family:var(--f-display);font-weight:900;font-synthesis:none;font-size:14px;color:var(--cue)}
+.opt .op{font-size:11.5px;font-weight:900;color:var(--mint);white-space:nowrap}
 .opt.none{justify-content:center;color:var(--dim);font-weight:800;border-style:dashed}
 
 /* ---- 判定 ---- */
@@ -394,6 +401,13 @@ input[type=text]:focus{border-color:var(--cue);box-shadow:0 0 0 3px rgba(255,210
 .recap .rtx{font-family:var(--f-marker);font-size:20px;line-height:1.35}
 .recap .rn{font-size:12.5px;color:var(--cue);font-weight:800}
 .recap .ra.none{color:var(--dim2);font-weight:800;font-size:14px}
+.recap .rp{font-family:var(--f-display);font-weight:900;font-synthesis:none;font-size:13px;color:var(--mint)}
+.awards{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px}
+.award{min-width:0;padding:12px 12px 11px;border-radius:16px;background:rgba(255,210,63,.07);border:1.5px solid rgba(255,210,63,.3);
+  animation:cardIn .5s var(--d,0ms) cubic-bezier(.2,1.4,.4,1) both}
+.award .an{font-family:var(--f-display);font-weight:900;font-synthesis:none;font-size:16px;color:var(--cue);line-height:1.3}
+.award .aw{display:flex;flex-wrap:wrap;gap:4px 8px;margin-top:8px}
+.award .ad{font-size:11.5px;color:var(--dim);font-weight:700;margin-top:6px;line-height:1.5}
 
 /* ---- 画面全体の演出 ---- */
 #fx{position:fixed;inset:0;z-index:90;pointer-events:none}
@@ -466,7 +480,7 @@ input[type=text]:focus{border-color:var(--cue);box-shadow:0 0 0 3px rgba(255,210
 <div id="sheet" aria-hidden="true">
   <div class="sheet-panel" role="dialog" aria-modal="true" aria-labelledby="sheet-h">
     <h3 id="sheet-h" class="telop" tabindex="-1">どれを正解にする？</h3>
-    <p class="tiny">正解はいくつ選んでもOK。みんなの「それな」は参考で、最後は司会のあなたが決めます。</p>
+    <p class="tiny">正解はいくつ選んでもOK。みんなの「それな」は参考で、最後は司会のあなたが決めます。「満場一致」の答えを正解にすると、書いた人にボーナス+1点。</p>
     <div id="sheet-list"></div>
     <button class="btn red" id="sheet-ok" type="button" disabled>この答えを正解にする</button>
     <button class="btn ghost" id="sheet-cancel" type="button">もどる</button>
@@ -504,8 +518,8 @@ input[type=text]:focus{border-color:var(--cue);box-shadow:0 0 0 3px rgba(255,210
     <li><b>考える時間</b>に、自分のスマホのフリップへこっそり答えを書いて出します。時間切れのときは、書きかけの答えがそのまま出ます。</li>
     <li>1人ずつ自分のフリップを<b>めくって</b>、なぜその答えなのかをプレゼン。答えがかぶると「かぶった！」の札が出ます。</li>
     <li><b>激論タイム</b>。「それな！」と思う答えをタップして票を入れます。自分の答え以外に1人1票、何度でも変えられます。</li>
-    <li>みんなの様子を見て、<b>司会が正解を決めます</b>。正解はいくつ選んでもOK。正解に選ばれた答えを書いた人は1点（かぶった答えなら、書いた全員に1点）。</li>
-    <li><b>全5問</b>で正解がいちばん多い人が優勝。同点なら延長戦で決着をつけられます。</li>
+    <li>みんなの様子を見て、<b>司会が正解を決めます</b>。正解はいくつ選んでもOK。正解に選ばれた答えを書いた人は1点（かぶった答えなら、書いた全員に1点）。書いた人以外の全員が「それな」した<b>満場一致</b>の答えなら、さらに<b>ボーナス+1点</b>。</li>
+    <li><b>全5問</b>で、<b>ラスト問題は得点2倍</b>。合計点がいちばん多い人が優勝です。同点なら延長戦で決着をつけられます。最後に「それな職人」などの<b>称号</b>も発表します。</li>
   </ol>
   <div class="panel tipbox">
     <p class="tiny"><b>頭文字のチェックはしません。</b>漢字で書いても大丈夫。「それ、ほんとに"は"で始まってる？」とツッコむのも会議のうちです。</p>
@@ -566,6 +580,7 @@ input[type=text]:focus{border-color:var(--cue);box-shadow:0 0 0 3px rgba(255,210
 <section id="s-theme" class="screen game">
   <div class="hud"></div>
   <div class="q-label telop" id="th-label">第1問</div>
+  <div class="x2" id="th-x2" hidden>ラスト問題・得点2倍！</div>
   <div class="q-card">
     <div class="ltile huge" id="th-l">あ</div>
     <div class="q-start">で始まる</div>
@@ -620,6 +635,7 @@ input[type=text]:focus{border-color:var(--cue);box-shadow:0 0 0 3px rgba(255,210
   <div class="strip" id="db-strip"></div>
   <h2 class="telop sect">激論タイム</h2>
   <p class="lead" id="db-lead"></p>
+  <p class="bonus-note" id="db-bonus"></p>
   <div class="grid" id="db-grid"></div>
   <p class="tiny" id="db-blank"></p>
   <div id="db-act"></div>
@@ -643,6 +659,8 @@ input[type=text]:focus{border-color:var(--cue);box-shadow:0 0 0 3px rgba(255,210
   <h2 class="telop fin-h">結果発表</h2>
   <div class="winner" id="fn-win"></div>
   <div class="scores" id="fn-rank"></div>
+  <div class="label" id="fn-aw-label">今夜の称号</div>
+  <div class="awards" id="fn-awards"></div>
   <div class="label">今夜の正解</div>
   <div id="fn-recap"></div>
   <div id="fn-act"></div>
@@ -1147,8 +1165,8 @@ function freshState(){
     settings:{hostPlays:true, think:60, debate:60},
     round:1, total:TOTAL_ROUNDS, extra:0,
     letter:"", topic:"", rerollLeft:1, usedL:[], usedT:[],
-    answerers:[], answers:{}, order:[], flipped:0, groups:[], sorena:{}, chosen:[],
-    deadline:0, autoCloseAt:0, history:[], game:0 };
+    answerers:[], answers:{}, order:[], flipped:0, groups:[], sorena:{}, chosen:[], gain:{},
+    deadline:0, autoCloseAt:0, history:[], stats:{}, game:0 };
 }
 var S=freshState();
 var V=null;          // いま画面に出している {pub, you}
@@ -1160,6 +1178,9 @@ function hostP(){ return S.players[0]||null; }
 function plays(p){ return !(p.host && !S.settings.hostPlays); }
 function ansOf(id){ if(!S.answers[id]) S.answers[id]={text:"",draft:"",sub:false}; return S.answers[id]; }
 function roundLabel(){ return S.extra ? (S.extra>1?"延長戦"+S.extra:"延長戦") : "第"+S.round+"問"; }
+/* ラスト問題（延長戦はふくまない）は得点2倍 */
+function isLast(){ return !S.extra && S.round>=S.total; }
+function statOf(id){ if(!S.stats[id]) S.stats[id]={recv:0,eye:0,kab:0,blank:0,late:0}; return S.stats[id]; }
 function freeColor(){
   for(var i=0;i<COLORS.length;i++){ if(!S.players.some(function(p){ return p.color===COLORS[i]; })) return COLORS[i]; }
   return pick(COLORS);
@@ -1187,14 +1208,14 @@ function startGame(){
   if(S.phase!=="lobby" || !canStart()) return;
   S.players=activePlayers();
   S.players.forEach(function(p){ p.score=0; });
-  S.round=1; S.extra=0; S.history=[]; S.game=(S.game||0)+1;
+  S.round=1; S.extra=0; S.history=[]; S.stats={}; S.game=(S.game||0)+1;
   startRound(null);
 }
 function startRound(only){
   pickTopic();
   S.rerollLeft=1;
   S.answerers = only || S.players.filter(plays).map(function(p){ return p.id; });
-  S.answers={}; S.order=[]; S.flipped=0; S.groups=[]; S.sorena={}; S.chosen=[];
+  S.answers={}; S.order=[]; S.flipped=0; S.groups=[]; S.sorena={}; S.chosen=[]; S.gain={};
   S.deadline=0; S.autoCloseAt=0;
   S.phase="theme"; commit();
 }
@@ -1243,14 +1264,31 @@ function decide(keys){
   if(!Array.isArray(keys)) keys = keys==null ? [] : [keys];
   var chosen=S.groups.filter(function(g){ return keys.indexOf(g.key)>=0; });
   S.chosen=chosen.map(function(g){ return g.key; });
-  var got={};                                   // 同じ人に2点入らないように
-  chosen.forEach(function(g){ g.pids.forEach(function(id){
-    if(got[id]) return; got[id]=1;
-    var p=byId(id); if(p) p.score=(p.score||0)+1;
-  }); });
-  S.history.push({label:roundLabel(), letter:S.letter, topic:S.topic,
-    hits:chosen.map(function(g){ return {text:g.text, unani:unanimous(g),
-      names:g.pids.map(function(id){ var p=byId(id); return p?p.name:"?"; })}; })});
+  // 正解は1点。満場一致なら+1点。ラスト問題は合計が2倍
+  var mult=isLast()?2:1, hits=[], gain={};
+  chosen.forEach(function(g){
+    var un=unanimous(g), pts=(1+(un?1:0))*mult;
+    g.pids.forEach(function(id){
+      if(gain[id]) return;                      // 同じ人に2回入らないように
+      gain[id]=pts;
+      var p=byId(id); if(p) p.score=(p.score||0)+pts;
+    });
+    hits.push({text:g.text, unani:un, pts:pts,
+      names:g.pids.map(function(id){ var p=byId(id); return p?p.name:"?"; })});
+  });
+  S.gain=gain;
+  // 結果発表の称号のための記録
+  S.answerers.forEach(function(id){
+    var a=S.answers[id]; if(!a || a.absent) return;
+    if(a.blank) statOf(id).blank++;
+    else if(a.late) statOf(id).late++;
+  });
+  S.groups.forEach(function(g){
+    var votes=0; for(var v in S.sorena) if(S.sorena[v]===g.key) votes++;
+    g.pids.forEach(function(id){ var s=statOf(id); s.recv+=votes; if(g.pids.length>1) s.kab++; });
+  });
+  for(var v in S.sorena) if(S.chosen.indexOf(S.sorena[v])>=0) statOf(v).eye++;
+  S.history.push({label:roundLabel(), letter:S.letter, topic:S.topic, hits:hits});
   S.phase="verdict"; S.deadline=0; commit();
 }
 function goNext(){
@@ -1276,8 +1314,8 @@ function backToLobby(){
   if(S.phase==="lobby") return;
   S.players=S.players.filter(function(p){ return p.host || !p.gone; });
   S.players.forEach(function(p){ p.score=0; });
-  S.round=1; S.extra=0; S.history=[]; S.answerers=[]; S.answers={}; S.order=[]; S.groups=[]; S.sorena={};
-  S.chosen=[]; S.deadline=0; S.autoCloseAt=0; S.letter=""; S.topic="";
+  S.round=1; S.extra=0; S.history=[]; S.stats={}; S.answerers=[]; S.answers={}; S.order=[]; S.groups=[]; S.sorena={};
+  S.chosen=[]; S.gain={}; S.deadline=0; S.autoCloseAt=0; S.letter=""; S.topic="";
   S.phase="lobby"; commit();
 }
 
@@ -1324,7 +1362,7 @@ function handleAction(p,m){
    答えの中身は、めくられるまで代表者のスマホの外に出さない */
 function pubState(){
   var ph=S.phase, all=(ph==="debate"||ph==="verdict"||ph==="final");
-  var pub={ phase:ph, game:S.game, round:S.round, total:S.total, extra:S.extra, label:roundLabel(),
+  var pub={ phase:ph, game:S.game, round:S.round, total:S.total, extra:S.extra, label:roundLabel(), last:isLast(),
     letter:S.letter, topic:S.topic, rerollLeft:S.rerollLeft,
     remain:S.deadline?Math.max(0,S.deadline-Date.now()):null, allIn:!!S.autoCloseAt,
     settings:{hostPlays:S.settings.hostPlays,think:S.settings.think,debate:S.settings.debate}, code:roomCode,
@@ -1333,7 +1371,7 @@ function pubState(){
       return {id:p.id,name:p.name,color:p.color,score:p.score||0,gone:!!p.gone,host:!!p.host,
               ans:S.answerers.indexOf(p.id)>=0, sub:!!(a&&a.sub), plays:plays(p)};
     }),
-    order:[], flipped:0, reveals:[], absent:[], groups:[], sorena:{}, chosen:[],
+    order:[], flipped:0, reveals:[], absent:[], groups:[], sorena:{}, chosen:[], gain:{}, stats:{},
     history:S.history.slice() };
   if(ph==="reveal"||all){
     pub.order=S.order.slice();
@@ -1350,7 +1388,9 @@ function pubState(){
     pub.groups=S.groups.map(function(g){ return {key:g.key,text:g.text,pids:g.pids.slice(),unani:unanimous(g)}; });
     var so={}; for(var k in S.sorena) so[k]=S.sorena[k]; pub.sorena=so;
     pub.chosen=(S.chosen||[]).slice();
+    pub.gain=S.gain||{};
   }
+  if(ph==="final") pub.stats=S.stats||{};
   return pub;
 }
 function youFor(p){
@@ -1488,7 +1528,9 @@ function paintStrip(id,withTimer){
   if(b.getAttribute("data-k")===key) return;
   b.setAttribute("data-k",key); b.innerHTML="";
   b.appendChild(el("span","ltile",pub.letter));
-  var w=el("div","sw"); w.appendChild(el("span","st","で始まる")); w.appendChild(el("b","tp",pub.topic));
+  var w=el("div","sw"), st=el("span","st","で始まる");
+  if(pub.last) st.appendChild(el("span","x2s","得点2倍"));
+  w.appendChild(st); w.appendChild(el("b","tp",pub.topic));
   b.appendChild(w);
   if(withTimer){
     var t=el("div","tmr");
@@ -1545,7 +1587,7 @@ function renderWait(){
   });
   $("wait-count").textContent=pub.players.length+" / "+MAX_PLAYERS;
   var s=pub.settings, r=$("wait-rules"); r.innerHTML="";
-  [["問題数","全"+pub.total+"問"],["考える時間",s.think+"秒"],["激論タイム",s.debate?s.debate+"秒":"時間制限なし"],
+  [["問題数","全"+pub.total+"問（ラスト問題は得点2倍）"],["考える時間",s.think+"秒"],["激論タイム",s.debate?s.debate+"秒":"時間制限なし"],
    ["司会",s.hostPlays?"答えも出す":"司会に専念"]].forEach(function(x){
     var row=el("div","kv"); row.appendChild(el("span","k",x[0])); row.appendChild(el("span","v",x[1])); r.appendChild(row);
   });
@@ -1572,7 +1614,11 @@ function renderTheme(){
   show("theme");
   var pub=V.pub, key=roundKey(pub), m=pById(V.you.id);
   $("th-label").textContent=pub.label;
-  if(key!==themeKey){ themeKey=key; rollIn($("th-l"),pub.letter,$("th-t"),pub.topic); }
+  if(key!==themeKey){
+    themeKey=key; rollIn($("th-l"),pub.letter,$("th-t"),pub.topic);
+    var x2=$("th-x2"); x2.hidden=true;
+    if(pub.last){ void x2.offsetWidth; x2.hidden=false; setTimeout(function(){ if(themeKey===key) SFX.kaburi(); },REDUCED?0:1100); }
+  }
   var a=$("th-act"); a.innerHTML="";
   if(m && !m.ans){
     a.appendChild(el("p","note-card", m.plays
@@ -1765,6 +1811,7 @@ function renderDebate(){
   $("db-lead").textContent = canVote
     ? "「それな！」と思う答えをタップ。1人1票で、何度でも変えられます"
     : "みんなの「それな」を見ながら、最後に正解を決めよう";
+  $("db-bonus").textContent="書いた人以外の全員が「それな」で満場一致！\n正解ならボーナス+1点"+(pub.last?"（ラスト問題はさらに2倍）":"");
   var grid=$("db-grid");
   if(key!==debateKey){
     debateKey=key; unaniSeen={}; grid.innerHTML="";
@@ -1775,7 +1822,7 @@ function renderDebate(){
     var c=grid.querySelector('[data-key="'+g.key+'"]'); if(c) updateCard(c,g,pub);
     if(g.unani && !unaniSeen[g.key]){
       unaniSeen[g.key]=1; SFX.sorena(); setTimeout(SFX.theme,120);
-      toast("満場一致！","「"+g.text+"」に全員の「それな」","ok");
+      toast("満場一致！","「"+g.text+"」が正解ならボーナス点","ok");
     }
     if(!g.unani) delete unaniSeen[g.key];
   });
@@ -1831,6 +1878,8 @@ function onCardTap(key){
   if(nk) SFX.sorena(); else SFX.unsorena();
   if(S.mode!=="host"){ if(nk) pub.sorena[m.id]=nk; else delete pub.sorena[m.id]; renderDebate(); }
 }
+/* 正解になったときに書いた人へ入る点（満場一致で+1、ラスト問題は2倍） */
+function groupPts(pub,g){ return (1+(g.unani?1:0))*(pub.last?2:1); }
 /* 司会の判定シート（正解はいくつ選んでもよい） */
 var sheetOpen=false, sheetSel=[], sheetNone=false;
 function openSheet(){
@@ -1856,6 +1905,7 @@ function paintSheet(){
     o.appendChild(l);
     var r=el("div","or"); r.appendChild(el("span","oc","それな "+votersOf(pub,g.key).length));
     if(g.unani) r.appendChild(el("span","tag gold","満場一致"));
+    r.appendChild(el("span","op","正解で+"+groupPts(pub,g)+"点"));
     o.appendChild(r);
     o.onclick=function(){
       var i=sheetSel.indexOf(g.key);
@@ -1881,8 +1931,8 @@ function chosenGroups(pub){
 }
 function renderVerdict(){
   show("verdict");
-  var pub=V.pub, key=roundKey(pub), gs=chosenGroups(pub), gain=[];
-  gs.forEach(function(g){ g.pids.forEach(function(id){ if(gain.indexOf(id)<0) gain.push(id); }); });
+  var pub=V.pub, key=roundKey(pub), gs=chosenGroups(pub), gain=pub.gain||{};
+  var plus=function(id){ return el("span","plus","+"+(gain[id]||1)); };
   paintStrip("vd-strip",false);
   if(key!==verdictKey){
     verdictKey=key;
@@ -1892,9 +1942,10 @@ function renderVerdict(){
       var wrap=el("div","vd-wrap"), b=boardEl({text:g.text,open:true,size:"big"}), st=stampEl();
       b.appendChild(st); wrap.appendChild(b); main.appendChild(wrap);
       var nm=el("div","vd-names");
-      g.pids.forEach(function(id){ var p=pById(id); if(p) nm.appendChild(pchip(p,el("span","plus","+1"))); });
+      g.pids.forEach(function(id){ var p=pById(id); if(p) nm.appendChild(pchip(p,plus(id))); });
       main.appendChild(nm);
-      if(g.unani) main.appendChild(el("div","unani-badge","満場一致"));
+      if(g.unani) main.appendChild(el("div","unani-badge","満場一致ボーナス +1"+(pub.last?"（×2）":"")));
+      if(pub.last) main.appendChild(el("div","unani-badge","ラスト問題・得点2倍"));
       setTimeout(function(){
         st.classList.add("hit"); SFX.stamp(); shake(wrap); flash("red");
         setTimeout(function(){ confetti(90,{x:.5,y:.32}); nm.classList.add("in"); },160);
@@ -1902,12 +1953,13 @@ function renderVerdict(){
     } else if(gs.length>1){
       // 正解が複数：小さいフリップを並べて、1枚ずつハンコを押していく
       main.appendChild(el("div","vd-multi telop","正解が"+gs.length+"つ！"));
+      if(pub.last) main.appendChild(el("div","unani-badge","ラスト問題・得点2倍"));
       var grid=el("div","vd-grid"); main.appendChild(grid);
       var items=gs.map(function(g){
         var it=el("div","vd-item"), bb=boardEl({text:g.text,open:true,size:"mini"}), s2=stampEl();
         bb.appendChild(s2); it.appendChild(bb);
         var nm2=el("div","vd-names sm");
-        g.pids.forEach(function(id){ var p=pById(id); if(p) nm2.appendChild(pchip(p,el("span","plus","+1"))); });
+        g.pids.forEach(function(id){ var p=pById(id); if(p) nm2.appendChild(pchip(p,plus(id))); });
         if(g.unani) nm2.appendChild(el("span","tag gold","満場一致"));
         it.appendChild(nm2); grid.appendChild(it);
         return {it:it,st:s2,nm:nm2};
@@ -1940,12 +1992,13 @@ function rankList(pub){
 function paintScore(box,pub,gain){
   box.innerHTML="";
   rankList(pub).forEach(function(p){
-    var row=el("div","srow"+(gain.indexOf(p.id)>=0?" up":"")+(p.gone?" gone":""));
+    var got=gain[p.id]||0;
+    var row=el("div","srow"+(got?" up":"")+(p.gone?" gone":""));
     row.appendChild(el("span","rk",p.rank));
     row.appendChild(avatar(p));
     row.appendChild(el("span","nm",p.name));
-    var pips=el("span","pips"); pips.setAttribute("aria-label",p.score+"問正解");
-    for(var i=0;i<p.score;i++) pips.appendChild(el("span","pip"+(gain.indexOf(p.id)>=0&&i===p.score-1?" new":"")));
+    var pips=el("span","pips"); pips.setAttribute("aria-label",p.score+"点");
+    for(var i=0;i<p.score;i++) pips.appendChild(el("span","pip"+(i>=p.score-got?" new":"")));
     row.appendChild(pips);
     row.appendChild(el("span","sc",p.score));
     box.appendChild(row);
@@ -1964,9 +2017,9 @@ function renderFinal(){
     var w=$("fn-win"); w.innerHTML=""; w.className="winner suspense";
     w.appendChild(crownSvg());
     var names=el("div","wname telop");
-    names.textContent = top===0 ? "全員0問…！" : tied.map(function(p){ return p.name; }).join("・");
+    names.textContent = top===0 ? "全員0点…！" : tied.map(function(p){ return p.name; }).join("・");
     w.appendChild(names);
-    w.appendChild(el("div","wsub", top===0 ? "延長戦で決めよう" : tied.length>1 ? "同率優勝！ "+top+"問正解" : "優勝！ "+top+"問正解"));
+    w.appendChild(el("div","wsub", top===0 ? "延長戦で決めよう" : tied.length>1 ? "同率優勝！ "+top+"点" : "優勝！ "+top+"点"));
     w.appendChild(el("div","drum","ドゥルルルル…"));
     SFX.drum(1.8);
     setTimeout(function(){
@@ -1974,7 +2027,8 @@ function renderFinal(){
       SFX.cymbal(); if(top>0){ SFX.fanfare(); confetti(200,{x:.5,y:.22}); } else SFX.none();
     },REDUCED?0:1900);
     var r=$("fn-rank"); r.innerHTML="";
-    paintScore(r,pub,[]);
+    paintScore(r,pub,{});
+    paintAwards(pub);
     var rc=$("fn-recap"); rc.innerHTML="";
     pub.history.forEach(function(h){
       var row=el("div","recap");
@@ -1985,6 +2039,7 @@ function renderFinal(){
       hits.forEach(function(x){
         var ans=el("div","ra"); ans.appendChild(el("span","rtx",x.text));
         ans.appendChild(el("span","rn",x.names.join("・")));
+        if(x.pts) ans.appendChild(el("span","rp","+"+x.pts));
         if(x.unani) ans.appendChild(el("span","tag gold","満場一致"));
         row.appendChild(ans);
       });
@@ -2003,6 +2058,32 @@ function renderFinal(){
   } else {
     a.appendChild(el("p","wait-note",tied.length>=2?"同点！ 司会が延長戦をするか決めます":"司会の操作を待っています"));
   }
+}
+
+/* 称号（ゲーム中の出来事から自動で決める） */
+var AWARDS=[
+  {k:"recv",  name:"それな職人",     desc:function(n){ return "「それな」"+n+"票ゲット"; }},
+  {k:"eye",   name:"目利き",         desc:function(n){ return "正解を"+n+"回見抜いた"; }},
+  {k:"kab",   name:"シンクロ名人",   desc:function(n){ return "答えが"+n+"回かぶった"; }},
+  {k:"late",  name:"ギリギリの美学", desc:function(n){ return "時間切れ提出"+n+"回"; }},
+  {k:"blank", name:"白紙の勇者",     desc:function(n){ return "白紙で"+n+"回勝負"; }}
+];
+function paintAwards(pub){
+  var box=$("fn-awards"); box.innerHTML="";
+  var ps=pub.players.filter(function(p){ return p.plays; }), st=pub.stats||{}, n=0;
+  AWARDS.forEach(function(a){
+    var val=function(p){ return (st[p.id]&&st[p.id][a.k])||0; };
+    var top=0; ps.forEach(function(p){ top=Math.max(top,val(p)); });
+    var who=ps.filter(function(p){ return val(p)===top; });
+    if(top<1 || (who.length===ps.length && ps.length>2)) return;   // 全員同じなら出さない
+    var c=el("div","award"); c.style.setProperty("--d",(REDUCED?0:2100+n*160)+"ms");
+    c.appendChild(el("div","an",a.name));
+    var w=el("div","aw");
+    who.forEach(function(p){ var s=el("span","gn"); s.appendChild(avatar(p,true)); s.appendChild(el("span",null,p.name)); w.appendChild(s); });
+    c.appendChild(w); c.appendChild(el("div","ad",a.desc(top)));
+    box.appendChild(c); n++;
+  });
+  $("fn-aw-label").hidden=!n; box.hidden=!n;
 }
 
 /* ---- タイトルのお手本アニメ ---- */
