@@ -1,0 +1,1640 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#2a1233">
+<title>ぬけがけ山分け</title>
+<meta name="description" content="話し合ったあと、同時に「わける」か「ぬけがけ」を選ぶ信頼勝負">
+<meta property="og:description" content="話し合ったあと、同時に「わける」か「ぬけがけ」を選ぶ信頼勝負">
+<meta property="og:title" content="ぬけがけ山分け">
+<!-- ゲーム棚のラベル（index.html が読みます） -->
+<meta name="game:players" content="2">
+<meta name="game:tags" content="ブラフ,読み合い,対戦">
+<meta name="game:date" content="2026-10-31 08:57">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232a1233'/%3E%3Crect x='14' y='26' width='36' height='26' rx='4' fill='%23ffe066'/%3E%3Crect x='10' y='20' width='44' height='10' rx='3' fill='%23ffb199'/%3E%3Crect x='29' y='20' width='6' height='32' fill='%23ff5d7a'/%3E%3Cpath d='M32 20c-8-12-18-6-10 0zM32 20c8-12 18-6 10 0z' fill='%235ee0d0'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Zen+Maru+Gothic:wght@500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#2a1233; --bg2:#3b1a49; --panel:#4a2360; --paper:#fff3e6; --ink:#25102e;
+  --lemon:#ffe066; --peach:#ffb199; --aqua:#5ee0d0; --rose:#ff5d7a;
+  --pop:"Dela Gothic One","Hiragino Maru Gothic ProN","Hiragino Sans","Noto Sans JP","Noto Sans CJK JP",sans-serif;
+  --body:"Zen Maru Gothic","Hiragino Maru Gothic ProN","Hiragino Sans","Noto Sans JP","Noto Sans CJK JP",sans-serif;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+[hidden]{display:none!important}
+html,body{margin:0}
+body{
+  font-family:var(--body); font-weight:500; color:var(--paper); line-height:1.6;
+  background:
+    radial-gradient(circle at 15% 6%, rgba(255,224,102,.22), transparent 20%),
+    radial-gradient(circle at 90% 105%, rgba(255,93,122,.2), transparent 50%),
+    repeating-linear-gradient(45deg, rgba(255,255,255,.028) 0 14px, transparent 14px 28px),
+    var(--bg);
+  min-height:100vh; min-height:100dvh; -webkit-text-size-adjust:100%;
+}
+h1,h2,h3,.pop{font-family:var(--pop);font-weight:400;font-synthesis:none;margin:0}
+button{font:inherit;color:inherit;cursor:pointer;touch-action:manipulation}
+input{font:inherit;font-size:18px}
+b{font-weight:900}
+.screen{display:none;max-width:480px;margin:0 auto;padding:62px 16px calc(110px + env(safe-area-inset-bottom))}
+.screen.on{display:block;animation:scrIn .32s ease-out}
+@keyframes scrIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+.btn{display:block;width:100%;margin:12px 0 0;padding:15px 16px;border-radius:20px;border:3px solid var(--ink);
+  background:var(--lemon);color:var(--ink);font-family:var(--body);font-weight:900;font-size:18px;letter-spacing:.02em;
+  box-shadow:0 5px 0 #a8861a;transition:transform .08s, box-shadow .08s}
+.btn:active:not(:disabled){transform:translateY(4px);box-shadow:0 1px 0 #a8861a}
+.btn:disabled{opacity:.4;cursor:default}
+.btn.sub{background:var(--panel);color:var(--paper);border-color:var(--peach);box-shadow:0 5px 0 #1a0a22}
+.btn.sub:active:not(:disabled){box-shadow:0 1px 0 #1a0a22}
+.btn.ghost{background:transparent;border-style:dashed;border-color:var(--peach);box-shadow:none;font-size:15px;color:var(--paper)}
+.btn.small{display:inline-block;width:auto;padding:7px 14px;font-size:13px;border-width:2px;box-shadow:0 3px 0 #1a0a22;margin-top:6px}
+.linkbtn{background:none;border:none;text-decoration:underline;font-size:14px;padding:10px;opacity:.75;color:var(--paper)}
+.linkbtn.armed{color:var(--rose);opacity:1;font-weight:900}
+.panel{background:var(--panel);border:3px solid rgba(255,177,153,.5);border-radius:24px;padding:16px;box-shadow:0 6px 0 rgba(0,0,0,.35);margin:16px 0}
+.panel h2{font-size:18px;margin-bottom:8px;color:var(--lemon)}
+.center{text-align:center}
+.tiny{font-size:12.5px;opacity:.8}
+.note{font-size:13px;line-height:1.7;background:rgba(255,255,255,.07);border-radius:14px;padding:10px 12px;margin-top:22px}
+.err-box{background:rgba(255,93,122,.18);border:2px solid var(--rose);border-radius:14px;padding:10px 12px;font-size:14px;margin:12px 0;font-weight:900;color:#ffd9df}
+.backrow{position:fixed;top:8px;left:8px;z-index:30}
+
+.logo{text-align:center;margin:10px 0 26px;position:relative}
+.logo-emoji{font-size:84px;line-height:1;display:inline-block;animation:float 3s ease-in-out infinite;filter:drop-shadow(0 0 20px rgba(255,224,102,.6))}
+@keyframes float{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-10px) rotate(3deg)}}
+.logo h1{font-size:42px;line-height:1.25;color:var(--lemon);text-shadow:0 0 18px rgba(255,93,122,.55),0 3px 0 rgba(0,0,0,.45);margin-top:10px;letter-spacing:.05em}
+.logo .tag{font-weight:700;margin:14px 0 0;font-size:14.5px;opacity:.95}
+.logo .tag span{background:var(--rose);color:#fff;padding:2px 10px;border-radius:999px;font-weight:900}
+.howto ol{padding-left:1.3em;margin:0}
+.howto li{margin:9px 0}
+.howto b{color:var(--lemon)}
+.pay{width:100%;border-collapse:collapse;font-size:13px;margin-top:6px}
+.pay th,.pay td{border:2px solid rgba(255,177,153,.45);padding:6px 4px;text-align:center}
+.pay th{background:rgba(255,255,255,.08);font-weight:900}
+
+#host-code{display:flex;justify-content:center;gap:8px;margin:6px 0 4px}
+#host-code span{display:inline-flex;align-items:center;justify-content:center;width:56px;height:68px;border-radius:16px;
+  background:var(--paper);border:3px solid var(--ink);color:var(--ink);box-shadow:0 4px 0 rgba(0,0,0,.4);font-family:var(--pop);font-size:38px;
+  animation:popIn .45s both;animation-delay:calc(var(--i)*70ms)}
+@keyframes popIn{0%{transform:scale(.4);opacity:0}70%{transform:scale(1.08)}100%{transform:scale(1);opacity:1}}
+.qrcard{display:flex;gap:12px;align-items:center;margin-top:12px}
+.qrwrap svg{width:126px;height:126px;display:block;border-radius:10px;border:2px solid var(--lemon);background:#fff}
+.qrside{flex:1;min-width:0}
+.qrcap{font-weight:900;font-size:13.5px}
+.qrlink{font-size:11px;word-break:break-all;opacity:.65;margin:4px 0}
+.status{display:flex;align-items:center;justify-content:center;gap:8px;font-size:14px;margin-top:10px}
+.dot{width:10px;height:10px;border-radius:50%;display:inline-block;background:#bbb;flex:none}
+.dot.wait{background:var(--lemon);animation:blink 1s infinite}
+.dot.ok{background:var(--aqua)}
+.dot.err{background:var(--rose)}
+@keyframes blink{50%{opacity:.3}}
+.field{display:block;margin:10px 0 0}
+.field span{display:block;font-weight:900;font-size:14px;margin-bottom:4px;color:var(--lemon)}
+.field input{width:100%;padding:12px 14px;border-radius:14px;border:3px solid var(--peach);background:var(--paper);color:var(--ink);font-size:18px}
+.field input:focus{outline:3px solid var(--lemon);outline-offset:1px}
+#join-code{font-family:var(--pop);font-size:30px;letter-spacing:.4em;text-align:center}
+.mem{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:14px;background:rgba(255,255,255,.06);border:2px solid rgba(255,177,153,.4);margin-top:8px;min-height:48px}
+.mem.empty{border-style:dashed;opacity:.7;background:transparent}
+.mdot{width:16px;height:16px;border-radius:50%;flex:none;border:2px solid var(--ink)}
+.mname{font-weight:900;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mtag{font-size:11.5px;background:rgba(255,255,255,.12);border-radius:999px;padding:1px 8px;white-space:nowrap}
+.mtag.ng{background:rgba(255,93,122,.25);color:#ffd9df}
+.mwins{font-size:11.5px;color:var(--lemon);font-weight:900;white-space:nowrap}
+.seg{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:6px}
+.seg button{padding:10px 0;border-radius:12px;border:2px solid var(--peach);background:transparent;color:var(--paper);font-weight:900;font-size:15px}
+.seg button.on{background:var(--peach);color:var(--ink)}
+.waitbig{text-align:center;padding:20px 0 6px}
+.waitbig .em{font-size:58px;display:inline-block;animation:float 2.6s ease-in-out infinite}
+
+.topline{display:flex;align-items:center;gap:8px}
+.pill{font-weight:900;background:var(--panel);border:2px solid var(--lemon);color:var(--lemon);border-radius:999px;padding:3px 12px;font-size:14px;white-space:nowrap}
+.pill.timer{margin-left:auto}
+.pill.hurry{background:var(--rose);color:#fff;border-color:var(--rose);animation:pulse .5s infinite alternate}
+@keyframes pulse{to{transform:scale(1.1)}}
+.score{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0 8px}
+.chip{background:var(--panel);border:3px solid var(--c);border-radius:16px;padding:6px 10px 5px;position:relative;min-width:0;box-shadow:0 4px 0 rgba(0,0,0,.35)}
+.chip .nm{font-weight:900;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-right:46px}
+.chip .you{font-size:11px;font-weight:700;opacity:.65;line-height:1.3}
+.chip .pt{font-family:var(--pop);font-size:26px;line-height:1.15;color:var(--c)}
+.chip .pt small{font-size:12px;color:var(--paper);font-family:var(--body);font-weight:700}
+.chip .st{position:absolute;right:6px;top:6px;font-size:11px;font-weight:900;border-radius:999px;padding:1px 7px;background:rgba(255,255,255,.14)}
+.chip .st.done{background:#2f8f6f;color:#fff}
+.chip .chm{font-size:12px;font-weight:900}
+.target{text-align:center;font-size:12.5px;opacity:.8;margin:0 0 8px}
+
+.prize{text-align:center;margin:8px 0 12px;padding:12px 10px 10px;border-radius:22px;border:3px dashed var(--lemon);background:rgba(255,224,102,.08);position:relative}
+.prize .lb{font-weight:900;font-size:13px;color:var(--peach)}
+.prize .num{font-family:var(--pop);font-size:54px;line-height:1.1;color:var(--lemon);text-shadow:0 0 16px rgba(255,224,102,.5)}
+.prize .num small{font-size:18px;margin-left:4px;color:var(--paper)}
+.prize .fin{position:absolute;right:10px;top:-12px;background:var(--rose);color:#fff;font-weight:900;font-size:12px;padding:2px 10px;border-radius:999px;border:2px solid var(--ink);transform:rotate(4deg)}
+.prize .half{font-size:12.5px;opacity:.85}
+.bn{text-align:center;font-weight:900;font-size:16px;padding:9px 10px;border-radius:14px;background:rgba(255,255,255,.08);margin:6px 0 10px}
+.hint{background:rgba(255,255,255,.08);border-radius:16px;padding:10px 14px;font-size:14px;line-height:1.7;margin:8px 0}
+.hint b{color:var(--lemon);display:block;font-size:12px}
+.waitmsg{text-align:center;font-weight:900;padding:10px 0 0}
+.waitmsg .dots::after{content:"";animation:dots 1.2s steps(4) infinite}
+@keyframes dots{0%{content:""}25%{content:"・"}50%{content:"・・"}75%{content:"・・・"}}
+.gfoot{text-align:center;margin-top:18px}
+
+.choices{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.cbtn{border-radius:22px;border:3px solid var(--ink);padding:16px 6px 12px;font-weight:900;text-align:center;box-shadow:0 5px 0 rgba(0,0,0,.45);transition:transform .08s,box-shadow .08s,opacity .15s;color:var(--ink)}
+.cbtn .ic{font-size:40px;line-height:1.1;display:block}
+.cbtn .tt{font-family:var(--pop);font-size:22px;display:block;margin-top:4px}
+.cbtn .ds{font-size:11.5px;font-weight:700;display:block;margin-top:2px;opacity:.85}
+.cbtn.share{background:var(--aqua)}
+.cbtn.steal{background:var(--rose);color:#fff}
+.cbtn:active:not(:disabled){transform:translateY(3px);box-shadow:0 2px 0 rgba(0,0,0,.45)}
+.cbtn.dim{opacity:.4}
+.cbtn.on{outline:5px solid var(--lemon);outline-offset:2px;transform:translateY(-2px) scale(1.03)}
+.cbtn:disabled{cursor:default}
+.charm{display:flex;align-items:center;gap:10px;width:100%;margin-top:12px;padding:10px 14px;border-radius:18px;border:3px dashed var(--peach);background:rgba(255,177,153,.1);text-align:left}
+.charm .ic{font-size:30px}
+.charm .tx{flex:1;font-weight:900;font-size:14px;line-height:1.35}
+.charm .tx small{display:block;font-size:11.5px;font-weight:700;opacity:.8}
+.charm .sw{font-size:12px;font-weight:900;padding:3px 10px;border-radius:999px;background:rgba(255,255,255,.14)}
+.charm.on{background:var(--peach);color:var(--ink);border-style:solid}
+.charm.on .sw{background:var(--ink);color:var(--lemon)}
+.charm:disabled{opacity:.45;cursor:default}
+.lockedmsg{text-align:center;font-weight:900;margin-top:12px;padding:12px;border-radius:16px;background:rgba(94,224,208,.15);border:2px solid var(--aqua)}
+
+.duel{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:6px;perspective:900px}
+.rc{text-align:center;min-width:0}
+.rc .who{font-weight:900;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:4px;color:var(--c)}
+.flip{position:relative;height:150px;transform-style:preserve-3d}
+.flip .f{position:absolute;inset:0;border-radius:22px;border:3px solid var(--ink);backface-visibility:hidden;-webkit-backface-visibility:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 5px 0 rgba(0,0,0,.45)}
+.flip .back{background:repeating-linear-gradient(45deg,#6a2f86 0 10px,#58246f 10px 20px);font-family:var(--pop);font-size:54px;color:var(--lemon)}
+.flip .front{transform:rotateY(180deg)}
+.flip .front.share{background:var(--aqua);color:var(--ink)}
+.flip .front.steal{background:var(--rose);color:#fff}
+.flip .front .ic{font-size:44px;line-height:1.1}
+.flip .front .tt{font-family:var(--pop);font-size:22px}
+.flip .front .cm{font-size:12px;font-weight:900;margin-top:3px;background:rgba(0,0,0,.25);border-radius:999px;padding:0 10px}
+.flip.go{animation:flipgo .7s ease-in-out forwards;animation-delay:1.25s}
+@keyframes flipgo{to{transform:rotateY(180deg)}}
+.rc .gain{font-family:var(--pop);font-size:28px;color:var(--c);margin-top:8px;opacity:0;animation:fadeup .5s forwards;animation-delay:2.05s}
+.rc .gain small{font-size:12px;color:var(--paper);font-family:var(--body)}
+@keyframes fadeup{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.verdict{text-align:center;margin:16px 0 4px;opacity:0;animation:fadeup .5s forwards;animation-delay:2.1s}
+.verdict .big{font-family:var(--pop);font-size:25px;line-height:1.3;color:var(--lemon)}
+.verdict.lose .big{color:var(--peach)}
+.verdict.tie .big{color:var(--aqua)}
+.verdict .sub{font-size:14px;font-weight:900;margin-top:6px}
+.verdict .say{font-size:12.5px;margin-top:6px;opacity:.85}
+
+.hero{text-align:center;padding:10px 0 4px}
+.hero .em{font-size:76px;line-height:1.1;display:inline-block;animation:popIn .6s}
+.hero h2{font-size:29px;color:var(--lemon);text-shadow:0 0 14px rgba(255,224,102,.5);margin-top:6px}
+.hero p{font-weight:900;margin:6px 0 0}
+.brow{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:14px;background:rgba(255,255,255,.06);border:3px solid var(--c);margin-top:8px}
+.brow .mname{font-size:15px}
+.brow .bpt{font-family:var(--pop);font-size:26px;color:var(--c);white-space:nowrap}
+.brow .bpt small{font-size:12px;color:var(--paper);font-family:var(--body)}
+.bwrap{flex:1;min-width:0}
+.bwrap .sm{font-size:11.5px;opacity:.8;font-weight:700}
+table.hist{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:4px}
+.hist th,.hist td{padding:6px 3px;text-align:center;border-bottom:1px dashed rgba(255,255,255,.2)}
+.hist th{font-size:11px;opacity:.85;font-weight:900;color:var(--lemon)}
+.hist .s{color:var(--aqua);font-weight:900}.hist .t{color:var(--rose);font-weight:900}
+
+#fx{position:fixed;inset:0;pointer-events:none;z-index:70}
+#flash{position:fixed;inset:0;pointer-events:none;z-index:65;opacity:0}
+#flash.win{background:radial-gradient(circle,rgba(255,224,102,.55),transparent 70%);animation:fl .7s}
+#flash.upset{background:rgba(255,93,122,.4);animation:fl .5s}
+@keyframes fl{0%{opacity:1}100%{opacity:0}}
+#toast{position:fixed;left:50%;top:66px;transform:translate(-50%,-20px);opacity:0;pointer-events:none;z-index:80;transition:.25s;width:max-content;max-width:88vw}
+#toast.on{opacity:1;transform:translate(-50%,0)}
+#toast .tbox{background:var(--panel);border:2px solid var(--lemon);color:#fff;border-radius:16px;padding:10px 16px;text-align:center;box-shadow:0 6px 18px rgba(0,0,0,.35)}
+#toast.ok .tbox{border-color:var(--aqua)}
+#toast.ng .tbox{border-color:var(--rose)}
+#toast .tmain{font-weight:900}
+#toast .tsub{font-size:12.5px;opacity:.9}
+#netbar{position:fixed;left:0;right:0;top:0;z-index:90;transform:translateY(-110%);transition:transform .25s;background:var(--panel);color:#fff;
+  padding:10px 60px 10px 14px;display:flex;align-items:center;gap:8px;font-size:14px;flex-wrap:wrap;font-weight:900;border-bottom:2px solid var(--lemon)}
+#netbar.on{transform:none}
+#netbar.warn{background:#8a5f1a}
+#netbar.err{background:#7a2430}
+#netbar.ok{background:#2f6b45}
+#netbar .msg{flex:1;min-width:150px}
+#netbar .acts{display:none;gap:6px}
+#netbar .acts button{background:#fff;color:var(--ink);border:none;border-radius:999px;padding:5px 12px;font-size:13px;font-weight:900}
+#netbar .dot{background:#fff}
+#sndbtn{position:fixed;top:8px;right:8px;z-index:95;width:44px;height:44px;border-radius:50%;border:2px solid var(--lemon);background:var(--panel);font-size:20px;
+  display:flex;align-items:center;justify-content:center;padding:0;box-shadow:0 3px 0 rgba(0,0,0,.4)}
+.shake{animation:shake .5s}
+@keyframes shake{20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}
+  .flip{transform:rotateY(180deg)}.rc .gain,.verdict{opacity:1}}
+@media (max-width:370px){
+  .logo h1{font-size:36px}
+  .cbtn .tt{font-size:19px}
+  .prize .num{font-size:46px}
+}
+</style>
+</head>
+<body>
+<canvas id="fx"></canvas><div id="flash"></div><div id="toast" role="status" aria-live="polite"></div>
+<div id="netbar" role="status"><span class="dot"></span><span class="msg"></span><span class="acts"><button class="rt" type="button">再接続</button><button class="lc" type="button">タイトルへ</button></span></div>
+<button id="sndbtn" type="button" aria-label="音量">🔉</button>
+
+<main id="app">
+
+<section class="screen on" id="s-title">
+  <div class="logo">
+    <div class="logo-emoji" aria-hidden="true">🎁</div>
+    <h1>ぬけがけ<br>山分け</h1>
+    <p class="tag"><span>2人用</span>　信頼と裏切りの山分け勝負</p>
+  </div>
+  <div id="title-err"></div>
+  <button class="btn" id="btn-host" type="button">部屋を作る</button>
+  <button class="btn sub" id="btn-go-join" type="button">あいことばで参加する</button>
+  <button class="btn ghost" id="btn-howto" type="button">遊び方を見る</button>
+  <p class="note">📱 スマホ2台で、それぞれの画面から遊ぶよ。<br>会社や学校のWi-Fiだとつながらないことがあります。そのときはWi-Fiを切って、モバイル回線で試してね。</p>
+</section>
+
+<section class="screen" id="s-howto">
+  <div class="backrow"><button class="btn small sub" id="howto-back" type="button">← もどる</button></div>
+  <h2 class="center" style="font-size:25px">遊び方</h2>
+  <div class="panel howto">
+    <ol>
+      <li>毎ラウンド、<b>景品ポイント</b>が公開される。最後のラウンドは<b>2倍</b>！</li>
+      <li>まずは<b>相談タイム</b>。景品をどう分けるか、顔を見て自由に話し合おう（ウソをついてもOK）。</li>
+      <li>相談が終わったら、スマホでこっそり<b>「わける」</b>か<b>「ぬけがけ」</b>を選ぶ。選んだら決定！</li>
+      <li>2人の答えが出そろったら、同時にオープン。点は下の表のとおり。</li>
+      <li>「わける」を選ぶときだけ、1ゲームに1回<b>🛡おまもり</b>が使える。ぬけがけされても半分を守れて、ぬけがけした人は0点。ただし、相手が分けてくれたときは、使ったおまもりが空ぶりになる。使ったかどうかは、オープンまでヒミツ。</li>
+      <li>全ラウンドの<b>合計ポイントが多い方の勝ち</b>。</li>
+    </ol>
+    <table class="pay">
+      <tr><th></th><th>相手「わける」</th><th>相手「ぬけがけ」</th></tr>
+      <tr><th>自分「わける」</th><td>半分ずつ</td><td>自分0点<br>相手が総取り<br><small>（🛡なら半分守る）</small></td></tr>
+      <tr><th>自分「ぬけがけ」</th><td>自分が総取り<br><small>（相手🛡なら0点）</small></td><td>どちらも0点</td></tr>
+    </table>
+  </div>
+  <div class="panel">
+    <h2>はじめかた</h2>
+    <p style="margin:0">1人が「部屋を作る」を押して、出てきたQRコードをもう1人が読みこむだけ。あいことば（4桁）を入力しても参加できるよ。</p>
+  </div>
+</section>
+
+<section class="screen" id="s-host">
+  <div class="backrow"><button class="btn small sub" id="host-back" type="button">← やめる</button></div>
+  <h2 class="center" style="font-size:24px">部屋ができたよ</h2>
+  <div class="panel">
+    <div class="center tiny" style="font-weight:900;color:var(--lemon)">あいことば</div>
+    <div id="host-code" aria-label="あいことば"></div>
+    <div id="host-qr"></div>
+    <div class="status"><span class="dot wait" id="host-dot"></span><span id="host-status">部屋を準備しています…</span></div>
+  </div>
+  <div class="panel">
+    <label class="field"><span>あなたの名前</span><input id="host-name" maxlength="8" autocomplete="off" placeholder="8文字まで"></label>
+    <div style="font-weight:900;margin-top:14px;color:var(--lemon)">メンバー</div>
+    <div id="host-members"></div>
+    <div style="font-weight:900;margin-top:14px;color:var(--lemon)">何ラウンド遊ぶ？</div>
+    <div class="seg" id="host-rounds">
+      <button type="button" data-v="3">3ラウンド</button><button type="button" data-v="5">5ラウンド</button><button type="button" data-v="7">7ラウンド</button>
+    </div>
+  </div>
+  <button class="btn" id="btn-start" type="button" disabled>2人そろったらスタートできます</button>
+</section>
+
+<section class="screen" id="s-join">
+  <div class="backrow"><button class="btn small sub" id="join-back" type="button">← もどる</button></div>
+  <h2 class="center" style="font-size:24px">部屋に参加する</h2>
+  <div class="panel">
+    <label class="field"><span>あいことば（4桁の数字）</span><input id="join-code" inputmode="numeric" pattern="[0-9]*" maxlength="4" autocomplete="off" placeholder="0000"></label>
+    <label class="field"><span>あなたの名前</span><input id="join-name" maxlength="8" autocomplete="off" placeholder="8文字まで"></label>
+    <div id="join-err"></div>
+    <button class="btn" id="btn-join" type="button">参加する</button>
+    <div class="status" id="join-row" hidden><span class="dot wait" id="join-dot"></span><span id="join-status">つないでいます…</span></div>
+  </div>
+  <p class="note">つながらないときは、Wi-Fiを切ってモバイル回線で試してね。</p>
+</section>
+
+<section class="screen" id="s-wait">
+  <div class="waitbig"><span class="em" aria-hidden="true">🎁</span><h2 style="font-size:22px;margin-top:6px">参加しました！</h2></div>
+  <div class="panel">
+    <div style="font-weight:900;color:var(--lemon)">メンバー</div>
+    <div id="wait-members"></div>
+    <p class="tiny" id="wait-rounds" style="margin:12px 0 0"></p>
+  </div>
+  <p class="waitmsg">司会がスタートするのを待っています<span class="dots"></span></p>
+  <div class="gfoot"><button class="linkbtn" id="wait-leave" type="button">部屋をぬける</button></div>
+</section>
+
+<section class="screen" id="s-game">
+  <div class="topline"><span class="pill" id="g-round"></span><span class="pill timer" id="g-timer" hidden></span></div>
+  <div class="score" id="g-score"></div>
+  <div class="prize" id="g-prize"></div>
+
+  <div id="g-talk">
+    <div class="bn">🗣 相談タイム：どう分ける？</div>
+    <div class="hint"><b>話のきっかけ</b><span id="t-hint"></span></div>
+    <button class="btn" id="t-ready" type="button">相談おわり！ えらぶ画面へ</button>
+    <p class="waitmsg" id="t-msg"></p>
+  </div>
+
+  <div id="g-choose" hidden>
+    <div class="bn">🤫 こっそり選んで、決定！</div>
+    <div class="choices">
+      <button class="cbtn share" id="c-share" type="button"><span class="ic">🤝</span><span class="tt">わける</span><span class="ds">半分ずつ</span></button>
+      <button class="cbtn steal" id="c-steal" type="button"><span class="ic">🦊</span><span class="tt">ぬけがけ</span><span class="ds">総取りをねらう</span></button>
+    </div>
+    <button class="charm" id="c-charm" type="button" disabled><span class="ic">🛡</span><span class="tx">おまもりを付ける<small id="c-charm-s"></small></span><span class="sw" id="c-charm-sw">OFF</span></button>
+    <button class="btn" id="c-lock" type="button" disabled>どっちか選んでね</button>
+    <div class="lockedmsg" id="c-locked" hidden></div>
+  </div>
+
+  <div id="g-reveal" hidden>
+    <div class="duel" id="r-duel"></div>
+    <div class="verdict" id="r-verdict"></div>
+    <button class="btn" id="r-next" type="button" disabled>次へ</button>
+  </div>
+
+  <div class="gfoot"><button class="linkbtn" id="g-leave" type="button"></button></div>
+</section>
+
+<section class="screen" id="s-result">
+  <div class="hero" id="res-hero"></div>
+  <div class="panel" id="res-board"></div>
+  <div class="panel">
+    <h2>ラウンドふりかえり</h2>
+    <table class="hist" id="res-hist"></table>
+  </div>
+  <div id="res-act"></div>
+</section>
+
+</main>
+
+<script>
+"use strict";
+/* ============ 小道具 ============ */
+var $  = function(id){ return document.getElementById(id); };
+var el = function(tag,cls,txt){ var e=document.createElement(tag); if(cls)e.className=cls; if(txt!=null)e.textContent=txt; return e; };
+var REDUCED=false; try{ REDUCED=matchMedia("(prefers-reduced-motion: reduce)").matches; }catch(e){}
+function pick(a){ return a[Math.floor(Math.random()*a.length)]; }
+function msg(wrapId,cls,text){ var w=$(wrapId); if(!w) return; w.innerHTML=""; if(text) w.appendChild(el("div",cls,text)); }
+
+/* ============ ゲームの設定 ============ */
+var MAX_PLAYERS=2, MIN_PLAYERS=2, TALK_SEC=45, CHOOSE_SEC=20, REVEAL_MS=14000, MIN_SHOW_MS=3600;
+var COLORS=["#ffe066","#5ee0d0"];
+var NAME_KEY="nukegake.name.v1";
+var PRIZES=[20,30,40,50,60,80,100,120,150];
+var HINTS=[
+  "最近「ごめん」と言いそびれたことを1つ白状して、信用を稼ごう",
+  "「わけるつもり」の理由を、できるだけ具体的に説明してみよう",
+  "相手の目を3秒見つめてから、約束を口にしてみよう",
+  "今夜の飲み代を持つ約束をしてみる？（守る気があるかは別）",
+  "前のラウンドで相手がどっちを選んだか、さりげなく思い出させよう",
+  "おまもりを持っているかどうかを、さりげなく聞き出そう",
+  "ぬけがけしたくなる気持ちを、正直に打ち明けてみよう",
+  "相手の「わける」を信じられる根拠を、1つ挙げてもらおう",
+  "勝ったら何をおごるか、賭けの条件を決めよう",
+  "「ぜったいわける」と3回言わせてみよう",
+  "ここで取らないと負けそうなら、そう宣言してみよう",
+  "相手の癖（目線・声のトーン）を指摘して、揺さぶってみよう",
+  "お互いの「ぬけがけ度」を、0〜100%で申告し合おう",
+  "約束をやぶった人は一杯飲む、というルールを足してみよう",
+  "自分は「最後までわける」と宣言して、相手の出方を見よう",
+  "あえて何も約束しないで、沈黙で圧をかけてみよう",
+  "ぬけがけされたら一生言い続ける権利を賭けよう",
+  "今までで一番ひどい裏切りエピソードを話して、場をあたためよう",
+  "「どうせぬけがけするでしょ？」と先に言ってしまおう",
+  "今の点差を見て、相手が次に何を狙うか予想して伝えよう",
+  "小指を出して、指切りしてみよう（効力は自己責任）",
+  "相手を安心させる一言を、全力で考えよう",
+  "「おまもり、もう使った」とウソをついてみる？ ホント？",
+  "この景品の使い道を、2人でひとつ決めてみよう",
+  "2人で分け合ったあとの未来を、想像して語ってみよう",
+  "相手の長所をひとつ褒めてから、お願いしてみよう",
+  "「信じていいの？」と聞かれたときの返事を練習しよう",
+  "勝ち逃げしたい気持ちを、素直に口にしてみよう",
+  "ぬけがけされたときの仕返しを、先に予告しておこう",
+  "この景品で何が食べたいか、本気で語ろう"
+];
+
+function freshState(){
+  return {mode:null,phase:"lobby",players:[],nextId:0,rounds:5,game:0,round:0,prizes:[],hint:0,
+          talkReady:{},picks:{},charmLeft:{},deadline:0,revealAt:0,nextAt:0,
+          last:null,history:[],final:null};
+}
+var S=freshState(), V=null, myId=null;
+
+function savedName(){ try{ return localStorage.getItem(NAME_KEY)||""; }catch(e){ return ""; } }
+function rememberName(n){ try{ localStorage.setItem(NAME_KEY,Array.from(String(n||"")).slice(0,8).join("")); }catch(e){} }
+function cleanName(s,fb){
+  s=String(s==null?"":s).replace(/[\u0000-\u001f\u007f\u2028\u2029]/g,"").replace(/\s+/g," ").trim();
+  s=Array.from(s).slice(0,8).join("");
+  return s||fb;
+}
+function hostP(){ for(var i=0;i<S.players.length;i++) if(S.players[i].host) return S.players[i]; return null; }
+function otherOf(p){ for(var i=0;i<S.players.length;i++) if(S.players[i]!==p) return S.players[i]; return null; }
+function freeColor(){
+  for(var i=0;i<COLORS.length;i++){ var c=COLORS[i]; if(!S.players.some(function(p){ return p.color===c; })) return c; }
+  return COLORS[1];
+}
+
+/* ============ 代表者：配る情報 ============ */
+function pubState(){
+  var now=Date.now(), rem=null;
+  if((S.phase==="talk"||S.phase==="choose")&&S.deadline) rem=Math.max(0,S.deadline-now);
+  return {
+    phase:S.phase, round:S.round, rounds:S.rounds, game:S.game,
+    prize:S.prizes[S.round]||0, isFinal:S.round===S.rounds-1, hint:S.hint,
+    remain:rem,
+    nextRemain:(S.phase==="reveal")?Math.max(0,S.nextAt-now):null,
+    players:S.players.map(function(p){
+      return {id:p.id,name:p.name,color:p.color,host:!!p.host,gone:!!p.gone,score:p.score||0,wins:p.wins||0,
+              ready:!!S.talkReady[p.id], locked:!!S.picks[p.id], charm:S.charmLeft[p.id]||0};
+    }),
+    last:S.phase==="reveal"||S.phase==="result"?S.last:null,
+    history:S.history, final:S.final
+  };
+}
+/* その人だけの秘密：自分が決定した選択（相手のは公開の瞬間まで出さない） */
+function youFor(p){
+  return {id:p.id, pick:S.picks[p.id]||null};
+}
+
+/* ============ 代表者：操作の処理 ============ */
+function handleAction(p,m){
+  if(!p||!m||typeof m!=="object") return;
+  var t=m.type;
+  if(t==="bye"){ p.left=true; return; }
+  if(t==="settings"){
+    if(!p.host||S.phase!=="lobby") return;
+    var v=+m.rounds; if([3,5,7].indexOf(v)<0) return;
+    S.rounds=v; commit(); return;
+  }
+  if(t==="start"){ if(!p.host||S.phase!=="lobby") return; startGame(); return; }
+  if(t==="ready"){
+    if(S.phase!=="talk"||m.round!==S.round||S.talkReady[p.id]) return;
+    S.talkReady[p.id]=true;
+    if(S.players.every(function(x){ return S.talkReady[x.id]; })) startChoose(); else commit();
+    return;
+  }
+  if(t==="lock"){
+    if(S.phase!=="choose"||m.round!==S.round||S.picks[p.id]) return;
+    if(m.pick!=="share"&&m.pick!=="steal") return;
+    var charm=!!m.charm && m.pick==="share" && (S.charmLeft[p.id]||0)>0;
+    S.picks[p.id]={pick:m.pick,charm:charm,auto:false};
+    if(S.players.every(function(x){ return S.picks[x.id]; })) doReveal(); else commit();
+    return;
+  }
+  if(t==="next"){
+    if(S.phase!=="reveal"||m.round!==S.round) return;
+    if(Date.now()<S.revealAt+MIN_SHOW_MS) return;
+    advance(); return;
+  }
+  if(t==="force"){
+    if(!p.host||m.round!==S.round) return;
+    if(S.phase==="talk"){ startChoose(); return; }
+    if(S.phase==="choose"){ doReveal(); return; }
+    return;
+  }
+  if(t==="again"){ if(!p.host||S.phase!=="result") return; toLobby(); return; }
+}
+
+function genPrizes(n){
+  var a=[], i;
+  for(i=0;i<n-1;i++) a.push(pick(PRIZES));
+  a.push(pick([60,80,100,120,150])*2);
+  return a;
+}
+function startGame(){
+  var active=S.players.filter(function(p){ return !p.gone; });
+  if(active.length<2) return;
+  S.players=active;
+  S.game++; S.round=0; S.history=[]; S.last=null; S.final=null;
+  S.prizes=genPrizes(S.rounds); S.charmLeft={}; S.hint=-1;
+  S.players.forEach(function(p){ p.score=0; S.charmLeft[p.id]=1; });
+  startTalk();
+}
+function startTalk(){
+  S.phase="talk"; S.talkReady={}; S.picks={};
+  var h; do{ h=Math.floor(Math.random()*HINTS.length); }while(h===S.hint);
+  S.hint=h;
+  S.deadline=Date.now()+TALK_SEC*1000;
+  commit();
+}
+function startChoose(){
+  S.phase="choose"; S.picks={};
+  S.deadline=Date.now()+CHOOSE_SEC*1000;
+  commit();
+}
+function payoff(mine,theirs,P){
+  if(mine.pick==="steal") return theirs.pick==="steal"?0:(theirs.charm?0:P);
+  if(theirs.pick==="steal") return mine.charm?P/2:0;
+  return P/2;
+}
+function doReveal(){
+  var P=S.prizes[S.round]||0, picks={}, gain={};
+  S.players.forEach(function(p){
+    picks[p.id]=S.picks[p.id]||{pick:"share",charm:false,auto:true};
+  });
+  S.players.forEach(function(p){
+    var o=otherOf(p);
+    gain[p.id]=payoff(picks[p.id],picks[o.id],P);
+    p.score=(p.score||0)+gain[p.id];
+    if(picks[p.id].charm) S.charmLeft[p.id]=Math.max(0,(S.charmLeft[p.id]||0)-1);
+  });
+  S.last={round:S.round,prize:P,isFinal:S.round===S.rounds-1,picks:picks,gain:gain};
+  S.history.push({round:S.round,prize:P,picks:picks,gain:gain});
+  S.phase="reveal"; S.deadline=0; S.revealAt=Date.now(); S.nextAt=Date.now()+REVEAL_MS;
+  commit();
+}
+function advance(){
+  if(S.round+1>=S.rounds){ finish(); return; }
+  S.round++; startTalk();
+}
+function finish(){
+  var a=S.players[0], b=S.players[1], w=null;
+  if(a.score>b.score) w=a; else if(b.score>a.score) w=b;
+  if(w) w.wins=(w.wins||0)+1;
+  S.final={winner:w?w.id:null};
+  S.phase="result"; S.deadline=0;
+  commit();
+}
+function toLobby(){
+  S.players=S.players.filter(function(p){ return !p.gone; });
+  S.phase="lobby"; S.picks={}; S.talkReady={}; S.last=null; S.history=[]; S.final=null; S.deadline=0; S.round=0; S.prizes=[];
+  commit();
+}
+
+/* ============ 画面を描く（代表者も参加者も同じ関数） ============ */
+var chooseKey="", revealKey="", resultKey="", lastTickSec=-1;
+var localDeadline=0, localNext=0, selPick=null, selCharm=false, lobbyWasReady=false, revealStamp=0;
+
+function meP(){ if(!V) return null; for(var i=0;i<V.pub.players.length;i++) if(V.pub.players[i].id===myId) return V.pub.players[i]; return null; }
+function oppP(){ if(!V) return null; for(var i=0;i<V.pub.players.length;i++) if(V.pub.players[i].id!==myId) return V.pub.players[i]; return null; }
+
+function applyView(pub,you){
+  V={pub:pub,you:you||{}};
+  if(you&&you.id) myId=you.id;
+  localDeadline=(pub.remain!=null)?Date.now()+pub.remain:0;
+  localNext=(pub.nextRemain!=null)?Date.now()+pub.nextRemain:0;
+  if(pub.phase==="lobby"){
+    if(S.mode==="host"){ show("host"); renderLobby(); } else { show("wait"); renderWait(); }
+  } else if(pub.phase==="talk"||pub.phase==="choose"||pub.phase==="reveal"){
+    show("game"); renderGame();
+  } else if(pub.phase==="result"){
+    show("result"); renderResult();
+  }
+  updateTimers();
+}
+
+function memberList(box){
+  box.innerHTML="";
+  var ps=V.pub.players;
+  for(var i=0;i<MAX_PLAYERS;i++){
+    var p=ps[i], row=el("div","mem"+(p?"":" empty"));
+    if(p){
+      var d=el("span","mdot"); d.style.background=p.color; row.appendChild(d);
+      row.appendChild(el("span","mname",p.name));
+      var tags=[]; if(p.id===myId) tags.push("あなた"); if(p.host) tags.push("司会");
+      if(tags.length) row.appendChild(el("span","mtag",tags.join("・")));
+      if(p.wins) row.appendChild(el("span","mwins","通算"+p.wins+"勝"));
+      if(p.gone) row.appendChild(el("span","mtag ng","接続待ち"));
+    } else row.appendChild(el("span","mname","あと1人を待っています…"));
+    box.appendChild(row);
+  }
+}
+function renderLobby(){
+  memberList($("host-members"));
+  Array.prototype.forEach.call($("host-rounds").children,function(b){ b.classList.toggle("on",+b.dataset.v===V.pub.rounds); });
+  var ready=V.pub.players.length===2 && V.pub.players.every(function(p){ return !p.gone; }) && !!roomCode;
+  var b=$("btn-start"); b.disabled=!ready;
+  b.textContent=ready?"ゲームスタート！":"2人そろったらスタートできます";
+  if(ready && !lobbyWasReady){ var o=oppP(); if(o) toast(o.name+" が来たよ！","スタートを押してね","ok"); }
+  lobbyWasReady=ready;
+}
+function renderWait(){
+  memberList($("wait-members"));
+  $("wait-rounds").textContent=(V.pub.rounds||5)+"ラウンドで勝負！";
+}
+
+function renderGame(){
+  var pub=V.pub, me=meP(), op=oppP(); if(!me||!op) return;
+  $("g-round").textContent="第"+(pub.round+1)+"ラウンド / "+pub.rounds;
+  $("g-talk").hidden=pub.phase!=="talk";
+  $("g-choose").hidden=pub.phase!=="choose";
+  $("g-reveal").hidden=pub.phase!=="reveal";
+  renderScore(me,op);
+  renderPrize();
+  if(pub.phase==="talk") renderTalk(me,op);
+  else if(pub.phase==="choose") renderChoose(me,op);
+  else renderReveal(me,op);
+  renderLeave();
+}
+function renderScore(me,op){
+  var box=$("g-score"); box.innerHTML="";
+  [me,op].forEach(function(p){
+    var c=el("div","chip"); c.style.setProperty("--c",p.color);
+    c.appendChild(el("div","nm",p.name));
+    c.appendChild(el("div","you",p.id===myId?"あなた":"あいて"));
+    var pt=el("div","pt",String(p.score)); pt.appendChild(el("small"," pt")); c.appendChild(pt);
+    c.appendChild(el("div","chm",p.charm>0?"🛡 おまもり あり":"🛡 おまもり なし"));
+    var st=null;
+    if(V.pub.phase==="talk") st=p.ready?el("span","st done","相談OK"):el("span","st","相談中");
+    else if(V.pub.phase==="choose") st=p.locked?el("span","st done","決定済"):el("span","st","考え中");
+    if(st) c.appendChild(st);
+    box.appendChild(c);
+  });
+}
+function renderPrize(){
+  var pub=V.pub, b=$("g-prize"); b.innerHTML="";
+  b.appendChild(el("div","lb","このラウンドの景品"));
+  var n=el("div","num",String(pub.prize)); n.appendChild(el("small",null,"pt")); b.appendChild(n);
+  b.appendChild(el("div","half","分けると 1人 "+(pub.prize/2)+"pt"));
+  if(pub.isFinal) b.appendChild(el("div","fin","最終回は2倍！"));
+}
+function renderTalk(me,op){
+  $("t-hint").textContent=HINTS[V.pub.hint]||"";
+  var b=$("t-ready"), m=$("t-msg");
+  b.disabled=!!me.ready;
+  b.textContent=me.ready?"相談おわり（OK済み）":"相談おわり！ えらぶ画面へ";
+  m.innerHTML="";
+  if(me.ready&&!op.ready){ m.appendChild(document.createTextNode(op.name+" の相談おわりを待っています")); m.appendChild(el("span","dots")); }
+  else m.appendChild(document.createTextNode("2人ともOKを押すと、時間前でも次へ進むよ"));
+}
+
+function renderChoose(me,op){
+  var pub=V.pub, key=pub.game+"-"+pub.round;
+  if(key!==chooseKey){ chooseKey=key; selPick=null; selCharm=false; }
+  var locked=V.you&&V.you.pick;
+  if(locked){ selPick=V.you.pick.pick; selCharm=!!V.you.pick.charm; }
+  var cs=$("c-share"), ct=$("c-steal"), cc=$("c-charm"), lk=$("c-lock");
+  cs.classList.toggle("on",selPick==="share"); ct.classList.toggle("on",selPick==="steal");
+  cs.classList.toggle("dim",!!selPick&&selPick!=="share"); ct.classList.toggle("dim",!!selPick&&selPick!=="steal");
+  cs.disabled=ct.disabled=!!locked;
+  var has=me.charm>0, canCharm=has&&selPick==="share"&&!locked;
+  if(!(has&&selPick==="share")) selCharm=false;
+  cc.disabled=!canCharm;
+  cc.classList.toggle("on",selCharm);
+  $("c-charm-sw").textContent=selCharm?"ON":"OFF";
+  $("c-charm-s").textContent=!has?"もう使いきったよ":(selPick==="share"?"ぬけがけされても半分を守る（1ゲーム1回）":"「わける」を選ぶと付けられるよ");
+  lk.hidden=!!locked;
+  lk.disabled=!selPick;
+  lk.textContent=!selPick?"どっちか選んでね":(selPick==="share"?"「わける」で決定！":"「ぬけがけ」で決定！");
+  var lm=$("c-locked");
+  lm.hidden=!locked;
+  if(locked){
+    lm.innerHTML="";
+    lm.appendChild(document.createTextNode("🔒 「"+(selPick==="share"?"わける":"ぬけがけ")+(selCharm?"＋🛡":"")+"」で決定！"));
+    if(!op.locked){ lm.appendChild(el("br")); lm.appendChild(document.createTextNode(op.name+" を待っています")); lm.appendChild(el("span","dots")); }
+  }
+}
+
+/* オープン演出（ラウンドが変わったときだけ作り直す） */
+function pickLabel(c){ return c.pick==="share"?"わける":"ぬけがけ"; }
+function renderReveal(me,op){
+  var pub=V.pub, L=pub.last; if(!L||L.round!==pub.round) return;
+  var key=pub.game+"-"+pub.round, first=(key!==revealKey);
+  if(first){
+    revealKey=key; revealStamp=Date.now();
+    var duel=$("r-duel"); duel.innerHTML="";
+    [me,op].forEach(function(p){
+      var c=L.picks[p.id], g=L.gain[p.id];
+      var rc=el("div","rc"); rc.style.setProperty("--c",p.color);
+      rc.appendChild(el("div","who",p.name+(p.id===myId?"（あなた）":"")));
+      var f=el("div","flip"+(REDUCED?"":" go"));
+      f.appendChild(el("div","f back","？"));
+      var fr=el("div","f front "+c.pick);
+      fr.appendChild(el("div","ic",c.pick==="share"?"🤝":"🦊"));
+      fr.appendChild(el("div","tt",pickLabel(c)));
+      if(c.charm) fr.appendChild(el("div","cm","🛡 おまもり"));
+      f.appendChild(fr); rc.appendChild(f);
+      var gn=el("div","gain","+"+g); gn.appendChild(el("small"," pt")); rc.appendChild(gn);
+      duel.appendChild(rc);
+    });
+    buildVerdict(me,op,L);
+    $("g-reveal").classList.remove("shake");
+    SFX.drum(1.2);
+    var k=key;
+    setTimeout(function(){ if(revealKey!==k) return; SFX.flip(); },1250);
+    setTimeout(function(){
+      if(revealKey!==k) return;
+      var mg=L.gain[me.id], og=L.gain[op.id];
+      if(mg>og){ SFX.win(); flash("win"); if(mg>=L.prize){ confetti(110); } }
+      else if(mg<og){ SFX.lose(); flash("upset"); shake($("g-reveal")); }
+      else if(mg===0){ SFX.deny(); shake($("g-reveal")); }
+      else SFX.tie();
+    },2100);
+  }
+}
+function buildVerdict(me,op,L){
+  var mp=L.picks[me.id], opk=L.picks[op.id], g=L.gain[me.id], og=L.gain[op.id];
+  var big, sub="", say="";
+  if(mp.pick==="share"&&opk.pick==="share"){ big="ふたりで山分け！"; sub="おたがい信じた、平和な決着"; if(mp.charm) say="🛡 おまもりは空ぶりになったよ"; if(opk.charm&&!mp.charm) say="相手は🛡を付けていた…疑われてた？"; }
+  else if(mp.pick==="steal"&&opk.pick==="share"){
+    if(opk.charm){ big="おまもりにはね返された！"; sub="ぬけがけは空ぶり、0点…"; }
+    else { big="ぬけがけ成功！"; sub="景品を総取りしたよ"; }
+  } else if(mp.pick==="share"&&opk.pick==="steal"){
+    if(mp.charm){ big="おまもりで守った！"; sub="半分はちゃんと手に入れた"; say="相手のぬけがけは空ぶり"; }
+    else { big="ぬけがけされた…！"; sub="景品を持っていかれた"; }
+  } else { big="ぬけがけ同士でゴツン！"; sub="どちらも0点。景品は消えた"; }
+  var v=$("r-verdict"); v.innerHTML=""; v.className="verdict"+(g>og?"":(g<og?" lose":" tie"));
+  v.appendChild(el("div","big",big));
+  v.appendChild(el("div","sub",sub));
+  if(say) v.appendChild(el("div","say",say));
+}
+
+function renderResult(){
+  var pub=V.pub, me=meP(), op=oppP(), F=pub.final||{}; if(!me||!op) return;
+  var key="r"+pub.game, first=(key!==resultKey); resultKey=key;
+  var hero=$("res-hero"); hero.innerHTML="";
+  var em, big, sub;
+  if(!F.winner){ em="🤝"; big="引き分け！"; sub="まさかの同点。もう1戦で決着をつけよう"; }
+  else if(F.winner===me.id){ em="👑"; big="あなたの勝ち！"; sub="山分けの達人に決まり！"; }
+  else { em="🦊"; big=op.name+" の勝ち！"; sub="次はリベンジだね"; }
+  hero.appendChild(el("div","em",em)); hero.appendChild(el("h2",null,big)); hero.appendChild(el("p",null,sub));
+  var bd=$("res-board"); bd.innerHTML="";
+  bd.appendChild(el("h2",null,"最終ポイント"));
+  [me,op].slice().sort(function(a,b){ return b.score-a.score; }).forEach(function(p){
+    var r=el("div","brow"); r.style.setProperty("--c",p.color);
+    var w=el("div","bwrap");
+    w.appendChild(el("div","mname",p.name+(p.id===myId?"（あなた）":"")+(p.wins?"　通算"+p.wins+"勝":"")));
+    var ns=0, nk=0; (pub.history||[]).forEach(function(H){ var c=H.picks[p.id]; if(c){ if(c.pick==="steal") nk++; else ns++; } });
+    w.appendChild(el("div","sm","わける "+ns+"回 ／ ぬけがけ "+nk+"回"));
+    r.appendChild(w);
+    var pt=el("div","bpt",String(p.score)); pt.appendChild(el("small"," pt")); r.appendChild(pt);
+    bd.appendChild(r);
+  });
+  var tb=$("res-hist"); tb.innerHTML="";
+  var hr=el("tr"); ["回","景品","あなた","相手","獲得"].forEach(function(t){ hr.appendChild(el("th",null,t)); }); tb.appendChild(hr);
+  (pub.history||[]).forEach(function(H){
+    var tr=el("tr"), a=H.picks[me.id], b=H.picks[op.id];
+    tr.appendChild(el("td",null,String(H.round+1)));
+    tr.appendChild(el("td",null,String(H.prize)));
+    tr.appendChild(el("td",a.pick==="share"?"s":"t",(a.pick==="share"?"わける":"ぬけ")+(a.charm?"🛡":"")));
+    tr.appendChild(el("td",b.pick==="share"?"s":"t",(b.pick==="share"?"わける":"ぬけ")+(b.charm?"🛡":"")));
+    tr.appendChild(el("td",null,"+"+H.gain[me.id]));
+    tb.appendChild(tr);
+  });
+  var a=$("res-act"); a.innerHTML="";
+  if(S.mode==="host"){
+    var again=el("button","btn","もう1戦"); again.type="button"; again.onclick=function(){ act({type:"again"}); };
+    a.appendChild(again);
+    var cl=el("button","btn sub","部屋を閉じる"); cl.type="button"; cl.onclick=function(){ closeRoom(); };
+    a.appendChild(cl);
+  } else {
+    a.appendChild(el("p","waitmsg","司会が「もう1戦」を押すと、次の勝負が始まるよ"));
+    var lv=el("button","btn sub","部屋をぬける"); lv.type="button"; lv.onclick=function(){ leaveRoom(); };
+    a.appendChild(lv);
+  }
+  if(first){
+    if(F.winner===me.id){ SFX.fanfare(); confetti(160); }
+    else if(!F.winner) SFX.tie(); else SFX.lose();
+  }
+}
+
+/* ゲーム中の「ぬける／閉じる」は2回押しで確定 */
+var leaveArmed=false, leaveTimer=null;
+function renderLeave(){
+  if(leaveArmed) return;
+  var b=$("g-leave"); b.classList.remove("armed");
+  b.textContent=S.mode==="host"?"部屋を閉じる":"ゲームをぬける";
+}
+function onLeaveTap(){
+  var b=$("g-leave");
+  if(leaveArmed){
+    leaveArmed=false; clearTimeout(leaveTimer);
+    if(S.mode==="host") closeRoom(); else leaveRoom();
+    return;
+  }
+  leaveArmed=true; b.classList.add("armed");
+  b.textContent="もう一度押すと"+(S.mode==="host"?"部屋を閉じます":"ぬけます");
+  leaveTimer=setTimeout(function(){ leaveArmed=false; renderLeave(); },3000);
+}
+
+function updateTimers(){
+  if(!V) return;
+  var pub=V.pub, t=$("g-timer");
+  if((pub.phase==="talk"||pub.phase==="choose") && localDeadline){
+    var s=Math.max(0,Math.ceil((localDeadline-Date.now())/1000));
+    t.hidden=false; t.textContent="⏱ "+s+"秒"; t.classList.toggle("hurry",s<=5);
+    var me=meP(), mine=pub.phase==="talk"?!(me&&me.ready):!(me&&me.locked);
+    if(s<=5 && s>0 && s!==lastTickSec && mine){ lastTickSec=s; SFX.tick(); }
+  } else t.hidden=true;
+  if(pub.phase==="reveal"){
+    var nb=$("r-next");
+    var n=Math.max(0,Math.ceil((localNext-Date.now())/1000));
+    var elapsed=REVEAL_MS-(localNext-Date.now());
+    nb.disabled=elapsed<MIN_SHOW_MS;
+    nb.textContent=(pub.round+1>=pub.rounds?"最終結果を見る":"次のラウンドへ")+"（"+n+"）";
+  }
+}
+
+/* ============ 参加用のリンクとQR ============ */
+function roomUrl(code){
+  if(location.protocol==="file:") return "";
+  return location.origin+location.pathname+"?r="+code;
+}
+function copyText(text,btn){
+  var done=function(){ if(!btn) return; var old=btn.textContent; btn.textContent="コピーしました"; setTimeout(function(){ btn.textContent=old; },1600); };
+  try{
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text).then(done)["catch"](fallback); return;
+    }
+  }catch(e){}
+  fallback();
+  function fallback(){
+    try{
+      var ta=document.createElement("textarea"); ta.value=text; ta.style.position="fixed"; ta.style.opacity="0";
+      document.body.appendChild(ta); ta.select(); document.execCommand("copy"); document.body.removeChild(ta); done();
+    }catch(e){}
+  }
+}
+function renderCode(code){
+  var box=$("host-code"); box.innerHTML="";
+  String(code||"····").split("").forEach(function(c,i){ var s=el("span",null,c); s.style.setProperty("--i",i); box.appendChild(s); });
+  box.setAttribute("aria-label","あいことば "+(code||""));
+}
+function renderQR(code){
+  var box=$("host-qr"); if(!box) return; box.innerHTML="";
+  var url=roomUrl(code);
+  if(!url){ box.appendChild(el("p","tiny center","このファイルを直接開いているため、QRコードは出せません。ネット上に置くと使えるようになります。")); return; }
+  var svg=null; try{ svg=QR.svg(url,4,"#1b1447","#ffffff"); }catch(e){}
+  var card=el("div","qrcard");
+  if(svg){ var w=el("div","qrwrap"); w.innerHTML=svg; card.appendChild(w); }
+  var side=el("div","qrside");
+  side.appendChild(el("div","qrcap","もう1人がカメラで読むと参加画面が開きます"));
+  side.appendChild(el("div","qrlink",url));
+  var cp=el("button","btn sub small","リンクをコピー"); cp.type="button"; cp.onclick=function(){ copyText(url,cp); };
+  side.appendChild(cp);
+  card.appendChild(side);
+  box.appendChild(card);
+}
+
+/* ============ 通信（PeerJS：スマホ同士を直接つなぐ） ============ */
+var ROOM_PREFIX="nukegake-yamawake-v1-";
+var PEER_SRC="https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.4/peerjs.min.js";
+var peer=null, gConn=null, peerLoading=false;
+var myToken=null, roomCode=null, myName="", joined=false;
+var rcActive=false, rcAttempts=0, rcTimer=null, RC_MAX=8;
+var SESS_KEY="nukegake.session.v1";
+
+function loadPeer(cb){
+  if(window.Peer) return cb(null);
+  if(peerLoading){ var t=setInterval(function(){ if(window.Peer||!peerLoading){ clearInterval(t); cb(window.Peer?null:new Error("load")); } },200); return; }
+  peerLoading=true;
+  var done=false, fin=function(e){ if(done) return; done=true; peerLoading=false; cb(e); };
+  var s=document.createElement("script"); s.src=PEER_SRC;
+  s.onload=function(){ window.Peer?fin(null):fin(new Error("noglobal")); };
+  s.onerror=function(){ fin(new Error("network")); };
+  document.head.appendChild(s);
+  setTimeout(function(){ if(!window.Peer) fin(new Error("timeout")); },15000);
+}
+function setStatus(w,cls,txt){ var d=$(w+"-dot"),s=$(w+"-status"); if(d)d.className="dot "+cls; if(s)s.textContent=txt; }
+function safeSend(c,o){ try{ if(c&&c.open) c.send(o); }catch(e){} }
+function newToken(){ var s=""; for(var i=0;i<4;i++) s+=Math.floor(Math.random()*0x100000000).toString(36); return s; }
+function saveSession(){ try{ sessionStorage.setItem(SESS_KEY,JSON.stringify({c:roomCode,n:myName,t:myToken,at:Date.now()})); }catch(e){} }
+function loadSession(){
+  try{ var r=sessionStorage.getItem(SESS_KEY), o=r?JSON.parse(r):null;
+       return (o&&o.c&&o.t&&Date.now()-(o.at||0)<3*3600*1000)?o:null; }catch(e){ return null; }
+}
+function clearSession(){ try{ sessionStorage.removeItem(SESS_KEY); }catch(e){} }
+
+/* ---- 接続バー ---- */
+function showNetBar(text,kind,withButtons){
+  var b=$("netbar"); if(!b) return;
+  if(kind==="err" && b.className.indexOf("err")<0) SFX.alert();
+  b.className="on "+(kind||"");
+  b.querySelector(".msg").textContent=text;
+  b.querySelector(".acts").style.display=withButtons?"flex":"none";
+}
+var netbarTimer=null;
+function hideNetBar(delay){
+  clearTimeout(netbarTimer);
+  if(delay){ netbarTimer=setTimeout(function(){ hideNetBar(); },delay); return; }
+  var b=$("netbar"); if(b) b.className="";
+}
+function stopReconnect(){ rcActive=false; rcAttempts=0; if(rcTimer){ clearTimeout(rcTimer); rcTimer=null; } }
+function cleanupNet(){
+  stopReconnect(); hideNetBar();
+  try{ if(peer&&!peer.destroyed) peer.destroy(); }catch(e){}
+  peer=null; gConn=null; joined=false; roomCode=null;
+  S=freshState(); V=null; myId=null;
+  chooseKey=""; revealKey=""; resultKey=""; selPick=null; selCharm=false; lobbyWasReady=false;
+  leaveArmed=false; clearTimeout(leaveTimer);
+}
+function goTitle(note){
+  cleanupNet(); clearSession(); clearHost();
+  show("title");
+  if(note) setTimeout(function(){ toast(note,null,"ng"); },250);
+}
+function netFail(m){
+  cleanupNet(); clearHost(); show("title");
+  msg("title-err","err-box",m||"通信の準備に失敗しました。電波の良い場所で、もう一度お試しください。");
+}
+
+/* ---- 代表者（部屋を作る） ---- */
+function startHost(){
+  cleanupNet(); clearHost(); clearSession(); msg("title-err",null,null);
+  S.mode="host";
+  var nm=cleanName(savedName(),"館主A");
+  S.players=[{id:"p0",name:nm,token:"host",conn:null,gone:false,host:true,color:COLORS[0],score:0}];
+  myId="p0";
+  $("host-name").value=savedName();
+  renderCode(null); $("host-qr").innerHTML="";
+  setStatus("host","wait","部屋を準備しています…");
+  show("host");
+  applyView(pubState(),youFor(hostP()));
+  loadPeer(function(err){ if(err){ netFail(); return; } tryHostCode(0); });
+}
+function tryHostCode(a){
+  if(a>6){ netFail("空いている部屋番号が見つかりませんでした。少し待ってからもう一度お試しください。"); return; }
+  var code=String(Math.floor(1000+Math.random()*9000));
+  openHostPeer(code,function(){
+    roomCode=code; renderCode(code); renderQR(code);
+    setStatus("host","ok","参加を待っています");
+    commit();
+  },function(){ tryHostCode(a+1); });
+}
+function openHostPeer(code,onOpen,onTaken){
+  var p;
+  try{ p=new Peer(ROOM_PREFIX+code,{debug:0}); }catch(e){ netFail(); return; }
+  peer=p;
+  var opened=false;
+  p.on("open",function(){
+    if(peer!==p) return;
+    if(opened){ hideNetBar(); setStatus("host","ok",S.phase==="lobby"?"参加を待っています":"接続は復旧しました"); return; }
+    opened=true; onOpen();
+  });
+  p.on("connection",function(c){ if(peer===p) hookGuest(c); });
+  p.on("disconnected",function(){
+    if(!opened||peer!==p) return;
+    showNetBar("回線が不安定です。部屋を復旧しています…","warn",false);
+    try{ if(!p.destroyed) p.reconnect(); }catch(e){}
+  });
+  p.on("error",function(e){
+    if(peer!==p) return;
+    if(!opened && e && e.type==="unavailable-id"){ try{ p.destroy(); }catch(_){ } onTaken(); return; }
+    if(!opened){ netFail(); return; }
+    if(e && e.type==="peer-unavailable") return;
+    setStatus("host","err","通信エラーが起きました");
+  });
+}
+function hookGuest(conn){
+  conn.on("data",function(m){
+    if(!m || typeof m!=="object" || !m.type) return;
+    if(m.type==="hello"){
+      var token=(typeof m.token==="string")?m.token.slice(0,64):"";
+      var back=null;
+      if(token) S.players.forEach(function(p){ if(!p.host && p.token===token) back=p; });
+      if(back){
+        if(back.conn && back.conn!==conn){ try{ back.conn.close(); }catch(e){} }
+        back.conn=conn; back.gone=false; back.left=false;
+        back.name=cleanName(m.name,back.name);
+        safeSend(conn,{type:"welcome",id:back.id,resumed:true});
+        commit();
+        if(S.phase!=="lobby"){ showNetBar(back.name+" がもどってきました","ok",false); hideNetBar(1800); }
+        SFX.join();
+        return;
+      }
+      if(S.phase!=="lobby"){ safeSend(conn,{type:"started"}); setTimeout(function(){ try{ conn.close(); }catch(e){} },500); return; }
+      if(S.players.length>=MAX_PLAYERS){ safeSend(conn,{type:"full"}); setTimeout(function(){ try{ conn.close(); }catch(e){} },500); return; }
+      if(S.players.some(function(p){ return p.conn===conn; })) return;
+      var id="p"+(++S.nextId);
+      S.players.push({id:id,name:cleanName(m.name,"館主B"),token:token||newToken(),
+                      conn:conn,gone:false,host:false,color:freeColor(),score:0});
+      safeSend(conn,{type:"welcome",id:id});
+      SFX.join(); commit();
+      return;
+    }
+    var p=null; S.players.forEach(function(x){ if(x.conn===conn) p=x; });
+    if(p) handleAction(p,m);
+  });
+  conn.on("close",function(){
+    var p=null; S.players.forEach(function(x){ if(x.conn===conn) p=x; });
+    if(!p) return;
+    if(S.phase==="lobby"){ S.players=S.players.filter(function(x){ return x!==p; }); }
+    else {
+      p.gone=true; p.conn=null; SFX.leave();
+      if(!p.left) showNetBar(p.name+" の接続が切れました。もどってくるのを待っています","warn",false);
+      hideNetBar(4000);
+    }
+    commit();
+  });
+  conn.on("error",function(){});
+}
+function closeRoom(){
+  S.players.forEach(function(p){ if(p.conn) safeSend(p.conn,{type:"closed"}); });
+  var pr=peer; peer=null;
+  setTimeout(function(){ try{ if(pr&&!pr.destroyed) pr.destroy(); }catch(e){} },400);
+  goTitle();
+}
+function resumeHost(saved){
+  cleanupNet();
+  var st=saved.S; S=freshState();
+  for(var k in st) S[k]=st[k];
+  S.mode="host"; roomCode=saved.code; myId="p0";
+  if(S.phase==="lobby") S.players=S.players.filter(function(p){ return p.host; });
+  S.players.forEach(function(p){ p.conn=null; if(!p.host) p.gone=true; });
+  renderCode(saved.code); renderQR(saved.code);
+  showNetBar("部屋を復旧しています…","warn",false);
+  var tries=0;
+  (function attempt(){
+    loadPeer(function(err){
+      if(err){ netFail(); return; }
+      openHostPeer(saved.code,function(){
+        showNetBar("部屋を復旧しました。みんなが自動でもどってきます","ok",false); hideNetBar(2600);
+        setStatus("host","ok",S.phase==="lobby"?"参加を待っています":"接続は復旧しました");
+        commit();
+      },function(){
+        if(++tries>12){ netFail("前の部屋を復旧できませんでした。新しく部屋を作ってください。"); return; }
+        setTimeout(attempt,2500);
+      });
+    });
+  })();
+  applyView(pubState(),youFor(hostP()));
+}
+
+/* ---- 参加者 ---- */
+function handleGuestData(m){
+  if(!m||!m.type) return;
+  if(m.type==="welcome"){ joined=true; myId=m.id; saveSession(); }
+  else if(m.type==="sync"){ joined=true; noteReconnected(); applyView(m.pub,m.you); saveSession(); }
+  else if(m.type==="full") giveUp("この部屋は満員です（最大"+MAX_PLAYERS+"人）。");
+  else if(m.type==="started") giveUp("この部屋はもうゲームが始まっています。終わってから参加してください。");
+  else if(m.type==="closed") goTitle("司会が部屋を閉じました");
+}
+function noteReconnected(){
+  if(!rcActive) return;
+  stopReconnect(); showNetBar("再接続しました","ok",false); hideNetBar(1600); SFX.join();
+}
+function giveUp(text){
+  cleanupNet(); clearSession();
+  show("join"); $("btn-join").disabled=false; $("join-row").hidden=true;
+  msg("join-err","err-box",text);
+}
+function handleGuestClose(){
+  if(S.mode!=="guest") return;
+  if(joined) startReconnect();
+  else giveUp("代表者との接続が切れました。もう一度参加してください。");
+}
+function startReconnect(){
+  if(rcActive) return;
+  rcActive=true; rcAttempts=0; SFX.leave(); attemptReconnect();
+}
+function attemptReconnect(){
+  if(!rcActive) return;
+  if(rcAttempts>=RC_MAX){ rcActive=false; showNetBar("再接続できませんでした","err",true); return; }
+  rcAttempts++;
+  showNetBar("接続が切れました。再接続しています…（"+rcAttempts+"/"+RC_MAX+"）","warn",rcAttempts>2);
+  var wait=rcAttempts===1?400:Math.min(800*Math.pow(1.6,rcAttempts-1),7000);
+  rcTimer=setTimeout(function(){
+    connectToHost(roomCode,myName,myToken,function(){ if(rcActive) attemptReconnect(); });
+  },wait);
+}
+function connectToHost(code,name,token,onFail){
+  var failed=false, fail=function(r){ if(failed) return; failed=true; onFail(r); };
+  loadPeer(function(err){
+    if(err) return fail("net");
+    try{ if(peer&&!peer.destroyed) peer.destroy(); }catch(e){}
+    peer=null; gConn=null; S.mode="guest";
+    var self;
+    try{ self=new Peer(undefined,{debug:0}); }catch(e){ return fail("peer"); }
+    peer=self;
+    var opened=false, settled=false;
+    self.on("open",function(){
+      if(opened||peer!==self) return; opened=true;
+      var c=self.connect(ROOM_PREFIX+code,{reliable:true}); gConn=c;
+      c.on("open",function(){ settled=true; safeSend(c,{type:"hello",name:name,token:token}); });
+      c.on("data",function(m){ if(peer===self) handleGuestData(m); });
+      c.on("close",function(){ if(peer===self && gConn===c) handleGuestClose(); });
+      c.on("error",function(){ if(!settled) fail("noroom"); });
+    });
+    self.on("disconnected",function(){ try{ if(!self.destroyed) self.reconnect(); }catch(e){} });
+    self.on("error",function(e){ if(settled) return; fail(e&&e.type==="peer-unavailable"?"noroom":"other"); });
+    setTimeout(function(){ if(!settled) fail("timeout"); },15000);
+  });
+}
+function startJoin(){
+  var code=($("join-code").value||"").replace(/[^0-9]/g,"");
+  var name=cleanName($("join-name").value,"");
+  msg("join-err",null,null);
+  if(code.length!==4) return msg("join-err","err-box","あいことばを4桁で入力してください。");
+  if(!name) return msg("join-err","err-box","名前を入れてください（8文字まで）。");
+  cleanupNet();
+  roomCode=code; myName=name; myToken=newToken(); rememberName(name);
+  saveSession();
+  $("btn-join").disabled=true; $("join-row").hidden=false;
+  setStatus("join","wait","つないでいます…");
+  connectToHost(code,name,myToken,function(reason){
+    $("btn-join").disabled=false;
+    setStatus("join","err","接続できませんでした");
+    clearSession();
+    msg("join-err","err-box",
+      reason==="noroom" ? "その部屋が見つかりませんでした。あいことばを確かめてください。"
+      : reason==="net"  ? "通信の準備に失敗しました。電波を確認して、もう一度お試しください。"
+      : "接続できませんでした。Wi-Fiをオフにしてモバイル回線で試すと、つながることがあります。");
+  });
+}
+function resumeGuest(s){
+  cleanupNet();
+  roomCode=s.c; myName=s.n||""; myToken=s.t; joined=true; S.mode="guest";
+  show("wait");
+  showNetBar("前の部屋にもどっています…","warn",true);
+  rcActive=true; rcAttempts=0; attemptReconnect();
+}
+function leaveRoom(){
+  if(S.mode==="guest"){ safeSend(gConn,{type:"bye"}); var pr=peer; peer=null; setTimeout(function(){ try{ if(pr&&!pr.destroyed) pr.destroy(); }catch(e){} },300); }
+  goTitle();
+}
+
+/* commit・代表者の状態の保存・act */
+function commit(){
+  if(S.mode!=="host") return;
+  var pub=pubState();
+  S.players.forEach(function(p){
+    if(p.host || !p.conn) return;
+    safeSend(p.conn,{type:"sync",pub:pub,you:youFor(p)});
+  });
+  saveHost();
+  var me=hostP(); if(me) applyView(pub,youFor(me));
+}
+
+var HOST_KEY="nukegake.host.v1", saveTimer=null;
+function saveHost(){
+  if(S.mode!=="host" || !roomCode) return;
+  try{
+    var data=JSON.stringify({code:roomCode,at:Date.now(),S:S},function(k,v){ return k==="conn"?undefined:v; });
+    sessionStorage.setItem(HOST_KEY,data);
+  }catch(e){}
+}
+function loadHost(){
+  try{ var r=sessionStorage.getItem(HOST_KEY), o=r?JSON.parse(r):null;
+       if(!o||!o.code||!o.S||Date.now()-o.at>3*3600*1000) return null; return o; }catch(e){ return null; }
+}
+function clearHost(){ try{ sessionStorage.removeItem(HOST_KEY); }catch(e){} }
+
+function act(m){
+  if(S.mode==="host"){ handleAction(hostP(),m); return true; }
+  if(S.mode==="guest" && gConn && gConn.open){ safeSend(gConn,m); return true; }
+  toast("接続が切れています","つながり直すまで少し待ってね","ng");
+  return false;
+}
+
+/* ============ QRコード生成（外部ライブラリなし） ============ */
+var QR=(function(){
+  var EXP=new Array(512), LOG=new Array(256);
+  (function(){
+    var x=1;
+    for(var i=0;i<255;i++){ EXP[i]=x; LOG[x]=i; x<<=1; if(x&0x100) x^=0x11d; }
+    for(i=255;i<512;i++) EXP[i]=EXP[i-255];
+  })();
+  function mul(a,b){ return (a===0||b===0)?0:EXP[LOG[a]+LOG[b]]; }
+  function genPoly(n){
+    var g=[1],i,j;
+    for(i=0;i<n;i++){
+      var ng=[]; for(j=0;j<=g.length;j++) ng[j]=0;
+      for(j=0;j<g.length;j++){ ng[j]^=g[j]; ng[j+1]^=mul(g[j],EXP[i]); }
+      g=ng;
+    }
+    return g;
+  }
+  function rsEc(data,ecLen){
+    var g=genPoly(ecLen), res=data.slice(), i, j;
+    for(i=0;i<ecLen;i++) res.push(0);
+    for(i=0;i<data.length;i++){
+      var c=res[i]; if(!c) continue;
+      for(j=0;j<g.length;j++) res[i+j]^=mul(g[j],c);
+    }
+    return res.slice(data.length);
+  }
+  var VER=[null,
+    {s:21,t:26, e:7,  a:0},
+    {s:25,t:44, e:10, a:18},
+    {s:29,t:70, e:15, a:22},
+    {s:33,t:100,e:20, a:26},
+    {s:37,t:134,e:26, a:30}];
+
+  function utf8(str){
+    var out=[], i, c;
+    for(i=0;i<str.length;i++){
+      c=str.charCodeAt(i);
+      if(c<0x80) out.push(c);
+      else if(c<0x800){ out.push(0xc0|(c>>6),0x80|(c&63)); }
+      else if(c>=0xd800&&c<0xdc00&&i+1<str.length){
+        var c2=str.charCodeAt(++i), cp=0x10000+((c-0xd800)<<10)+(c2-0xdc00);
+        out.push(0xf0|(cp>>18),0x80|((cp>>12)&63),0x80|((cp>>6)&63),0x80|(cp&63));
+      }
+      else { out.push(0xe0|(c>>12),0x80|((c>>6)&63),0x80|(c&63)); }
+    }
+    return out;
+  }
+
+  function build(text){
+    var bytes=utf8(text), v, info=null;
+    for(v=1;v<=5;v++){
+      var cap=VER[v].t-VER[v].e-2;
+      if(bytes.length<=cap){ info=VER[v]; break; }
+    }
+    if(!info) return null;
+    var dataLen=info.t-info.e;
+
+    var bits=[], i, j;
+    function push(val,len){ for(var k=len-1;k>=0;k--) bits.push((val>>k)&1); }
+    push(4,4); push(bytes.length,8);
+    for(i=0;i<bytes.length;i++) push(bytes[i],8);
+    var total=dataLen*8;
+    for(i=0;i<4&&bits.length<total;i++) bits.push(0);
+    while(bits.length%8) bits.push(0);
+    var words=[];
+    for(i=0;i<bits.length;i+=8){
+      var b=0; for(j=0;j<8;j++) b=(b<<1)|bits[i+j];
+      words.push(b);
+    }
+    var pad=[0xEC,0x11], p=0;
+    while(words.length<dataLen) words.push(pad[p++%2]);
+    var ec=rsEc(words,info.e);
+    var all=words.concat(ec);
+
+    var n=info.s, m=[], fn=[];
+    for(i=0;i<n;i++){ m[i]=[]; fn[i]=[]; for(j=0;j<n;j++){ m[i][j]=0; fn[i][j]=0; } }
+    function setF(r,c,v){ if(r<0||c<0||r>=n||c>=n) return; m[r][c]=v; fn[r][c]=1; }
+    function finder(r,c){
+      for(var dr=-1;dr<=7;dr++) for(var dc=-1;dc<=7;dc++){
+        var rr=r+dr, cc=c+dc; if(rr<0||cc<0||rr>=n||cc>=n) continue;
+        var on=(dr>=0&&dr<=6&&(dc===0||dc===6)) || (dc>=0&&dc<=6&&(dr===0||dr===6)) ||
+               (dr>=2&&dr<=4&&dc>=2&&dc<=4);
+        setF(rr,cc,on?1:0);
+      }
+    }
+    finder(0,0); finder(0,n-7); finder(n-7,0);
+    for(i=8;i<n-8;i++){ setF(6,i,(i%2===0)?1:0); setF(i,6,(i%2===0)?1:0); }
+    if(info.a){
+      var a=info.a;
+      for(var dr=-2;dr<=2;dr++) for(var dc=-2;dc<=2;dc++){
+        var on=(Math.abs(dr)===2||Math.abs(dc)===2||(dr===0&&dc===0));
+        setF(a+dr,a+dc,on?1:0);
+      }
+    }
+    setF(n-8,8,1);
+    for(i=0;i<9;i++){ if(i!==6){ setF(8,i,0); setF(i,8,0); } }
+    for(i=0;i<8;i++){ setF(8,n-1-i,0); setF(n-1-i,8,0); }
+
+    var bitIdx=0, dirUp=true, col;
+    var dataBits=[];
+    for(i=0;i<all.length;i++) for(j=7;j>=0;j--) dataBits.push((all[i]>>j)&1);
+    for(col=n-1;col>0;col-=2){
+      if(col===6) col--;
+      for(var k=0;k<n;k++){
+        var row = dirUp ? (n-1-k) : k;
+        for(var c2=0;c2<2;c2++){
+          var cc2=col-c2;
+          if(fn[row][cc2]) continue;
+          m[row][cc2] = bitIdx<dataBits.length ? dataBits[bitIdx++] : 0;
+        }
+      }
+      dirUp=!dirUp;
+    }
+
+    function maskFn(k,r,c){
+      switch(k){
+        case 0: return (r+c)%2===0;
+        case 1: return r%2===0;
+        case 2: return c%3===0;
+        case 3: return (r+c)%3===0;
+        case 4: return (Math.floor(r/2)+Math.floor(c/3))%2===0;
+        case 5: return ((r*c)%2)+((r*c)%3)===0;
+        case 6: return (((r*c)%2)+((r*c)%3))%2===0;
+        default:return (((r+c)%2)+((r*c)%3))%2===0;
+      }
+    }
+    function fmtBits(mask){
+      var f=(1<<3)|mask;
+      var d=f<<10, g=0x537;
+      for(var i2=4;i2>=0;i2--) if(d&(1<<(i2+10))) d^=g<<i2;
+      return ((f<<10)|d)^0x5412;
+    }
+    function putFmt(grid,mask){
+      var b=fmtBits(mask), i2;
+      for(i2=0;i2<15;i2++){
+        var bit=(b>>i2)&1;
+        if(i2<6) grid[i2][8]=bit;
+        else if(i2===6) grid[7][8]=bit;
+        else if(i2===7) grid[8][8]=bit;
+        else if(i2===8) grid[8][7]=bit;
+        else grid[8][14-i2]=bit;
+        if(i2<8) grid[8][n-1-i2]=bit;
+        else grid[n-15+i2][8]=bit;
+      }
+      grid[n-8][8]=1;
+    }
+    function penalty(g){
+      var p=0,i2,j2,run,cnt=0;
+      for(i2=0;i2<n;i2++){
+        run=1;
+        for(j2=1;j2<n;j2++){
+          if(g[i2][j2]===g[i2][j2-1]) run++;
+          else { if(run>=5) p+=3+(run-5); run=1; }
+        }
+        if(run>=5) p+=3+(run-5);
+        run=1;
+        for(j2=1;j2<n;j2++){
+          if(g[j2][i2]===g[j2-1][i2]) run++;
+          else { if(run>=5) p+=3+(run-5); run=1; }
+        }
+        if(run>=5) p+=3+(run-5);
+      }
+      for(i2=0;i2<n-1;i2++) for(j2=0;j2<n-1;j2++){
+        var s=g[i2][j2]+g[i2][j2+1]+g[i2+1][j2]+g[i2+1][j2+1];
+        if(s===0||s===4) p+=3;
+      }
+      var pat=[1,0,1,1,1,0,1,0,0,0,0];
+      var pat2=[0,0,0,0,1,0,1,1,1,0,1];
+      function match(arr,st,p2){ for(var q=0;q<11;q++) if(arr[st+q]!==p2[q]) return false; return true; }
+      for(i2=0;i2<n;i2++){
+        var rowA=g[i2], colA=[];
+        for(j2=0;j2<n;j2++) colA.push(g[j2][i2]);
+        for(j2=0;j2+11<=n;j2++){
+          if(match(rowA,j2,pat)||match(rowA,j2,pat2)) p+=40;
+          if(match(colA,j2,pat)||match(colA,j2,pat2)) p+=40;
+        }
+      }
+      for(i2=0;i2<n;i2++) for(j2=0;j2<n;j2++) if(g[i2][j2]) cnt++;
+      var ratio=cnt*100/(n*n);
+      p+=Math.floor(Math.abs(ratio-50)/5)*10;
+      return p;
+    }
+
+    var best=null, bestP=Infinity, mk;
+    for(mk=0;mk<8;mk++){
+      var g2=[];
+      for(i=0;i<n;i++){ g2[i]=[]; for(j=0;j<n;j++) g2[i][j]=m[i][j]^(fn[i][j]?0:(maskFn(mk,i,j)?1:0)); }
+      putFmt(g2,mk);
+      var p3=penalty(g2);
+      if(p3<bestP){ bestP=p3; best=g2; }
+    }
+    return best;
+  }
+
+  function svg(text,px,dark,light){
+    var g=build(text); if(!g) return null;
+    var n=g.length, q=4, size=(n+q*2)*px, d="", i, j;
+    for(i=0;i<n;i++) for(j=0;j<n;j++) if(g[i][j])
+      d+="M"+((j+q)*px)+" "+((i+q)*px)+"h"+px+"v"+px+"h-"+px+"z";
+    return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 '+size+' '+size+'" width="'+size+'" height="'+size+'" shape-rendering="crispEdges">'+
+           '<rect width="'+size+'" height="'+size+'" fill="'+(light||"#fff")+'"/>'+
+           '<path fill="'+(dark||"#000")+'" d="'+d+'"/></svg>';
+  }
+  return { build:build, svg:svg };
+})();
+
+/* ============ 音（Web Audio で合成） ============ */
+var VOL_KEY="nukegake.vol.v1";
+var VOL_GAIN=[0,0.5,1,1.7], VOL_NAME=["オフ","小","中","大"], VOL_ICON=["🔇","🔈","🔉","🔊"];
+var AC=null, master=null, VOL=2;
+try{ var _v=localStorage.getItem(VOL_KEY); if(_v!==null) VOL=Math.max(0,Math.min(3,parseInt(_v,10)||0)); }catch(e){}
+function ac(){
+  if(VOL<=0) return null;
+  try{
+    if(!AC){
+      var C=window.AudioContext||window.webkitAudioContext; if(!C) return null;
+      AC=new C(); master=AC.createGain(); master.connect(AC.destination);
+    }
+    if(master) master.gain.value=VOL_GAIN[VOL];
+    if(AC.state==="suspended") AC.resume();
+  }catch(e){ AC=null; }
+  return AC;
+}
+function out(){ return master || (AC?AC.destination:null); }
+function tone(f,dur,type,vol,when,slideTo){
+  var c=ac(); if(!c) return;
+  try{
+    var t=c.currentTime+(when||0);
+    var o=c.createOscillator(), g=c.createGain();
+    o.type=type||"sine"; o.frequency.setValueAtTime(f,t);
+    if(slideTo) o.frequency.exponentialRampToValueAtTime(Math.max(30,slideTo),t+dur);
+    g.gain.setValueAtTime(0.0001,t);
+    g.gain.exponentialRampToValueAtTime(vol||0.13,t+0.014);
+    g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+    o.connect(g); g.connect(out());
+    o.start(t); o.stop(t+dur+0.03);
+  }catch(e){}
+}
+function noise(dur,vol,when,ftype,freq){
+  var c=ac(); if(!c) return;
+  try{
+    var t=c.currentTime+(when||0), n=Math.max(1,Math.floor(c.sampleRate*dur));
+    var buf=c.createBuffer(1,n,c.sampleRate), d=buf.getChannelData(0);
+    for(var i=0;i<n;i++) d[i]=(Math.random()*2-1)*(1-i/n);
+    var s=c.createBufferSource(); s.buffer=buf;
+    var g=c.createGain(); g.gain.setValueAtTime(vol||0.1,t);
+    g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+    var f=c.createBiquadFilter(); f.type=ftype||"lowpass"; f.frequency.setValueAtTime(freq||1100,t);
+    s.connect(f); f.connect(g); g.connect(out());
+    s.start(t); s.stop(t+dur+0.02);
+  }catch(e){}
+}
+function swoosh(up,dur,vol){
+  var c=ac(); if(!c) return;
+  try{
+    var t=c.currentTime, n=Math.floor(c.sampleRate*dur);
+    var buf=c.createBuffer(1,n,c.sampleRate), d=buf.getChannelData(0);
+    for(var i=0;i<n;i++) d[i]=(Math.random()*2-1)*(1-Math.abs(i/n-0.4));
+    var s=c.createBufferSource(); s.buffer=buf;
+    var f=c.createBiquadFilter(); f.type="bandpass"; f.Q.value=1.1;
+    f.frequency.setValueAtTime(up?380:2600,t);
+    f.frequency.exponentialRampToValueAtTime(up?2600:380,t+dur);
+    var g=c.createGain();
+    g.gain.setValueAtTime(0.0001,t);
+    g.gain.exponentialRampToValueAtTime(vol||0.06,t+dur*0.35);
+    g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+    s.connect(f); f.connect(g); g.connect(out());
+    s.start(t); s.stop(t+dur+0.03);
+  }catch(e){}
+}
+function buzz(pat){ try{ if(navigator.userActivation && !navigator.userActivation.hasBeenActive) return; if(VOL>0 && navigator.vibrate) navigator.vibrate(pat); }catch(e){} }
+var selStep=0;
+var SFX={
+  tap:     function(){ tone(880,0.032,"square",0.045); },
+  select:  function(){ selStep=(selStep+1)%5; tone(560+selStep*46,0.05,"triangle",0.085);
+                       tone(1120+selStep*70,0.035,"sine",0.035,0.018); buzz(8); },
+  confirm: function(){ tone(587,0.07,"triangle",0.11); tone(880,0.12,"triangle",0.085,0.048);
+                       tone(1319,0.09,"sine",0.04,0.048); buzz(12); },
+  back:    function(){ tone(620,0.06,"triangle",0.075); tone(415,0.1,"triangle",0.065,0.045); },
+  deny:    function(){ tone(190,0.13,"square",0.075,0,130); buzz(24); },
+  screen:  function(){ swoosh(true,0.2,0.04); },
+  drum:    function(sec){ var n=Math.floor((sec||1.8)/0.05);
+                          for(var i=0;i<n;i++) noise(0.06,0.03+0.1*(i/n),i*0.05,"lowpass",520+300*(i/n));
+                          buzz(Math.round((sec||1.8)*1000)); },
+  fanfare: function(){ [[523,0],[659,.11],[784,.22],[1047,.33],[784,.48],[1047,.58],[1319,.68]]
+                         .forEach(function(p){ tone(p[0],0.32,"triangle",0.125,p[1]); });
+                       tone(1568,0.9,"sine",0.1,0.68); tone(2093,0.9,"sine",0.055,0.68); tone(261,1.0,"triangle",0.07,0.68);
+                       buzz([26,60,26,60,26,60,180]); },
+  tick:    function(){ tone(1250,0.045,"square",0.065); },
+  expire:  function(){ [0,0.18,0.36].forEach(function(d){ tone(880,0.15,"square",0.13,d); tone(660,0.15,"square",0.11,d+0.07); });
+                       buzz([70,50,70,50,70]); },
+  join:    function(){ tone(659,0.1,"sine",0.1); tone(988,0.15,"sine",0.085,0.065); buzz(16); },
+  leave:   function(){ tone(659,0.1,"sine",0.08); tone(440,0.16,"sine",0.07,0.065); },
+  alert:   function(){ tone(520,0.12,"square",0.09); tone(390,0.16,"square",0.08,0.1); buzz([40,50,40]); },
+  /* このゲーム用 */
+  flip:    function(){ swoosh(true,0.16,0.07); tone(320,0.07,"triangle",0.1,0.12); noise(0.05,0.1,0.12,"highpass",1800); },
+  win:     function(){ [[784,0],[988,.08],[1319,.16]].forEach(function(p){ tone(p[0],0.2,"triangle",0.12,p[1]); });
+                       tone(1568,0.45,"sine",0.07,0.24); buzz([20,40,20]); },
+  lose:    function(){ tone(440,0.16,"triangle",0.1); tone(349,0.18,"triangle",0.09,0.14); tone(262,0.36,"triangle",0.08,0.3); buzz([60,40,90]); },
+  tie:     function(){ tone(660,0.1,"sine",0.1); tone(660,0.16,"sine",0.1,0.17); }
+};
+function setVol(v){
+  VOL=Math.max(0,Math.min(3,v));
+  try{ localStorage.setItem(VOL_KEY,String(VOL)); }catch(e){}
+  if(master && AC) master.gain.value=VOL_GAIN[VOL];
+  paintVol();
+  if(VOL>0){ SFX.confirm(); toast("音量 "+VOL_NAME[VOL],null,"ok"); }
+}
+function paintVol(){
+  var b=$("sndbtn"); if(!b) return;
+  b.className=VOL>0?"on":""; b.textContent=VOL_ICON[VOL];
+  b.setAttribute("aria-label","音量："+VOL_NAME[VOL]);
+}
+
+/* ============ 画面演出 ============ */
+function flash(kind){ var f=$("flash"); if(!f) return; f.className=""; void f.offsetWidth; f.className=kind; }
+var toastTimer=null;
+function toast(main,sub,kind){
+  var t=$("toast"); if(!t) return;
+  t.innerHTML="";
+  var box=el("div","tbox");
+  box.appendChild(el("div","tmain",main));
+  if(sub) box.appendChild(el("div","tsub",sub));
+  t.appendChild(box);
+  t.className=""; void t.offsetWidth; t.className="on "+(kind||"");
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(function(){ t.className=""; },1700);
+}
+function shake(node){
+  if(REDUCED) return;
+  node=node||$("app"); if(!node) return;
+  node.classList.remove("shake"); void node.offsetWidth; node.classList.add("shake");
+  setTimeout(function(){ node.classList.remove("shake"); },520);
+}
+var confettiRun=0;
+function confetti(amount,origin){
+  if(REDUCED) return;
+  var cv=$("fx"); if(!cv) return;
+  var ctx=cv.getContext("2d"), dpr=Math.min(2,window.devicePixelRatio||1);
+  var W=cv.width=innerWidth*dpr, H=cv.height=innerHeight*dpr;
+  cv.style.width=innerWidth+"px"; cv.style.height=innerHeight+"px";
+  var cols=["#ffbf47","#7fe3c4","#ffffff","#eaf6ff","#ff7a6b","#b9f0de"];
+  var ox=(origin&&origin.x!=null?origin.x:0.5)*W, oy=(origin&&origin.y!=null?origin.y:0.35)*H;
+  var ps=[], n=amount||140, i;
+  for(i=0;i<n;i++){
+    var a=-Math.PI/2+(Math.random()-0.5)*Math.PI*1.25, sp=(6+Math.random()*11)*dpr;
+    ps.push({x:ox,y:oy,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,w:(5+Math.random()*6)*dpr,h:(8+Math.random()*9)*dpr,
+             r:Math.random()*6,vr:(Math.random()-0.5)*0.35,c:pick(cols),life:0});
+  }
+  var run=++confettiRun, t0=performance.now();
+  (function frame(now){
+    if(run!==confettiRun) return;
+    var el2=now-t0; ctx.clearRect(0,0,W,H);
+    var alive=false;
+    ps.forEach(function(p){
+      p.vy+=0.32*dpr; p.vx*=0.985; p.vy*=0.985; p.x+=p.vx; p.y+=p.vy; p.r+=p.vr;
+      if(p.y<H+40) alive=true;
+      ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.r);
+      ctx.globalAlpha=Math.max(0,1-el2/3200);
+      ctx.fillStyle=p.c; ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h*Math.abs(Math.cos(p.r*1.7)));
+      ctx.restore();
+    });
+    if(alive && el2<3400) requestAnimationFrame(frame); else ctx.clearRect(0,0,W,H);
+  })(t0);
+}
+
+/* ============ 画面が消えないようにする ============ */
+var wakeLock=null, wantWake=false;
+function keepAwake(on){
+  wantWake=on;
+  try{
+    if(on){
+      if(!navigator.wakeLock || wakeLock) return;
+      navigator.wakeLock.request("screen").then(function(w){
+        wakeLock=w; w.addEventListener("release",function(){ wakeLock=null; });
+      })["catch"](function(){});
+    } else if(wakeLock){ var w=wakeLock; wakeLock=null; try{ w.release(); }catch(e){} }
+  }catch(e){}
+}
+var AWAKE_ON={host:1,wait:1,game:1,result:1};
+var curScreen="title";
+function show(id){
+  var list=document.querySelectorAll(".screen");
+  for(var i=0;i<list.length;i++) list[i].classList.remove("on");
+  var t=$("s-"+id); if(t) t.classList.add("on");
+  keepAwake(!!AWAKE_ON[id]);
+  if(id!==curScreen){ curScreen=id; window.scrollTo(0,0); SFX.screen(); }
+  document.body.setAttribute("data-screen",id);
+}
+
+
+
+/* ============ 起動 ============ */
+function boot(){
+  paintVol();
+  $("btn-host").onclick=startHost;
+  $("btn-go-join").onclick=function(){ msg("join-err",null,null); if(!$("join-name").value) $("join-name").value=savedName(); show("join"); };
+  $("btn-howto").onclick=function(){ show("howto"); };
+  $("howto-back").onclick=function(){ show("title"); };
+  $("join-back").onclick=function(){ cleanupNet(); clearSession(); $("btn-join").disabled=false; $("join-row").hidden=true; msg("join-err",null,null); show("title"); };
+  $("btn-join").onclick=startJoin;
+  $("join-code").addEventListener("input",function(){ var v=this.value.replace(/[^0-9]/g,"").slice(0,4); if(v!==this.value) this.value=v; });
+  $("join-name").addEventListener("keydown",function(e){ if(e.key==="Enter" && !e.isComposing) startJoin(); });
+  $("host-back").onclick=closeRoom;
+  $("host-name").addEventListener("input",function(){
+    rememberName(this.value);
+    var h=hostP(); if(h && S.mode==="host"){ h.name=cleanName(this.value,"司会"); commit(); }
+  });
+  Array.prototype.forEach.call($("host-rounds").children,function(b){
+    b.onclick=function(){ act({type:"settings",rounds:+b.dataset.v}); };
+  });
+  $("btn-start").onclick=function(){ act({type:"start"}); };
+  $("wait-leave").onclick=leaveRoom;
+  $("t-ready").onclick=function(){ if(!V||V.pub.phase!=="talk") return; act({type:"ready",round:V.pub.round}); };
+  $("c-share").onclick=function(){ if(!V||V.pub.phase!=="choose"||V.you.pick) return; selPick="share"; SFX.select(); renderChoose(meP(),oppP()); };
+  $("c-steal").onclick=function(){ if(!V||V.pub.phase!=="choose"||V.you.pick) return; selPick="steal"; selCharm=false; SFX.select(); renderChoose(meP(),oppP()); };
+  $("c-charm").onclick=function(){ if(!V||V.pub.phase!=="choose"||V.you.pick||selPick!=="share") return; selCharm=!selCharm; SFX.select(); renderChoose(meP(),oppP()); };
+  $("c-lock").onclick=function(){ if(!V||V.pub.phase!=="choose"||V.you.pick||!selPick) return; act({type:"lock",round:V.pub.round,pick:selPick,charm:selCharm}); };
+  $("r-next").onclick=function(){ if(V) act({type:"next",round:V.pub.round}); };
+  $("g-leave").onclick=onLeaveTap;
+  $("sndbtn").onclick=function(){ setVol((VOL+1)%4); };
+  document.addEventListener("pointerdown",function(e){
+    ac();
+    var b=e.target.closest?e.target.closest("button"):null;
+    if(!b||b.disabled||b.id==="sndbtn") return;
+    if(b.classList.contains("cbtn")||b.classList.contains("charm")) return;
+    if(b.classList.contains("sub")||b.classList.contains("ghost")||b.classList.contains("linkbtn")||b.parentNode.classList.contains("seg")) SFX.tap();
+    else SFX.confirm();
+  },{passive:true});
+
+  var mr=(location.search||"").match(/[?&]r=(\d{4})/);
+  var gs=loadSession(), hs=loadHost();
+  if(mr){
+    try{ history.replaceState(null,"",location.pathname); }catch(e){}
+    if(gs && gs.c===mr[1]){ resumeGuest(gs); }
+    else { $("join-code").value=mr[1]; $("join-name").value=savedName(); show("join"); }
+  } else if(hs){ resumeHost(hs); }
+  else if(gs){ resumeGuest(gs); }
+
+  document.addEventListener("visibilitychange",function(){
+    if(document.visibilityState!=="visible") return;
+    if(wantWake && !wakeLock) keepAwake(true);
+    if(S.mode==="guest" && joined && (!gConn || !gConn.open) && !rcActive) startReconnect();
+  });
+  var nb=$("netbar");
+  nb.querySelector(".rt").onclick=function(){ if(!roomCode){ hideNetBar(); return; } stopReconnect(); rcActive=true; rcAttempts=0; attemptReconnect(); };
+  nb.querySelector(".lc").onclick=function(){ if(S.mode==="guest") leaveRoom(); else goTitle(); };
+  setInterval(function(){
+    if(S.mode==="host"){
+      if(S.phase==="talk" && S.deadline && Date.now()>=S.deadline){ SFX.expire(); startChoose(); }
+      else if(S.phase==="choose" && S.deadline && Date.now()>=S.deadline){ SFX.expire(); doReveal(); }
+      else if(S.phase==="reveal" && Date.now()>=S.nextAt){ advance(); }
+    }
+    updateTimers();
+  },200);
+}
+boot();
+</script>
+</body>
+</html>
